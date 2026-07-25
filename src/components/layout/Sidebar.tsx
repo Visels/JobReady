@@ -21,6 +21,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
 import { PurchaseButton } from "@/components/ui/PurchaseButton";
+import { BrandMark } from "@/components/ui/BrandMark";
+import { publicProductConfig } from "@/config/public";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { SidebarPlan, SidebarUser } from "@/types/dashboard";
 
@@ -119,6 +121,7 @@ export function Sidebar({
   const accountMenuItemClass =
     "flex min-h-10 w-full items-center gap-2 rounded-lg px-2 text-left text-[12px] font-semibold leading-4 text-surface/86 transition hover:bg-surface/10 active:scale-press";
   const accountMenuIconClass = "h-4 w-4 flex-none text-surface/70";
+  const brandName = publicProductConfig.brand.name;
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -168,11 +171,12 @@ export function Sidebar({
             title="Expand sidebar"
             className="group grid h-10 w-10 place-items-center rounded-lg bg-surface/10 text-surface/80 transition hover:bg-surface/15 hover:text-surface active:scale-press"
           >
-            <span className="grid h-5 w-5 grid-cols-2 gap-0.5 group-hover:hidden">
-              <span className="h-2 w-2 rounded-full bg-accent" />
-              <span className="mt-2 h-2 w-2 rounded-full bg-accent" />
-              <span className="col-span-2 mx-auto h-2 w-2 rounded-full bg-accent" />
-            </span>
+            <BrandMark
+              mode="compact"
+              tone="reversed"
+              className="group-hover:hidden"
+              markClassName="h-6 w-6"
+            />
             <ChevronsRight
               className="hidden h-4 w-4 text-accent group-hover:block"
               strokeWidth={1.8}
@@ -183,18 +187,16 @@ export function Sidebar({
         <div className="flex min-h-12 items-center justify-between px-2">
           <Link
             href="/practice"
-            aria-label="VisaInterview practice"
-            title="VisaInterview"
+            aria-label={`${brandName} practice`}
+            title={brandName}
             className="flex min-w-0 items-center gap-3 rounded-lg px-1 py-1 transition hover:bg-surface/8"
           >
-            <span className="grid h-5 w-5 grid-cols-2 gap-0.5">
-              <span className="h-2 w-2 rounded-full bg-accent" />
-              <span className="mt-2 h-2 w-2 rounded-full bg-accent" />
-              <span className="col-span-2 mx-auto h-2 w-2 rounded-full bg-accent" />
-            </span>
-            <span className="min-w-0 truncate text-[15px] font-bold leading-5 text-white">
-              VisaInterview
-            </span>
+            <BrandMark
+              mode="full"
+              tone="reversed"
+              className="inline-flex min-w-0 items-center"
+              wordmarkClassName="h-7"
+            />
           </Link>
           <button
             type="button"
@@ -364,7 +366,7 @@ export function Sidebar({
               id="logout-title"
               className="mt-4 text-center text-[17px] font-semibold text-primary"
             >
-              Sign out of VisaInterview?
+              Sign out of {brandName}?
             </h2>
             <p className="mt-2 text-center text-[12px] leading-5 text-muted">
               Your saved sessions and reports will stay in your account.

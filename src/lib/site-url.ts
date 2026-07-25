@@ -1,6 +1,12 @@
-export const CANONICAL_HOSTNAME = "www.visainterview.ai";
-export const APEX_HOSTNAME = "visainterview.ai";
-export const CANONICAL_SITE_URL = `https://${CANONICAL_HOSTNAME}`;
+import {
+  buildPublicProductConfig,
+  publicProductConfig,
+  type PublicProductEnv,
+} from "@/config/public";
+
+export const CANONICAL_HOSTNAME = publicProductConfig.canonical.hostname;
+export const APEX_HOSTNAME = publicProductConfig.canonical.apexHostname;
+export const CANONICAL_SITE_URL = publicProductConfig.canonical.url;
 
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
 
@@ -14,27 +20,33 @@ export function isLocalHostname(hostname: string) {
   return LOCAL_HOSTNAMES.has(normalized) || normalized.endsWith(".localhost");
 }
 
-function parseSiteUrl(value?: string) {
-  const raw = value?.trim() || CANONICAL_SITE_URL;
+function parseSiteUrl(value: string | undefined, fallback: string) {
+  const raw = value?.trim() || fallback;
 
   try {
     return new URL(raw.includes("://") ? raw : `https://${raw}`);
   } catch {
-    return new URL(CANONICAL_SITE_URL);
+    return new URL(fallback);
   }
 }
 
-export function getSiteUrl() {
-  const url = parseSiteUrl(process.env.NEXT_PUBLIC_APP_URL);
+export function resolveSiteUrl(
+  env?: PublicProductEnv,
+  nodeEnv = process.env.NODE_ENV,
+) {
+  const config = env
+    ? buildPublicProductConfig(env)
+    : publicProductConfig;
+  const url = parseSiteUrl(env?.NEXT_PUBLIC_APP_URL, config.canonical.url);
   const isLocal = isLocalHostname(url.hostname);
 
   if (isLocal) {
-    if (process.env.NODE_ENV === "production") {
-      return CANONICAL_SITE_URL;
+    if (nodeEnv === "production") {
+      return config.canonical.url;
     }
   } else {
     url.protocol = "https:";
-    url.hostname = CANONICAL_HOSTNAME;
+    url.hostname = config.canonical.hostname;
     url.port = "";
   }
 
@@ -43,6 +55,10 @@ export function getSiteUrl() {
   url.hash = "";
 
   return url.toString().replace(/\/$/, "");
+}
+
+export function getSiteUrl() {
+  return resolveSiteUrl();
 }
 
 export function getAbsoluteUrl(pathOrUrl: string) {

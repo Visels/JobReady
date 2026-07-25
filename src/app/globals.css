@@ -1,6 +1,43 @@
 @config "../../tailwind.config.js";
 @import "tailwindcss";
 
+:root {
+  --color-brand-emerald: #00533a;
+  --color-brand-ink: #1b2430;
+  --color-brand-gold: #d8a12e;
+  --color-paper: #fcfcfa;
+  --color-soft-emerald: #eaf4ef;
+  --color-neutral-border: #dce4df;
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-brand-ink);
+  --color-primary: var(--color-brand-emerald);
+  --color-primary-soft: var(--color-soft-emerald);
+  --color-primary-tint: #cfe4d9;
+  --color-primary-contrast: #ffffff;
+  --color-accent: var(--color-brand-gold);
+  --color-accent-foreground: var(--color-brand-ink);
+  --color-accent-soft: #f7e8bd;
+  --color-accent-strong: #6f4e00;
+  --color-accent-surface: #fbf3dd;
+  --color-accent-success: #12805c;
+  --color-accent-danger: #b42318;
+  --color-accent-warning: #8a5a00;
+  --color-accent-warning-surface: #fff3d6;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f4f7f5;
+  --color-surface-subtle: #eef2ef;
+  --color-surface-media: #d6ded9;
+  --color-surface-info: #e8f0ff;
+  --color-surface-warm: #faf6ec;
+  --color-surface-muted: #f6f8f6;
+  --color-muted: #53605a;
+  --color-muted-subtle: #748079;
+  --color-muted-line: var(--color-neutral-border);
+  --color-muted-line-strong: #c8d4ce;
+  --focus-ring-color: var(--color-brand-emerald);
+  --focus-ring-offset: var(--color-paper);
+}
+
 html {
   font-size: 13px;
 }

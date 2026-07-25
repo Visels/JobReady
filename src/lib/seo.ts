@@ -4,6 +4,7 @@ import {
   getCanonicalUrl as buildCanonicalUrl,
   getSiteUrl as resolveSiteUrl,
 } from "@/lib/site-url";
+import { publicProductConfig } from "@/config/public";
 
 type ArticleSEO = {
   publishedAt: string;
@@ -29,7 +30,7 @@ type SEOInput = {
   article?: ArticleSEO;
 };
 
-const SITE_NAME = "VisaInterview";
+const SITE_NAME = publicProductConfig.brand.name;
 
 function buildOgImageUrl({
   ogImage,

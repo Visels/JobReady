@@ -1,18 +1,58 @@
+import { publicProductConfig } from "@/config/public";
+
+type BrandMarkMode = "full" | "compact" | "text-fallback";
+type BrandMarkTone = "default" | "reversed";
+
 export function BrandMark({
-  className = "inline-flex items-center gap-2 text-brand font-bold text-foreground",
-  markClassName = "bg-accent",
+  mode = "full",
+  tone = "default",
+  className = "inline-flex items-center gap-2 font-bold text-foreground",
+  markClassName = "",
+  wordmarkClassName = "",
 }: {
+  mode?: BrandMarkMode;
+  tone?: BrandMarkTone;
   className?: string;
   markClassName?: string;
+  wordmarkClassName?: string;
 }) {
+  const { brand } = publicProductConfig;
+  const isReversed = tone === "reversed";
+  const wordmarkSrc = isReversed
+    ? brand.assets.wordmarkDark
+    : brand.assets.wordmarkLight;
+  const textColor = isReversed ? "text-white" : "text-foreground";
+
   return (
     <span className={className}>
-      <span className="grid h-5 w-5 grid-cols-2 gap-0.5">
-        <span className={`h-2 w-2 rounded-full ${markClassName}`} />
-        <span className={`mt-2 h-2 w-2 rounded-full ${markClassName}`} />
-        <span className={`col-span-2 mx-auto h-2 w-2 rounded-full ${markClassName}`} />
-      </span>
-      <span className="min-w-0 truncate">VisaInterview</span>
+      {mode === "compact" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={brand.assets.compactMark}
+          alt=""
+          width={32}
+          height={32}
+          className={`h-8 w-8 flex-none ${markClassName}`}
+        />
+      ) : null}
+      {mode === "full" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={wordmarkSrc}
+          alt={brand.name}
+          width={164}
+          height={36}
+          className={`h-9 w-auto flex-none ${wordmarkClassName}`}
+        />
+      ) : null}
+      {mode === "text-fallback" ? (
+        <span className={`min-w-0 truncate ${textColor}`}>
+          {brand.wordmarkText}
+        </span>
+      ) : null}
+      {mode === "compact" ? (
+        <span className="sr-only">{brand.name}</span>
+      ) : null}
     </span>
   );
 }

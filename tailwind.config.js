@@ -1,26 +1,29 @@
 /** @type {import('tailwindcss').Config} */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { jobreadyTheme } = require("./src/config/theme-tokens.js");
+
 const config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        background: "#ffffff",
-        foreground: "#10231f",
+        background: "var(--color-background)",
+        foreground: "var(--color-foreground)",
         primary: {
-          DEFAULT: "#004b3f",
-          soft: "#e9fff1",
-          tint: "#c5f8d8",
-          contrast: "#ffffff",
+          DEFAULT: "var(--color-primary)",
+          soft: "var(--color-primary-soft)",
+          tint: "var(--color-primary-tint)",
+          contrast: "var(--color-primary-contrast)",
         },
         secondary: "var(--color-muted)",
         accent: {
-          DEFAULT: "#f06a5d",
-          foreground: "var(--color-background)",
-          soft: "#f7bd66",
-          strong: "#8a003f",
-          surface: "#fde5ea",
-          success: "#13a563",
-          danger: "#b3263a",
+          DEFAULT: "var(--color-accent)",
+          foreground: "var(--color-accent-foreground)",
+          soft: "var(--color-accent-soft)",
+          strong: "var(--color-accent-strong)",
+          surface: "var(--color-accent-surface)",
+          success: "var(--color-accent-success)",
+          danger: "var(--color-accent-danger)",
           provider: {
             one: "#4285F4",
             two: "#34A853",
@@ -28,25 +31,25 @@ const config = {
             four: "#EA4335",
           },
           warning: {
-            DEFAULT: "#7a4a00",
-            surface: "#fff4de",
+            DEFAULT: "var(--color-accent-warning)",
+            surface: "var(--color-accent-warning-surface)",
           },
         },
         surface: {
-          DEFAULT: "#ffffff",
+          DEFAULT: "var(--color-surface)",
           2: "var(--color-surface-soft)",
-          soft: "#f7f7f5",
-          subtle: "#f2f0ee",
-          media: "#c8a37a",
-          info: "#bfeeff",
-          warm: "#f4eee7",
-          muted: "#f6f2ee",
+          soft: "var(--color-surface-soft)",
+          subtle: "var(--color-surface-subtle)",
+          media: "var(--color-surface-media)",
+          info: "var(--color-surface-info)",
+          warm: "var(--color-surface-warm)",
+          muted: "var(--color-surface-muted)",
         },
         muted: {
-          DEFAULT: "#5f5f5a",
-          subtle: "#8a8a84",
-          line: "#e7e3df",
-          "line-strong": "#d7d0ca",
+          DEFAULT: "var(--color-muted)",
+          subtle: "var(--color-muted-subtle)",
+          line: "var(--color-muted-line)",
+          "line-strong": "var(--color-muted-line-strong)",
         },
         hairline: "var(--color-muted-line)",
         info: {
@@ -67,8 +70,8 @@ const config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-dm-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["var(--font-fraunces)", "ui-serif", "Georgia", "serif"],
+        sans: jobreadyTheme.typography.sans,
+        serif: jobreadyTheme.typography.display,
       },
       fontSize: {
         eyebrow: "0.625rem",

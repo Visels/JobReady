@@ -1,8 +1,9 @@
 import { getCanonicalUrl, getSiteUrl } from "@/lib/seo";
+import { publicProductConfig } from "@/config/public";
 
-const DEFAULT_SITE_NAME = "VisaInterview";
+const DEFAULT_SITE_NAME = publicProductConfig.brand.name;
 const DEFAULT_DESCRIPTION =
-  "AI-powered visa interview simulator for realistic mock interview practice.";
+  "Africa-first job discovery, CV tailoring, and interview practice.";
 
 function siteName() {
   return process.env.NEXT_PUBLIC_SITE_NAME ?? DEFAULT_SITE_NAME;
@@ -18,7 +19,8 @@ function absoluteUrl(pathOrUrl: string) {
 
 function organizationSchema(): Record<string, unknown> {
   const logoUrl =
-    process.env.NEXT_PUBLIC_ORGANIZATION_LOGO_URL ?? absoluteUrl("/og-default.png");
+    process.env.NEXT_PUBLIC_ORGANIZATION_LOGO_URL ??
+    absoluteUrl(publicProductConfig.brand.assets.socialOg);
 
   return {
     "@type": "Organization",
