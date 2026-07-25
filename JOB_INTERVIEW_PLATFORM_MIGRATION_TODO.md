@@ -750,8 +750,8 @@ The first unchecked item is the only active task.
 
 - [x] Task 00 - Baseline audit and migration record
 - [x] Task 01 - Product configuration and feature flags
-- [ ] Task 02 - Additive domain schema design
-- [ ] Task 03 - Additive database migration
+- [x] Task 02 - Additive domain schema design
+- [x] Task 03 - Additive database migration
 - [ ] Task 04 - Reference taxonomy, content, and fixtures
 - [ ] Task 05 - Credit ledger and entitlement foundation
 
@@ -2303,3 +2303,5 @@ Add one row after a task passes its completion gate.
 |---|---|---|---|---|
 | Task 00 - Baseline Audit and Migration Record | 2026-07-25 | TypeScript passed; Prisma validate passed with Prisma 7 config deprecation warning; production build passed with edge-runtime static-generation warning; `npm run test --if-present` exited 0 but no test script exists; lint timed out twice without diagnostics. | Added `docs/migration/TASK_00_BASELINE_AUDIT.md`; updated Task Index only. | All Decision Gates D01-D17 remain unresolved; pre-existing `package-lock.json` drift and README null-byte fragment recorded; next task is Task 01. |
 | Task 01 - Product Configuration and Feature Flags | 2026-07-25 | `npm test`, TypeScript, Prisma validate, production build, and ESLint passed. Prisma still warns that `package.json#prisma` is deprecated for Prisma 7; build still warns that edge runtime disables static generation for that page. | Added typed public/server product config, feature flags, Jobready brand assets, reusable `BrandMark` modes, centralized tokens, env docs, config tests, and `docs/migration/TASK_01_PRODUCT_CONFIG.md`. | D01, D02, and D17 remain unresolved; canonical host remains configurable and defaults to the existing domain until approved cutover; next task is Task 02. |
+| Task 02 - Additive Domain Schema Design | 2026-07-25 | Proposed additive Prisma schema validates; live Prisma schema validates; owner approved the design for Task 03. | Added `docs/migration/TASK_02_PROPOSED_SCHEMA.prisma` and `docs/migration/TASK_02_SCHEMA_DESIGN_ADR.md`; no live schema or migration changes. | Raw SQL `CHECK` constraints are required in Task 03 for exact-one target rules; next task is Task 03. |
+| Task 03 - Additive Database Migration | 2026-07-25 | `prisma validate`, `prisma generate`, `npm test`, and `npx tsc --noEmit` passed; clean disposable PostgreSQL migration passed; representative legacy-schema migration passed; legacy users, sessions, reports, purchases, defaults, constraints, and indexes verified. | Updated `prisma/schema.prisma`; added `prisma/migrations/20260725090000_add_jobready_domain/migration.sql`, Task 03 baseline/target schema snapshots, verification SQL, non-production rollback SQL, and migration runbook. | Production was not touched; `InterviewSession.updatedAt` is nullable for safe additive deployment; two `InterviewSession` checks are `NOT VALID` to avoid a production-scale validation scan; next task is Task 04. |

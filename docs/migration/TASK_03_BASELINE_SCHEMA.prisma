@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SessionStatus {
+  ongoing
+  completed
+}
+
+enum MessageRole {
+  user
+  ai
+  system
+}
+
+enum OnboardingInputType {
+  text
+  textarea
+  select
+  multiselect
+  number
+}
+
+enum PaymentProvider {
+  stripe
+  flutterwave
+}
+
+enum RealtimeInterviewStatus {
+  pending
+  active
+  finalizing
+  completed
+  failed
+}
+
+model User {
+  id            String             @id @db.Uuid
+  name          String?
+  email         String?
+  emailVerified DateTime?
+  image         String?
+  credits       Int                @default(1)
+  welcomeEmailSentAt DateTime?
+  resendContactSyncedAt DateTime?
+  createdAt     DateTime           @default(now())
+  interviews    InterviewSession[]
+  purchases     Purchase[]
+  referredPurchases Purchase[]      @relation("ReferralPurchases")
+
+  @@index([email])
+}
+
+model Country {
+  id                  String             @id @default(cuid())
+  name                String
+  isoCode             String             @unique
+  flagEmoji           String?
+  originProfile       String?            @db.Text
+  isDestination       Boolean            @default(false)
+  isOrigin            Boolean            @default(true)
+  isActive            Boolean            @default(true)
+  visaTypes           VisaType[]         @relation("DestinationCountryVisaTypes")
+  interviewsAsOrigin  InterviewSession[] @relation("OriginCountryInterviews")
+}
+
+model VisaCategory {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  label       String
+  description String?
+  visaTypes   VisaType[]
+  fields      OnboardingField[]
+}
+
+model VisaType {
+  id                   String             @id @default(cuid())
+  destinationCountryId String
+  categoryId           String
+  name                 String
+  basePrompt           String             @db.Text
+  isActive             Boolean            @default(true)
+  destinationCountry   Country            @relation("DestinationCountryVisaTypes", fields: [destinationCountryId], references: [id], onDelete: Cascade)
+  category             VisaCategory       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  documents            RequiredDocument[]
+  concernOptions       ConcernOption[]
+  interviews           InterviewSession[]
+
+  @@unique([destinationCountryId, name])
+}
+
+model OnboardingField {
+  id             String              @id @default(cuid())
+  visaCategoryId String
+  key            String
+  label          String
+  placeholder    String?
+  inputType      OnboardingInputType @default(textarea)
+  required       Boolean             @default(false)
+  displayOrder   Int                 @default(0)
+  visaCategory   VisaCategory        @relation(fields: [visaCategoryId], references: [id], onDelete: Cascade)
+
+  @@unique([visaCategoryId, key])
+  @@index([visaCategoryId, displayOrder])
+}
+
+model RequiredDocument {
+  id           String   @id @default(cuid())
+  visaTypeId   String
+  name         String
+  description  String?  @db.Text
+  isMandatory  Boolean  @default(true)
+  displayOrder Int      @default(0)
+  visaType     VisaType @relation(fields: [visaTypeId], references: [id], onDelete: Cascade)
+
+  @@index([visaTypeId, displayOrder])
+}
+
+model ConcernOption {
+  id           String   @id @default(cuid())
+  visaTypeId   String
+  label        String
+  displayOrder Int      @default(0)
+  visaType     VisaType @relation(fields: [visaTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([visaTypeId, label])
+  @@index([visaTypeId, displayOrder])
+}
+
+model InterviewSession {
+  id                 String        @id @default(cuid())
+  userId             String        @db.Uuid
+  visaTypeId         String
+  originCountryId    String
+  previousRejections String        @default("None")
+  onboardingData     Json          @default("{}")
+  concerns           String?
+  difficulty         String        @default("Realistic")
+  status             SessionStatus @default(ongoing)
+  score              Int?
+  createdAt          DateTime      @default(now())
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visaType           VisaType      @relation(fields: [visaTypeId], references: [id], onDelete: Cascade)
+  originCountry      Country       @relation("OriginCountryInterviews", fields: [originCountryId], references: [id], onDelete: Cascade)
+  messages           Message[]
+  report             Report?
+  realtimeInterview  RealtimeInterview?
+}
+
+model RealtimeInterview {
+  id               String                  @id @default(cuid())
+  sessionId        String                  @unique
+  model            String
+  voice            String
+  openingQuestion  String                  @db.Text
+  status           RealtimeInterviewStatus @default(pending)
+  startedAt        DateTime?
+  endedAt          DateTime?
+  durationSeconds  Int?
+  completionReason String?                 @db.Text
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  session          InterviewSession        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  turns            RealtimeTranscriptTurn[]
+  events           RealtimeInterviewEvent[]
+
+  @@index([status, createdAt])
+}
+
+model RealtimeTranscriptTurn {
+  id                  String            @id @default(cuid())
+  realtimeInterviewId String
+  sequence            Int
+  question            String            @db.Text
+  answer              String?           @db.Text
+  evaluation          Json?
+  createdAt           DateTime          @default(now())
+  realtimeInterview   RealtimeInterview @relation(fields: [realtimeInterviewId], references: [id], onDelete: Cascade)
+
+  @@unique([realtimeInterviewId, sequence])
+  @@index([realtimeInterviewId, createdAt])
+}
+
+model RealtimeInterviewEvent {
+  id                  String            @id @default(cuid())
+  realtimeInterviewId String
+  sequence            Int
+  type                String
+  payload             Json?
+  createdAt           DateTime          @default(now())
+  realtimeInterview   RealtimeInterview @relation(fields: [realtimeInterviewId], references: [id], onDelete: Cascade)
+
+  @@unique([realtimeInterviewId, sequence])
+  @@index([realtimeInterviewId, createdAt])
+}
+
+model Message {
+  id        String           @id @default(cuid())
+  sessionId String
+  role      MessageRole
+  content   String           @db.Text
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  session   InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model Report {
+  id                       String           @id @default(cuid())
+  sessionId                String           @unique
+  evidenceStatus           String           @default("complete")
+  answeredQuestions        Int              @default(0)
+  score                    Int
+  answerConsistency        Int
+  homeTiesStrength         Int
+  returnIntentClarity      Int
+  financialClarity         Int
+  studyPurpose             Int
+  composureUnderPressure   Int
+  summary                  String           @db.Text
+  keyWeaknesses            String[]         @default([])
+  suggestions              String[]         @default([])
+  createdAt                DateTime         @default(now())
+  session                  InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model PracticeQuestion {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  visaType      String
+  type          String   @default("mcq")
+  question      String   @db.Text
+  options       String[]
+  correctAnswer String
+  explanation   String   @db.Text
+  isActive      Boolean  @default(true)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([visaType, type, isActive, displayOrder])
+}
+
+model Purchase {
+  id                       String   @id @default(cuid())
+  userId                   String   @db.Uuid
+  provider                 PaymentProvider @default(flutterwave)
+  stripeCheckoutSessionId  String?  @unique
+  flutterwaveTxRef         String?  @unique
+  flutterwaveTransactionId String?  @unique
+  plan                     String   @default("monthly")
+  planDays                 Int      @default(30)
+  accessExpiresAt          DateTime?
+  amount                   Int
+  currency                 String
+  creditsGranted           Int      @default(0)
+  referredByUserId         String?  @db.Uuid
+  createdAt                DateTime @default(now())
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrer                 User?    @relation("ReferralPurchases", fields: [referredByUserId], references: [id], onDelete: SetNull)
+
+  @@index([referredByUserId])
+}
+
+model PricingPlan {
+  id           String             @id @default(cuid())
+  slug         String             @unique
+  name         String
+  productName  String
+  durationDays Int
+  isActive     Boolean            @default(true)
+  displayOrder Int                @default(0)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  prices       PricingPlanPrice[]
+}
+
+model PricingPlanPrice {
+  id          String      @id @default(cuid())
+  planId      String
+  countryCode String      @default("DEFAULT")
+  currency    String
+  amount      Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  plan        PricingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, countryCode])
+  @@index([countryCode])
+}
