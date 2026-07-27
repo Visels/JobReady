@@ -27,6 +27,13 @@ function personalActionHref(slug: string, intent: string) {
   return `/login?callbackUrl=${encodeURIComponent(`/jobs/${slug}?intent=${intent}`)}`;
 }
 
+function interviewOnboardingHref(slug: string, applicationId?: string | null) {
+  const params = new URLSearchParams({ job: slug });
+  if (applicationId) params.set("applicationId", applicationId);
+
+  return `/interviews/new?${params.toString()}`;
+}
+
 function AvailabilityBadge({ job }: { job: PublicJobSummary }) {
   const tone =
     job.availability === "closing_soon"
@@ -511,9 +518,9 @@ export function JobDetailActionPanelContent({
         </Link>
         <Link
           href={
-            authenticated && personalState.applicationId
-              ? `/practice?job=${encodeURIComponent(job.slug)}&applicationId=${encodeURIComponent(personalState.applicationId)}`
-              : personalActionHref(job.slug, "practice")
+            authenticated
+              ? interviewOnboardingHref(job.slug, personalState.applicationId)
+              : `/login?callbackUrl=${encodeURIComponent(interviewOnboardingHref(job.slug))}`
           }
           className="rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
         >

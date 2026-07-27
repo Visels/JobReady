@@ -65,16 +65,23 @@ type CanonicalContext = {
 };
 
 type ResolvedTarget =
-  | { type: "none"; createData: Record<string, never>; snapshot: Prisma.InputJsonObject }
+  | {
+      type: "none";
+      createData: Record<string, never>;
+      snapshot: Prisma.InputJsonObject;
+      selectionSignals: string[];
+    }
   | {
       type: "public_job";
       createData: { jobPostingVersionId: string };
       snapshot: Prisma.InputJsonObject;
+      selectionSignals: string[];
     }
   | {
       type: "private_job";
       createData: { privateJobTargetVersionId: string };
       snapshot: Prisma.InputJsonObject;
+      selectionSignals: string[];
     };
 
 type ResolvedDocumentContext = {
@@ -85,6 +92,7 @@ type ResolvedDocumentContext = {
   snapshot: Prisma.InputJsonObject;
   consentedAt: string | null;
   factCount: number;
+  selectionSignals: string[];
 };
 
 const PUBLIC_TARGET_STATUSES: JobPostingStatus[] = [
@@ -150,6 +158,18 @@ const jobInterviewSessionInclude = {
       productAction: "interview",
     },
     orderBy: { createdAt: "asc" },
+  },
+  interviewTurns: {
+    orderBy: { sequence: "asc" },
+    select: {
+      id: true,
+      sequence: true,
+      questionId: true,
+      evaluationFrameworkId: true,
+      rubricId: true,
+      selectionLevel: true,
+      selectionReason: true,
+    },
   },
 } satisfies Prisma.InterviewSessionInclude;
 
@@ -246,6 +266,28 @@ function readMetadataFingerprint(metadata: Prisma.JsonValue | null) {
     : null;
 }
 
+function jsonStringSignals(value: Prisma.JsonValue | null | undefined): string[] {
+  if (!value) return [];
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+
+  const record = asRecord(value);
+  const signals: string[] = [];
+  for (const item of Object.values(record)) {
+    if (typeof item === "string") {
+      signals.push(item);
+    } else if (Array.isArray(item)) {
+      signals.push(
+        ...item.filter((entry): entry is string => typeof entry === "string"),
+      );
+    }
+  }
+
+  return signals;
+}
+
 function mapContentError(error: InterviewContentError): JobInterviewSessionError {
   if (error.code === "not_found") {
     return new JobInterviewSessionError("not_found", error.message, error.details);
@@ -310,7 +352,12 @@ export class JobInterviewSessionService {
     const context = await this.resolveCanonicalContext(input);
     const target = await this.resolveTarget(userId, input, context);
     const documentContext = await this.resolveDocumentContext(userId, input);
-    const composedPlan = await this.composePersistedPlan(input, context);
+    const composedPlan = await this.composePersistedPlan(
+      input,
+      context,
+      target,
+      documentContext,
+    );
     const reservation = await this.reserveInterviewCredit(userId, input, target);
 
     const sessionId = await this.prisma.$transaction(
@@ -365,6 +412,16 @@ export class JobInterviewSessionService {
             promptVersion: composedPlan.sessionVersionSnapshot.promptVersion,
           },
         });
+        const questionSetTurns = this.buildQuestionSetTurns(
+          session.id,
+          composedPlan,
+        );
+
+        if (questionSetTurns.length > 0) {
+          await tx.interviewTurn.createMany({
+            data: questionSetTurns,
+          });
+        }
 
         await tx.creditLedgerEntry.update({
           where: { id: reservation.entry.id },
@@ -619,6 +676,7 @@ export class JobInterviewSessionService {
         type: "none",
         createData: {},
         snapshot: { type: "none" },
+        selectionSignals: [],
       };
     }
 
@@ -716,6 +774,14 @@ export class JobInterviewSessionService {
         },
         status: version.posting.status,
       },
+      selectionSignals: [
+        version.title,
+        ...version.responsibilities,
+        ...version.requirements,
+        ...version.preferredQualifications,
+        version.normalizedTitle ?? "",
+        version.normalizedLocation ?? "",
+      ],
     };
   }
 
@@ -804,6 +870,13 @@ export class JobInterviewSessionService {
               }
             : null,
       },
+      selectionSignals: [
+        version.roleTitle,
+        version.companyName ?? "",
+        version.description ?? "",
+        ...version.requirements,
+        ...jsonStringSignals(version.skills),
+      ],
     };
   }
 
@@ -821,6 +894,7 @@ export class JobInterviewSessionService {
         },
         consentedAt: null,
         factCount: 0,
+        selectionSignals: [],
       };
     }
 
@@ -868,6 +942,11 @@ export class JobInterviewSessionService {
         userConfirmed: Boolean(fact.userConfirmedAt),
         sourceExcerpt: truncateText(fact.sourceExcerpt, 240),
       }));
+    const selectionSignals = facts.flatMap((fact) => [
+      fact.label ?? "",
+      fact.skillName ?? "",
+      fact.sourceExcerpt ?? "",
+    ]);
 
     return {
       createData: {
@@ -888,12 +967,15 @@ export class JobInterviewSessionService {
       },
       consentedAt,
       factCount: facts.length,
+      selectionSignals,
     };
   }
 
   private async composePersistedPlan(
     input: CreateJobInterviewSessionInput,
     context: CanonicalContext,
+    target: ResolvedTarget,
+    documentContext: ResolvedDocumentContext,
   ) {
     try {
       const plan = await this.contentService.composeInterviewPlan({
@@ -907,6 +989,10 @@ export class JobInterviewSessionService {
         preferredFrameworkKey: input.preferredFrameworkKey ?? null,
         locale: input.language,
         questionsPerModule: 1,
+        questionSelectionContext: {
+          targetSignals: target.selectionSignals,
+          candidateFactSignals: documentContext.selectionSignals,
+        },
       });
 
       if (plan.plan.source !== "reviewed_plan" || !plan.plan.id) {
@@ -983,12 +1069,61 @@ export class JobInterviewSessionService {
           })),
           warnings: composedPlan.warnings,
         },
+        questionSelection: {
+          schemaVersion: "job-interview-question-selection.task14.v1",
+          strategy: "reviewed-hierarchy-v1",
+          duplicatePrevention: "prompt-token-jaccard-v1",
+          targetSignalCount: input.target.selectionSignals.length,
+          candidateFactSignalCount:
+            input.documentContext.selectionSignals.length,
+          persistedTurnCount: composedPlan.modules.reduce(
+            (count, planModule) => count + planModule.questions.length,
+            0,
+          ),
+        },
         creditReservation: {
           id: input.reservationId,
           state: "reserved",
         },
       },
     };
+  }
+
+  private buildQuestionSetTurns(
+    sessionId: string,
+    composedPlan: ComposedInterviewPlanDto,
+  ): Prisma.InterviewTurnCreateManyInput[] {
+    let sequence = 1;
+    const turns: Prisma.InterviewTurnCreateManyInput[] = [];
+
+    for (const planModule of [...composedPlan.modules].sort(
+      (left, right) => left.displayOrder - right.displayOrder,
+    )) {
+      for (const question of planModule.questions) {
+        turns.push({
+          sessionId,
+          sequence,
+          questionId: question.id,
+          renderedQuestion: question.renderedPrompt,
+          evaluationFrameworkId: planModule.framework.id,
+          rubricId: planModule.rubric.id,
+          rubricVersion: `${planModule.rubric.key}@${planModule.rubric.version}`,
+          selectionLevel: question.selection.level,
+          selectionReason: [
+            `module=${planModule.framework.key}`,
+            `competency=${planModule.competency?.slug ?? "general"}`,
+            `score=${question.selection.score}`,
+            question.selection.reason,
+            `questionReview=${question.selection.questionReviewId}`,
+          ]
+            .filter(Boolean)
+            .join("; "),
+        });
+        sequence += 1;
+      }
+    }
+
+    return turns;
   }
 
   private toResponse(
@@ -1083,6 +1218,13 @@ export class JobInterviewSessionService {
               planModule.competency?.slug ?? "general",
             ),
           })),
+        },
+        questionSet: {
+          persisted: session.interviewTurns.length > 0,
+          turnCount: session.interviewTurns.length,
+          version:
+            session.questionSetVersion ??
+            session.interviewPlan.questionSetVersion,
         },
         support: {
           noPosting:

@@ -251,7 +251,11 @@ enum FollowUpIntent {
   ownership
   result
   mechanism
+  evidence
+  assumptions
+  metrics
   example
+  risks
   trade_off
   clarification
   other

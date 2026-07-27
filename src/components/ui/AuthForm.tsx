@@ -48,7 +48,8 @@ function GoogleIcon() {
 }
 
 function normalizeReturnPath(value?: string) {
-  if (value === "/interview/new" || value === "/dashboard") return "/practice";
+  if (value === "/interview/new") return "/interviews/new";
+  if (value === "/dashboard") return "/practice";
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
     return "/practice";
   }

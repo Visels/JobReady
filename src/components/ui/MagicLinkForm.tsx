@@ -9,7 +9,8 @@ const fieldShellClass =
   "mt-2 flex h-12 items-center rounded-lg border border-[#ccd6d2] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#00533f] focus-within:ring-4 focus-within:ring-[#00533f]/10";
 
 function normalizeReturnPath(value?: string) {
-  if (value === "/interview/new" || value === "/dashboard") return "/practice";
+  if (value === "/interview/new") return "/interviews/new";
+  if (value === "/dashboard") return "/practice";
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
     return "/practice";
   }

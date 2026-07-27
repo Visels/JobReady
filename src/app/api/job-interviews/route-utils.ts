@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { JobInterviewSessionError } from "@/lib/interviews";
+import {
+  JobInterviewSessionError,
+  JobInterviewTextSessionError,
+} from "@/lib/interviews";
 
 export async function requestData(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
@@ -42,6 +45,26 @@ export function jsonJobInterviewError(error: unknown) {
           : error.code === "idempotency_conflict" ||
               error.code === "plan_unavailable"
             ? 409
+            : 400;
+
+    return NextResponse.json(
+      { error: error.message, code: error.code, details: error.details },
+      { status },
+    );
+  }
+
+  if (error instanceof JobInterviewTextSessionError) {
+    const status =
+      error.code === "not_found"
+        ? 404
+        : error.code === "already_completed" ||
+            error.code === "turn_conflict" ||
+            error.code === "completion_not_ready" ||
+            error.code === "not_text_mode"
+          ? 409
+          : error.code === "evaluation_failed" ||
+              error.code === "entitlement_error"
+            ? 500
             : 400;
 
     return NextResponse.json(

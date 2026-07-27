@@ -146,6 +146,11 @@ export const jobInterviewSessionResponseSchema = z.object({
         }),
       ),
     }),
+    questionSet: z.object({
+      persisted: z.boolean(),
+      turnCount: z.number(),
+      version: z.string(),
+    }),
     support: z.object({
       noPosting: z.boolean(),
       noCv: z.boolean(),

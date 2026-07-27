@@ -55,6 +55,12 @@ export type ComposeInterviewPlanInput = {
   preferredFrameworkKey?: string | null;
   locale?: string;
   questionsPerModule?: number;
+  questionSelectionContext?: QuestionSelectionContextInput;
+};
+
+export type QuestionSelectionContextInput = {
+  targetSignals?: string[];
+  candidateFactSignals?: string[];
 };
 
 export type InterviewPlanTemplateDto = {
@@ -421,6 +427,47 @@ const PLAN_TEMPLATES: InterviewPlanTemplateDto[] = [
     ],
   },
   {
+    key: "product-management-role-specific-focus-v1",
+    label: "Product Management Role-Specific Focus",
+    version: CONTENT_TEMPLATE_VERSION,
+    roleFamilySlug: "product-management",
+    jobRoleSlugs: ["product-manager"],
+    senioritySlugs: ["graduate-entry", "mid-level", "senior", "lead-manager"],
+    stageSlugs: ["hiring-manager", "technical-functional", "panel", "final"],
+    focusMode: "role_specific_focus",
+    preferredFrameworkKey: "product_case",
+    modules: [
+      {
+        frameworkKey: "product_case",
+        competencySlug: "product-prioritization",
+        weight: 35,
+        displayOrder: 10,
+        rubricKey: "product_case_v1",
+      },
+      {
+        frameworkKey: "analytics_case",
+        competencySlug: "metrics-analytics",
+        weight: 25,
+        displayOrder: 20,
+        rubricKey: "product_case_v1",
+      },
+      {
+        frameworkKey: "case_study",
+        competencySlug: "product-prioritization",
+        weight: 25,
+        displayOrder: 30,
+        rubricKey: "product_case_v1",
+      },
+      {
+        frameworkKey: "role_knowledge",
+        competencySlug: "stakeholder-communication",
+        weight: 15,
+        displayOrder: 40,
+        rubricKey: "role_knowledge_v1",
+      },
+    ],
+  },
+  {
     key: "software-engineering-behavioral-focus-v1",
     label: "Software Engineering Behavioral Focus",
     version: CONTENT_TEMPLATE_VERSION,
@@ -616,6 +663,67 @@ type RankedQuestion = {
   questionReviewId: string;
 };
 
+type NormalizedQuestionSelectionContext = {
+  targetTokens: Set<string>;
+  candidateFactTokens: Set<string>;
+  targetSignalCount: number;
+  candidateFactSignalCount: number;
+};
+
+type QuestionFingerprint = {
+  normalizedPrompt: string;
+  tokens: Set<string>;
+};
+
+const QUESTION_SIGNAL_STOP_WORDS = new Set([
+  "about",
+  "above",
+  "across",
+  "after",
+  "again",
+  "against",
+  "also",
+  "and",
+  "answer",
+  "because",
+  "before",
+  "being",
+  "between",
+  "candidate",
+  "could",
+  "describe",
+  "does",
+  "during",
+  "each",
+  "example",
+  "explain",
+  "from",
+  "have",
+  "into",
+  "more",
+  "only",
+  "question",
+  "should",
+  "show",
+  "that",
+  "their",
+  "there",
+  "they",
+  "this",
+  "through",
+  "time",
+  "using",
+  "what",
+  "when",
+  "where",
+  "which",
+  "while",
+  "with",
+  "work",
+  "would",
+  "your",
+]);
+
 function normalizeLimit(value: number | null | undefined, fallback: number) {
   if (value === null || value === undefined) return fallback;
   if (!Number.isInteger(value) || value < 1 || value > 10) {
@@ -640,6 +748,156 @@ function compactSlug(parts: Array<string | null | undefined>) {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function tokenizeSelectionText(value: string | null | undefined) {
+  if (!value) return [];
+
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(
+      (token) =>
+        token.length >= 3 &&
+        token.length <= 40 &&
+        !/^\d+$/.test(token) &&
+        !QUESTION_SIGNAL_STOP_WORDS.has(token),
+    )
+    .map((token) =>
+      token.endsWith("ies") && token.length > 4
+        ? `${token.slice(0, -3)}y`
+        : token.endsWith("s") && token.length > 4
+          ? token.slice(0, -1)
+          : token,
+    );
+}
+
+function tokenSetFromTexts(values: Array<string | null | undefined>) {
+  const tokens = new Set<string>();
+
+  for (const value of values.slice(0, 80)) {
+    for (const token of tokenizeSelectionText(value?.slice(0, 1000))) {
+      tokens.add(token);
+    }
+  }
+
+  return tokens;
+}
+
+function normalizeQuestionSelectionContext(
+  input: QuestionSelectionContextInput | null | undefined,
+): NormalizedQuestionSelectionContext {
+  const targetSignals = input?.targetSignals?.filter(Boolean) ?? [];
+  const candidateFactSignals = input?.candidateFactSignals?.filter(Boolean) ?? [];
+
+  return {
+    targetTokens: tokenSetFromTexts(targetSignals),
+    candidateFactTokens: tokenSetFromTexts(candidateFactSignals),
+    targetSignalCount: targetSignals.length,
+    candidateFactSignalCount: candidateFactSignals.length,
+  };
+}
+
+function intersectionCount(left: Set<string>, right: Set<string>) {
+  let count = 0;
+  const [smaller, larger] =
+    left.size <= right.size ? [left, right] : [right, left];
+
+  for (const value of smaller) {
+    if (larger.has(value)) count += 1;
+  }
+
+  return count;
+}
+
+function questionSelectionTokens(question: ReviewedQuestion) {
+  return tokenSetFromTexts([
+    question.slug,
+    question.prompt,
+    question.difficulty,
+    question.evaluationFramework.key,
+    question.evaluationFramework.name,
+    question.industry?.slug,
+    question.industry?.name,
+    question.seniorityLevel?.slug,
+    question.seniorityLevel?.label,
+    ...question.roles.flatMap((role) => [
+      role.roleFamily?.slug,
+      role.roleFamily?.name,
+      role.jobRole?.slug,
+      role.jobRole?.name,
+    ]),
+    ...question.competencies.flatMap((competency) => [
+      competency.competency.slug,
+      competency.competency.name,
+    ]),
+    ...question.strongAnswerSignals.flatMap((signal) => [
+      signal.label,
+      signal.description,
+    ]),
+    ...question.followUpRules.flatMap((followUp) => [
+      followUp.intent,
+      followUp.condition,
+      followUp.promptHint,
+    ]),
+  ]);
+}
+
+function scoreQuestionSelectionSignals(
+  question: ReviewedQuestion,
+  selectionContext: NormalizedQuestionSelectionContext,
+) {
+  const tokens = questionSelectionTokens(question);
+  const targetOverlap = intersectionCount(tokens, selectionContext.targetTokens);
+  const candidateOverlap = intersectionCount(
+    tokens,
+    selectionContext.candidateFactTokens,
+  );
+  const reasons: string[] = [];
+  let score = 0;
+
+  if (targetOverlap > 0) {
+    score += Math.min(80, targetOverlap * 8);
+    reasons.push(`target requirement signal (${targetOverlap})`);
+  }
+
+  if (candidateOverlap > 0) {
+    score += Math.min(45, candidateOverlap * 6);
+    reasons.push(`consented CV context signal (${candidateOverlap})`);
+  }
+
+  return { score, reasons };
+}
+
+function questionPromptFingerprint(prompt: string): QuestionFingerprint {
+  const tokens = tokenSetFromTexts([prompt]);
+  return {
+    normalizedPrompt: [...tokens].sort().join(" "),
+    tokens,
+  };
+}
+
+function questionFingerprint(question: ReviewedQuestion): QuestionFingerprint {
+  return questionPromptFingerprint(question.prompt);
+}
+
+function isNearDuplicateQuestion(
+  question: ReviewedQuestion,
+  usedQuestionFingerprints: QuestionFingerprint[],
+) {
+  const current = questionFingerprint(question);
+  if (!current.normalizedPrompt) return false;
+
+  return usedQuestionFingerprints.some((used) => {
+    if (current.normalizedPrompt === used.normalizedPrompt) return true;
+    const shared = intersectionCount(current.tokens, used.tokens);
+    if (shared < 6) return false;
+
+    const union = new Set([...current.tokens, ...used.tokens]).size;
+    return union > 0 && shared / union >= 0.82;
+  });
 }
 
 function hasPublishedReview(
@@ -834,6 +1092,9 @@ export class InterviewContentService {
     );
     const context = await this.resolveContext(input);
     const warnings = new Set<InterviewContentWarning>();
+    const selectionContext = normalizeQuestionSelectionContext(
+      input.questionSelectionContext,
+    );
 
     if (context.company && !context.companyReviewed) {
       warnings.add("company_context_unreviewed");
@@ -883,6 +1144,7 @@ export class InterviewContentService {
     }
 
     const usedQuestionIds = new Set<string>();
+    const usedQuestionFingerprints: QuestionFingerprint[] = [];
     const modules: InterviewPlanModuleDto[] = [];
     let companyQuestionCount = 0;
     let fallbackQuestionCount = 0;
@@ -902,10 +1164,15 @@ export class InterviewContentService {
         locale,
         questionsPerModule,
         usedQuestionIds,
+        usedQuestionFingerprints,
+        selectionContext,
       });
 
       for (const question of selectedQuestions) {
         usedQuestionIds.add(question.id);
+        usedQuestionFingerprints.push(
+          questionPromptFingerprint(question.renderedPrompt),
+        );
         if (question.selection.level === "company") {
           companyQuestionCount += 1;
         } else {
@@ -1568,6 +1835,8 @@ export class InterviewContentService {
     locale: string;
     questionsPerModule: number;
     usedQuestionIds: Set<string>;
+    usedQuestionFingerprints: QuestionFingerprint[];
+    selectionContext: NormalizedQuestionSelectionContext;
   }) {
     const candidates = await this.prisma.question.findMany({
       where: {
@@ -1581,13 +1850,20 @@ export class InterviewContentService {
 
     const ranked = candidates
       .map((question) =>
-        this.rankQuestionForModule(question, input.planModule, input.context),
+        this.rankQuestionForModule(
+          question,
+          input.planModule,
+          input.context,
+          input.selectionContext,
+        ),
       )
       .filter((entry): entry is RankedQuestion => Boolean(entry))
+      .filter(
+        (entry) =>
+          !input.usedQuestionIds.has(entry.question.id) &&
+          !isNearDuplicateQuestion(entry.question, input.usedQuestionFingerprints),
+      )
       .sort((left, right) => {
-        const leftUsed = input.usedQuestionIds.has(left.question.id) ? 1 : 0;
-        const rightUsed = input.usedQuestionIds.has(right.question.id) ? 1 : 0;
-        if (leftUsed !== rightUsed) return leftUsed - rightUsed;
         if (right.score !== left.score) return right.score - left.score;
         return left.question.slug.localeCompare(right.question.slug);
       });
@@ -1614,6 +1890,7 @@ export class InterviewContentService {
     question: ReviewedQuestion,
     planModule: ModuleCandidate,
     context: ResolvedContext,
+    selectionContext: NormalizedQuestionSelectionContext,
   ): RankedQuestion | null {
     const questionReview = hasPublishedReview(question.contentReviews, this.now());
     if (!questionReview || question.reviewedAt === null) return null;
@@ -1700,6 +1977,9 @@ export class InterviewContentService {
       score += 10;
       reasons.push("difficulty match");
     }
+    const signalScore = scoreQuestionSelectionSignals(question, selectionContext);
+    score += signalScore.score;
+    reasons.push(...signalScore.reasons);
 
     return {
       question,

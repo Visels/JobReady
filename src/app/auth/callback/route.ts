@@ -7,6 +7,7 @@ import {
 } from "@/lib/site-url";
 
 function normalizeNextPath(value: string | null) {
+  if (value === "/interview/new") return "/interviews/new";
   if (value === "/dashboard") return "/practice";
 
   if (!value || !value.startsWith("/") || value.startsWith("//")) {

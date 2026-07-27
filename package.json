@@ -16,6 +16,11 @@
     "test:applications": "tsx scripts/test-application-tracking.ts",
     "test:interview-content": "tsx scripts/test-interview-content.ts",
     "test:job-interviews": "tsx scripts/test-job-interview-sessions.ts",
+    "test:question-selection": "tsx scripts/test-job-interview-question-selection.ts",
+    "test:behavioral-evaluation": "tsx scripts/test-behavioral-evaluation.ts",
+    "test:role-specific-evaluation": "tsx scripts/test-role-specific-evaluation.ts",
+    "test:interview-onboarding": "tsx scripts/test-interview-onboarding.ts",
+    "test:job-interview-text": "tsx scripts/test-job-interview-text-session.ts",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },

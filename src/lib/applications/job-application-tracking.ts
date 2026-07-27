@@ -322,14 +322,14 @@ function applicationLinks(target: ApplicationTargetSummary, applicationId: strin
   if (target.type === "public_job") {
     return {
       tailorHref: `/jobs/${target.slug}?intent=tailor&applicationId=${applicationId}`,
-      practiceHref: `/practice?job=${encodeURIComponent(target.slug)}&applicationId=${encodeURIComponent(applicationId)}`,
+      practiceHref: `/interviews/new?job=${encodeURIComponent(target.slug)}&applicationId=${encodeURIComponent(applicationId)}`,
       applyHref: `/jobs/${target.slug}/apply?applicationId=${encodeURIComponent(applicationId)}`,
     };
   }
 
   return {
     tailorHref: `/practice?target=${encodeURIComponent(target.privateJobTargetVersionId)}&applicationId=${encodeURIComponent(applicationId)}&intent=tailor`,
-    practiceHref: `/practice?target=${encodeURIComponent(target.privateJobTargetVersionId)}&applicationId=${encodeURIComponent(applicationId)}`,
+    practiceHref: `/interviews/new?target=${encodeURIComponent(target.privateJobTargetVersionId)}&applicationId=${encodeURIComponent(applicationId)}`,
     applyHref: null,
   };
 }
