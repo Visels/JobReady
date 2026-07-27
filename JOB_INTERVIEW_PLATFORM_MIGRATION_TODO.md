@@ -252,6 +252,27 @@ the Completion Log.
 | D16 | Legacy visa data treatment | Preserve, export, anonymize, or delete under approved policy | Task 29 |
 | D17 | Production logo asset pack | Approved vector wordmark, compact mark, favicon, light/dark and social variants | Task 25 |
 
+### 3.1 Resolved Decision Gate Notes
+
+- D06 resolved in Task 08: support private accessible DOCX and PDF exports for
+  accepted tailored content; do not auto-submit, employer-share, or claim
+  ATS-success guarantees.
+- D03 resolved in Task 09: initial public jobs are staff/admin curated from
+  official employer links, direct employers, verified partners, authorized
+  feeds, or internal development fixtures only.
+- D04 resolved in Task 09: employer self-posting is not enabled at launch;
+  candidate-submitted leads cannot be published by the Task 09 service.
+- D05 resolved in Task 07: support DOCX, text PDF, and manual entry with a 10 MB
+  upload limit; do not support OCR, scanned/image PDFs, legacy `.doc`, or DOCM.
+- D07 resolved in Task 07: use provider-neutral scanner/parser interfaces with
+  deterministic development implementations; production malware scanning can run
+  outside Workers if native or heavier runtime support is required.
+- D08 resolved in Task 07: keep candidate documents while active; on user or
+  account request, delete private R2 objects and soft-delete database lineage.
+- D10 resolved for development in Task 07: R2 Automatic data placement is
+  acceptable for synthetic development fixtures only; real candidate uploads
+  remain disabled until legal/data-location approval.
+
 Decisions that may wait until after beta:
 
 - Employer self-service.
@@ -752,25 +773,25 @@ The first unchecked item is the only active task.
 - [x] Task 01 - Product configuration and feature flags
 - [x] Task 02 - Additive domain schema design
 - [x] Task 03 - Additive database migration
-- [ ] Task 04 - Reference taxonomy, content, and fixtures
-- [ ] Task 05 - Credit ledger and entitlement foundation
+- [x] Task 04 - Reference taxonomy, content, and fixtures
+- [x] Task 05 - Credit ledger and entitlement foundation
 
 ### Documents and Tailoring
 
-- [ ] Task 06 - Cloudflare R2 storage foundation
-- [ ] Task 07 - Secure document ingestion and parsing
-- [ ] Task 08 - Independent CV/resume tailoring
+- [x] Task 06 - Cloudflare R2 storage foundation
+- [x] Task 07 - Secure document ingestion and parsing
+- [x] Task 08 - Independent CV/resume tailoring
 
 ### Jobs and Applications
 
-- [ ] Task 09 - Verified job ingestion and publication
-- [ ] Task 10 - Public jobs marketplace
-- [ ] Task 11 - Saved jobs and application tracking
+- [x] Task 09 - Verified job ingestion and publication
+- [x] Task 10 - Public jobs marketplace
+- [x] Task 11 - Saved jobs and application tracking
 
 ### Interviews
 
-- [ ] Task 12 - Interview frameworks, plans, questions, and rubrics
-- [ ] Task 13 - Job-interview session APIs
+- [x] Task 12 - Interview frameworks, plans, questions, and rubrics
+- [x] Task 13 - Job-interview session APIs
 - [ ] Task 14 - Deterministic question selection
 - [ ] Task 15 - Behavioral and STAR evaluation
 - [ ] Task 16 - Role-specific evaluation frameworks
@@ -2305,3 +2326,13 @@ Add one row after a task passes its completion gate.
 | Task 01 - Product Configuration and Feature Flags | 2026-07-25 | `npm test`, TypeScript, Prisma validate, production build, and ESLint passed. Prisma still warns that `package.json#prisma` is deprecated for Prisma 7; build still warns that edge runtime disables static generation for that page. | Added typed public/server product config, feature flags, Jobready brand assets, reusable `BrandMark` modes, centralized tokens, env docs, config tests, and `docs/migration/TASK_01_PRODUCT_CONFIG.md`. | D01, D02, and D17 remain unresolved; canonical host remains configurable and defaults to the existing domain until approved cutover; next task is Task 02. |
 | Task 02 - Additive Domain Schema Design | 2026-07-25 | Proposed additive Prisma schema validates; live Prisma schema validates; owner approved the design for Task 03. | Added `docs/migration/TASK_02_PROPOSED_SCHEMA.prisma` and `docs/migration/TASK_02_SCHEMA_DESIGN_ADR.md`; no live schema or migration changes. | Raw SQL `CHECK` constraints are required in Task 03 for exact-one target rules; next task is Task 03. |
 | Task 03 - Additive Database Migration | 2026-07-25 | `prisma validate`, `prisma generate`, `npm test`, and `npx tsc --noEmit` passed; clean disposable PostgreSQL migration passed; representative legacy-schema migration passed; legacy users, sessions, reports, purchases, defaults, constraints, and indexes verified. | Updated `prisma/schema.prisma`; added `prisma/migrations/20260725090000_add_jobready_domain/migration.sql`, Task 03 baseline/target schema snapshots, verification SQL, non-production rollback SQL, and migration runbook. | Production was not touched; `InterviewSession.updatedAt` is nullable for safe additive deployment; two `InterviewSession` checks are `NOT VALID` to avoid a production-scale validation scan; next task is Task 04. |
+| Task 04 - Reference Taxonomy, Content, and Fixtures | 2026-07-25 | `prisma validate`, `prisma generate`, `npm test`, `npx tsc --noEmit`, and `git diff --check` passed; disposable PostgreSQL seed ran twice without duplication; fixture verifier loaded Scenario A/B plans, expired synthetic job, reviewed sources, CV fixture, and private target fixture. | Added `prisma/jobready-reference-fixtures.ts`, `scripts/verify-jobready-reference-fixtures.ts`, and `docs/migration/TASK_04_REFERENCE_FIXTURES.md`; updated `prisma/seed.ts` and the Prisma seed command in `package.json`. | Job fixture is expired and uses `example.test`; CV/private target data is synthetic only; Scenario B technical concept uses `role_specific_focus`; D03 remains before live job-source policy; next task is Task 05. |
+| Task 05 - Credit Ledger and Entitlement Foundation | 2026-07-25 | `prisma validate`, `prisma generate`, `npm test`, `npm run test:ledger`, `npx tsc --noEmit`, `npm run lint`, and `git diff --check` passed; disposable PostgreSQL ledger test proved concurrent reservations cannot overspend, failed report retries do not double-consume, failed tailoring releases reservations, and reconciliation matches displayed balances. | Added `src/lib/entitlements.ts`, `scripts/test-credit-ledger.ts`, and `docs/migration/TASK_05_CREDIT_LEDGER.md`; added `npm run test:ledger`; fixed a Task 04 fixture loop variable that failed Next lint. | Live payment fulfillment was not changed; legacy `User.credits` remains isolated behind the legacy visa feature flag; future interview/tailoring APIs should reserve/consume through the ledger; next task is Task 06. |
+| Task 06 - Cloudflare R2 Storage Foundation | 2026-07-25 | `npm test`, `npm run test:storage`, `prisma validate`, `npx tsc --noEmit`, `npm run lint`, and `git diff --check` passed; storage tests proved unauthorized/expired/used reservations fail, presigned URLs are not logged, CORS is exact-origin only, fake quarantine uploads reconcile, and duplicate object-create events process once. | Added provider-neutral object storage, Cloudflare R2 adapter, fake storage, opaque keys, R2 config validation, upload reservations, idempotent event helpers, development CORS/lifecycle artifacts, R2 env docs, and `docs/migration/TASK_06_R2_STORAGE_FOUNDATION.md`; added `npm run test:storage`. | Production buckets and real candidate uploads remain out of scope; development R2 buckets must stay private with no `r2.dev` or custom domain; Task 07 should persist reservations/events and wire ownership to `CandidateDocumentVersion.userId`; next task is Task 07. |
+| Task 07 - Secure Document Ingestion and Parsing | 2026-07-25 | `prisma migrate deploy` passed on a fresh disposable local PostgreSQL database; `npm run test:documents` passed with synthetic DOCX, text PDF, manual entry, malicious fixtures, duplicate Queue events, deletion, and reconciliation; `npm test`, `npm run test:storage`, `prisma validate`, `prisma generate`, `npx tsc --noEmit`, `npm run lint`, and `git diff --check` passed. | Added additive document-ingestion migration, persistent upload reservations/events, parser/rejection metadata, deterministic scanner/parser/fact extraction, Prisma-backed ingestion/deletion/reconciliation service, document-processing config, synthetic document test fixtures, `npm run test:documents`, and `docs/migration/TASK_07_SECURE_DOCUMENT_INGESTION.md`. | D05, D07, D08, and D10 development scope are recorded; real uploads remain disabled until legal/data-location approval; production scanner integration, UI, OCR, legacy `.doc`, and tailoring/export work remain out of scope; next task is Task 08. |
+| Task 08 - Independent CV/Resume Tailoring | 2026-07-25 | `prisma migrate deploy` passed on a clean disposable local PostgreSQL database; `npm run test:tailoring` passed Scenario C with private target immutability, gap preservation, rejected invented edits, equivalent DOCX/PDF exports, restore/delete, and no interview session; `npm run test:ledger`, `npm run test:documents`, `npm test`, `npm run test:storage`, `prisma validate`, `prisma generate`, `npx tsc --noEmit`, `npm run lint`, and `git diff --check` passed. | Added additive tailoring export migration/model, deterministic independent tailoring service, accessible DOCX/PDF export builders, Scenario C validation script, `npm run test:tailoring`, and `docs/migration/TASK_08_INDEPENDENT_CV_TAILORING.md`. | D06 is resolved for private DOCX/PDF exports; real LLM generation, UI route handlers, credit consumption, employer sharing, ATS guarantees, and full PDF/UA certification remain out of scope; next task is Task 09. |
+| Task 09 - Verified Job Ingestion and Publication | 2026-07-25 | `prisma migrate deploy` passed on a clean disposable local PostgreSQL database; `npm run test:jobs` passed with staff-gated publication, D03/D04 source policy, duplicate review routing, immutable edits, expiry, active-query removal, scheduled freshness expiry, and audit history; `npm run test:ledger`, `npm run test:documents`, `npm run test:tailoring`, `npm test`, `npm run test:storage`, `prisma validate`, `prisma generate`, `npx tsc --noEmit`, `npm run lint`, and `git diff --check` passed. | Added additive job-publication audit/provenance migration, verified job publication service, fetch/static application-destination verifiers, job lifecycle/audit/freshness operations, `npm run test:jobs`, and `docs/migration/TASK_09_VERIFIED_JOB_PUBLICATION.md`. | D03 and D04 are resolved for staff-curated launch jobs; public jobs marketplace UI, admin UI, scraping, employer self-service, candidate-submitted publication, native applications, and salary/requirement inference remain out of scope; next task is Task 10. |
+| Task 10 - Public Jobs Marketplace | 2026-07-25 | `prisma migrate deploy` passed on a clean disposable local PostgreSQL database; `npm run test:public-jobs` passed with active-only browsing, safe filters/pagination, reviewed official apply redirects, outbound logging, detail states, report links, and active-only JobPosting structured data; `npm run test:ledger`, `npm run test:documents`, `npm run test:tailoring`, `npm run test:jobs`, `npm test`, `npm run test:storage`, `prisma validate`, `prisma generate`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, and `git diff --check` passed. | Added server-rendered `/jobs`, `/jobs/[slug]`, `/jobs/[slug]/apply`, public marketplace UI/state components, public jobs data/SEO helpers, `npm run test:public-jobs`, and `docs/migration/TASK_10_PUBLIC_JOBS_MARKETPLACE.md`. | No schema migration was required; official application access remains public and unpaid; saved-job/application persistence remains Task 11; broader public brand/nav cleanup remains later tasks; next task is Task 11. |
+| Task 11 - Saved Jobs and Application Tracking | 2026-07-25 | `prisma migrate deploy` passed on a clean disposable local PostgreSQL database; `npm run test:applications` passed with private saved jobs, public/private application records, duplicate guards, ownership checks, reminder preferences, explicit applied confirmation, immutable status events, apply-click outbound logging, expired/changed warnings, and privacy-safe analytics; `npm run test:ledger`, `npm run test:documents`, `npm run test:tailoring`, `npm run test:jobs`, `npm run test:public-jobs`, `npm test`, `npm run test:storage`, `prisma validate`, `prisma generate`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, and `git diff --check` passed. | Added additive application-tracking guard migration, private application tracking service, authenticated save/application/status APIs, signed-in public-job save/track actions, application-linked outbound events, `npm run test:applications`, and `docs/migration/TASK_11_SAVED_JOBS_APPLICATION_TRACKING.md`. | Opening official apply does not mark `applied`; reminder sending, full workspace UI, dashboard surfacing, and interview/tailoring flows remain later tasks; next task is Task 12. |
+| Task 12 - Interview Frameworks, Plans, Questions, and Rubrics | 2026-07-26 | `prisma migrate deploy` passed on clean disposable local PostgreSQL validation and regression databases; `npm run test:interview-content` passed Scenario A Product Manager recommended composition, Scenario B recommended/behavioral/technical focus composition, reviewed company-source enforcement, industry/role fallback, framework/rubric compatibility, and immutable rubric revision behavior; `npm test`, `npm run test:ledger`, `npm run test:storage`, `npm run test:documents`, `npm run test:tailoring`, `npm run test:jobs`, `npm run test:public-jobs`, `npm run test:applications`, `prisma validate`, `prisma generate`, `npx tsc --noEmit`, `npm run lint`, and `npm run build` passed. | Added `src/lib/interviews/interview-content.ts`, `src/lib/interviews/index.ts`, expanded reviewed synthetic interview question fixtures, updated the fixture verifier, added `scripts/test-interview-content.ts`, added `npm run test:interview-content`, and added `docs/migration/TASK_12_INTERVIEW_CONTENT.md`. | No schema migration was required; new questions are synthetic reviewed fixtures and do not add real company interview claims; Task 13 should consume the composer for session APIs and Task 14 should deepen deterministic question selection; next task is Task 13. |
+| Task 13 - Job-Interview Session APIs | 2026-07-26 | `npx prisma validate`, `npx prisma generate`, `npx tsc --noEmit`, `npm run lint`, clean disposable PostgreSQL `prisma migrate deploy`, `npm run test:job-interviews`, and `git diff --check` passed; production migration was applied through `psql --single-transaction` after Prisma hung on the Supabase pooler; production migration record, nullable legacy columns, constraints, and rollback-only no-visa job-session insert were verified. | Added additive session-context migration, job-interview Zod contracts, session API service, authenticated create/retrieve routes, idempotent interview-credit reservation linkage, minimal consented CV/resume snapshots, legacy visa API flag guard, legacy nullable-context compatibility fixes, `npm run test:job-interviews`, and `docs/migration/TASK_13_JOB_INTERVIEW_SESSION_APIS.md`. | Job-interview sessions require reviewed persisted plans; no questions are delivered until Task 14; production fixtures were not seeded; Supabase pooler migration hangs remain a deployment follow-up; next task is Task 14. |

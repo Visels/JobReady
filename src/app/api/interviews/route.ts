@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isFeatureEnabled } from "@/config/public";
 import { createInterviewSchema } from "@/lib/api-schemas";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session-guards";
@@ -10,6 +11,13 @@ const LIVE_INTERVIEW_OPENING =
   "Good morning. What brings you in today?";
 
 export async function POST(request: Request) {
+  if (!isFeatureEnabled("legacyVisaFlow")) {
+    return NextResponse.json(
+      { error: "Legacy visa interviews are not available." },
+      { status: 404 },
+    );
+  }
+
   const { user, response } = await requireUser();
   if (!user) return response;
 

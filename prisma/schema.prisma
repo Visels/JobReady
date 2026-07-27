@@ -118,6 +118,27 @@ enum PublicationReviewDecision {
   retired
 }
 
+enum JobApplicationUrlVerificationStatus {
+  unchecked
+  verified
+  warning
+  blocked
+}
+
+enum JobPostingAuditAction {
+  draft_created
+  version_created
+  review_recorded
+  duplicate_flagged
+  publication_blocked
+  published
+  expired
+  closed
+  retired
+  rejected
+  freshness_check_recorded
+}
+
 enum CandidateDocumentKind {
   cv
   resume
@@ -147,6 +168,20 @@ enum DocumentScanStatus {
   infected
   failed
   skipped
+}
+
+enum DocumentUploadReservationStatus {
+  reserved
+  used
+  expired
+  cancelled
+  rejected
+}
+
+enum DocumentProcessingEventStatus {
+  processing
+  succeeded
+  failed
 }
 
 enum CandidateFactType {
@@ -183,6 +218,11 @@ enum TailoringEditDecisionType {
   accepted
   rejected
   user_edited
+}
+
+enum TailoringExportFormat {
+  docx
+  pdf
 }
 
 enum ApplicationStatus {
@@ -278,33 +318,37 @@ enum StorageOperation {
 }
 
 model User {
-  id                    String                     @id @db.Uuid
-  name                  String?
-  email                 String?
-  emailVerified         DateTime?
-  image                 String?
-  credits               Int                        @default(1)
-  welcomeEmailSentAt    DateTime?
-  resendContactSyncedAt DateTime?
-  createdAt             DateTime                   @default(now())
-  interviews            InterviewSession[]
-  purchases             Purchase[]
-  referredPurchases     Purchase[]                 @relation("ReferralPurchases")
-  reviewedContent       ContentReview[]            @relation("ContentReviewReviewer")
-  submittedJobSources   JobSource[]                @relation("CandidateSubmittedJobSources")
-  privateJobTargets     PrivateJobTarget[]
-  candidateDocuments    CandidateDocument[]
-  documentVersions      CandidateDocumentVersion[]
-  candidateFacts        CandidateFact[]
-  tailoringRuns         TailoringRun[]
-  tailoringDecisions    TailoringEditDecision[]
-  savedJobs             SavedJob[]
-  jobApplications       JobApplication[]
-  statusEvents          ApplicationStatusEvent[]
-  outboundEvents        ApplicationOutboundEvent[]
-  creditLedgerEntries   CreditLedgerEntry[]
-  modelUsages           ModelUsage[]
-  storageUsages         StorageUsage[]
+  id                         String                               @id @db.Uuid
+  name                       String?
+  email                      String?
+  emailVerified              DateTime?
+  image                      String?
+  credits                    Int                                  @default(1)
+  welcomeEmailSentAt         DateTime?
+  resendContactSyncedAt      DateTime?
+  createdAt                  DateTime                             @default(now())
+  interviews                 InterviewSession[]
+  purchases                  Purchase[]
+  referredPurchases          Purchase[]                           @relation("ReferralPurchases")
+  reviewedContent            ContentReview[]                      @relation("ContentReviewReviewer")
+  jobPostingAuditEvents      JobPostingAuditEvent[]               @relation("JobPostingAuditActor")
+  submittedJobSources        JobSource[]                          @relation("CandidateSubmittedJobSources")
+  privateJobTargets          PrivateJobTarget[]
+  candidateDocuments         CandidateDocument[]
+  documentVersions           CandidateDocumentVersion[]
+  documentUploadReservations CandidateDocumentUploadReservation[]
+  documentProcessingEvents   CandidateDocumentProcessingEvent[]
+  candidateFacts             CandidateFact[]
+  tailoringRuns              TailoringRun[]
+  tailoringDecisions         TailoringEditDecision[]
+  tailoringExports           TailoringExport[]
+  savedJobs                  SavedJob[]
+  jobApplications            JobApplication[]
+  statusEvents               ApplicationStatusEvent[]
+  outboundEvents             ApplicationOutboundEvent[]
+  creditLedgerEntries        CreditLedgerEntry[]
+  modelUsages                ModelUsage[]
+  storageUsages              StorageUsage[]
 
   @@index([email])
 }
@@ -386,21 +430,21 @@ model ConcernOption {
 }
 
 model Market {
-  id                  String                @id @default(cuid())
-  slug                String                @unique
-  name                String
-  isoCode             String                @unique
-  currencyCode        String?
-  timezone            String?
-  isActive            Boolean               @default(true)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  companies           Company[]
-  jobRoles            JobRole[]
-  jobPostings         JobPosting[]
-  privateJobTargets   PrivateJobTarget[]
-  interviewPlans      InterviewPlan[]
-  interviewSessions   InterviewSession[]
+  id                String             @id @default(cuid())
+  slug              String             @unique
+  name              String
+  isoCode           String             @unique
+  currencyCode      String?
+  timezone          String?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  companies         Company[]
+  jobRoles          JobRole[]
+  jobPostings       JobPosting[]
+  privateJobTargets PrivateJobTarget[]
+  interviewPlans    InterviewPlan[]
+  interviewSessions InterviewSession[]
 }
 
 model Industry {
@@ -416,31 +460,31 @@ model Industry {
 }
 
 model Company {
-  id                 String             @id @default(cuid())
-  slug               String             @unique
-  legalName          String?
-  displayName        String
-  industryId         String?
-  marketId           String
-  websiteUrl         String?
-  careersUrl         String?
-  summary            String?            @db.Text
-  focusAreas         String[]           @default([])
-  publicationStatus  ContentStatus      @default(draft)
-  confidence         ConfidenceLevel    @default(low)
-  reviewedAt         DateTime?
-  nextReviewAt       DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  industry           Industry?          @relation(fields: [industryId], references: [id], onDelete: SetNull)
-  market             Market             @relation(fields: [marketId], references: [id], onDelete: Restrict)
-  jobRoles           JobRole[]
-  jobPostings        JobPosting[]
-  privateTargets     PrivateJobTarget[]
-  interviewPlans     InterviewPlan[]
-  interviewSessions  InterviewSession[]
-  questionCompanies  QuestionCompany[]
-  contentReviews     ContentReview[]
+  id                String             @id @default(cuid())
+  slug              String             @unique
+  legalName         String?
+  displayName       String
+  industryId        String?
+  marketId          String
+  websiteUrl        String?
+  careersUrl        String?
+  summary           String?            @db.Text
+  focusAreas        String[]           @default([])
+  publicationStatus ContentStatus      @default(draft)
+  confidence        ConfidenceLevel    @default(low)
+  reviewedAt        DateTime?
+  nextReviewAt      DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  industry          Industry?          @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  market            Market             @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  jobRoles          JobRole[]
+  jobPostings       JobPosting[]
+  privateTargets    PrivateJobTarget[]
+  interviewPlans    InterviewPlan[]
+  interviewSessions InterviewSession[]
+  questionCompanies QuestionCompany[]
+  contentReviews    ContentReview[]
 
   @@index([marketId, publicationStatus])
   @@index([industryId])
@@ -448,18 +492,18 @@ model Company {
 }
 
 model RoleFamily {
-  id                 String              @id @default(cuid())
-  slug               String              @unique
-  name               String
-  description        String?             @db.Text
-  isActive           Boolean             @default(true)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  jobRoles           JobRole[]
-  jobPostings        JobPosting[]
-  interviewPlans     InterviewPlan[]
-  interviewSessions  InterviewSession[]
-  questionRoles      QuestionRole[]
+  id                String             @id @default(cuid())
+  slug              String             @unique
+  name              String
+  description       String?            @db.Text
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  jobRoles          JobRole[]
+  jobPostings       JobPosting[]
+  interviewPlans    InterviewPlan[]
+  interviewSessions InterviewSession[]
+  questionRoles     QuestionRole[]
 }
 
 model JobRole {
@@ -501,26 +545,26 @@ model JobTitleAlias {
 }
 
 model Skill {
-  id                String             @id @default(cuid())
-  slug              String             @unique
-  name              String
-  aliases           String[]           @default([])
-  description       String?            @db.Text
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  jobPostingSkills  JobPostingSkill[]
-  candidateFacts    CandidateFact[]
+  id               String            @id @default(cuid())
+  slug             String            @unique
+  name             String
+  aliases          String[]          @default([])
+  description      String?           @db.Text
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  jobPostingSkills JobPostingSkill[]
+  candidateFacts   CandidateFact[]
 }
 
 model Competency {
-  id                     String                   @id @default(cuid())
-  slug                   String                   @unique
+  id                     String                 @id @default(cuid())
+  slug                   String                 @unique
   name                   String
-  description            String?                  @db.Text
-  isActive               Boolean                  @default(true)
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
+  description            String?                @db.Text
+  isActive               Boolean                @default(true)
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
   jobPostingCompetencies JobPostingCompetency[]
   questionCompetencies   QuestionCompetency[]
   planModules            InterviewPlanModule[]
@@ -529,15 +573,15 @@ model Competency {
 }
 
 model SeniorityLevel {
-  id                String             @id @default(cuid())
-  slug              String             @unique
-  label             String
-  displayOrder      Int                @default(0)
-  isActive          Boolean            @default(true)
-  interviewPlans    InterviewPlan[]
-  interviewSessions InterviewSession[]
+  id                 String              @id @default(cuid())
+  slug               String              @unique
+  label              String
+  displayOrder       Int                 @default(0)
+  isActive           Boolean             @default(true)
+  interviewPlans     InterviewPlan[]
+  interviewSessions  InterviewSession[]
   jobPostingVersions JobPostingVersion[]
-  questions         Question[]
+  questions          Question[]
 
   @@index([isActive, displayOrder])
 }
@@ -564,7 +608,7 @@ model ContentSource {
   retrievedAt        DateTime?
   isOfficial         Boolean             @default(false)
   researchNotes      String?             @db.Text
-  confidence         ConfidenceLevel      @default(low)
+  confidence         ConfidenceLevel     @default(low)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   jobPostingVersions JobPostingVersion[]
@@ -606,15 +650,15 @@ model ContentReview {
 }
 
 model JobSource {
-  id                String             @id @default(cuid())
+  id                String              @id @default(cuid())
   type              ContentSourceType
   name              String
   url               String?
-  isAuthorized      Boolean            @default(false)
-  submittedByUserId String?            @db.Uuid
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  submittedByUser   User?              @relation("CandidateSubmittedJobSources", fields: [submittedByUserId], references: [id], onDelete: SetNull)
+  isAuthorized      Boolean             @default(false)
+  submittedByUserId String?             @db.Uuid
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  submittedByUser   User?               @relation("CandidateSubmittedJobSources", fields: [submittedByUserId], references: [id], onDelete: SetNull)
   jobPostings       JobPosting[]
   versions          JobPostingVersion[]
 
@@ -647,6 +691,7 @@ model JobPosting {
   currentVersion     JobPostingVersion?     @relation("CurrentJobPostingVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
   versions           JobPostingVersion[]    @relation("JobPostingVersions")
   publicationReviews JobPublicationReview[]
+  auditEvents        JobPostingAuditEvent[]
   savedJobs          SavedJob[]
 
   @@index([marketId, status, lastVerifiedAt])
@@ -657,50 +702,64 @@ model JobPosting {
 }
 
 model JobPostingVersion {
-  id                       String                   @id @default(cuid())
-  jobPostingId             String
-  version                  Int
-  title                    String
-  description              String                   @db.Text
-  responsibilities         String[]                 @default([])
-  requirements             String[]                 @default([])
-  preferredQualifications  String[]                 @default([])
-  location                 String?
-  workType                 WorkType?
-  employmentType           EmploymentType?
-  seniorityLevelId         String?
-  salaryMinAmount          Int?
-  salaryMaxAmount          Int?
-  salaryCurrency           String?
-  salaryPeriod             SalaryPeriod?
-  contentSourceId          String?
-  jobSourceId              String?
-  applicationUrl           String
-  applicationUrlHost       String?
-  sourcePublishedAt        DateTime?
-  sourceRetrievedAt        DateTime?
-  contentHash              String
-  createdAt                DateTime                 @default(now())
-  posting                  JobPosting               @relation("JobPostingVersions", fields: [jobPostingId], references: [id], onDelete: Cascade)
-  currentForPosting        JobPosting?              @relation("CurrentJobPostingVersion")
-  seniorityLevel           SeniorityLevel?          @relation(fields: [seniorityLevelId], references: [id], onDelete: SetNull)
-  contentSource            ContentSource?           @relation(fields: [contentSourceId], references: [id], onDelete: SetNull)
-  jobSource                JobSource?               @relation(fields: [jobSourceId], references: [id], onDelete: SetNull)
-  skills                   JobPostingSkill[]
-  competencies             JobPostingCompetency[]
-  publicationReviews       JobPublicationReview[]
-  privateTargetVersions    PrivateJobTargetVersion[]
-  tailoringRuns            TailoringRun[]
-  jobApplications          JobApplication[]
-  outboundEvents           ApplicationOutboundEvent[]
-  interviewSessions        InterviewSession[]
-  contentReviews           ContentReview[]
-  savedJobs                SavedJob[]
+  id                               String                              @id @default(cuid())
+  jobPostingId                     String
+  version                          Int
+  title                            String
+  description                      String                              @db.Text
+  responsibilities                 String[]                            @default([])
+  requirements                     String[]                            @default([])
+  preferredQualifications          String[]                            @default([])
+  location                         String?
+  workType                         WorkType?
+  employmentType                   EmploymentType?
+  seniorityLevelId                 String?
+  salaryMinAmount                  Int?
+  salaryMaxAmount                  Int?
+  salaryCurrency                   String?
+  salaryPeriod                     SalaryPeriod?
+  contentSourceId                  String?
+  jobSourceId                      String?
+  applicationUrl                   String
+  applicationUrlHost               String?
+  applicationUrlVerifiedAt         DateTime?
+  applicationUrlVerificationStatus JobApplicationUrlVerificationStatus @default(unchecked)
+  applicationVerificationEvidence  Json?
+  sourceUrl                        String?                             @db.Text
+  sourceUrlHost                    String?
+  sourceExternalId                 String?
+  normalizedTitle                  String?
+  normalizedLocation               String?
+  riskFlags                        String[]                            @default([])
+  sanitizedContentHash             String?
+  sourcePublishedAt                DateTime?
+  sourceRetrievedAt                DateTime?
+  contentHash                      String
+  createdAt                        DateTime                            @default(now())
+  posting                          JobPosting                          @relation("JobPostingVersions", fields: [jobPostingId], references: [id], onDelete: Cascade)
+  currentForPosting                JobPosting?                         @relation("CurrentJobPostingVersion")
+  seniorityLevel                   SeniorityLevel?                     @relation(fields: [seniorityLevelId], references: [id], onDelete: SetNull)
+  contentSource                    ContentSource?                      @relation(fields: [contentSourceId], references: [id], onDelete: SetNull)
+  jobSource                        JobSource?                          @relation(fields: [jobSourceId], references: [id], onDelete: SetNull)
+  skills                           JobPostingSkill[]
+  competencies                     JobPostingCompetency[]
+  publicationReviews               JobPublicationReview[]
+  auditEvents                      JobPostingAuditEvent[]
+  privateTargetVersions            PrivateJobTargetVersion[]
+  tailoringRuns                    TailoringRun[]
+  jobApplications                  JobApplication[]
+  outboundEvents                   ApplicationOutboundEvent[]
+  interviewSessions                InterviewSession[]
+  contentReviews                   ContentReview[]
+  savedJobs                        SavedJob[]
 
   @@unique([jobPostingId, version])
   @@unique([jobPostingId, contentHash])
   @@index([contentHash])
   @@index([applicationUrlHost])
+  @@index([sourceUrlHost])
+  @@index([sourceExternalId])
+  @@index([normalizedTitle])
   @@index([contentSourceId])
   @@index([jobSourceId])
   @@index([seniorityLevelId])
@@ -736,26 +795,47 @@ model JobPostingCompetency {
 
 model JobPublicationReview {
   id                  String                    @id @default(cuid())
-  jobPostingId         String
-  jobPostingVersionId  String
-  sourceDecision       PublicationReviewDecision @default(pending)
-  duplicateDecision    PublicationReviewDecision @default(pending)
-  applicationDecision  PublicationReviewDecision @default(pending)
-  freshnessDecision    PublicationReviewDecision @default(pending)
-  publicationDecision  PublicationReviewDecision @default(pending)
-  expiryDecision       PublicationReviewDecision @default(pending)
-  notes                String?                   @db.Text
-  reviewedByUserId     String?                   @db.Uuid
-  reviewedAt           DateTime?
-  nextReviewAt         DateTime?
-  createdAt            DateTime                  @default(now())
-  jobPosting           JobPosting                @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
-  jobPostingVersion    JobPostingVersion         @relation(fields: [jobPostingVersionId], references: [id], onDelete: Cascade)
+  jobPostingId        String
+  jobPostingVersionId String
+  sourceDecision      PublicationReviewDecision @default(pending)
+  duplicateDecision   PublicationReviewDecision @default(pending)
+  applicationDecision PublicationReviewDecision @default(pending)
+  freshnessDecision   PublicationReviewDecision @default(pending)
+  publicationDecision PublicationReviewDecision @default(pending)
+  expiryDecision      PublicationReviewDecision @default(pending)
+  notes               String?                   @db.Text
+  reviewedByUserId    String?                   @db.Uuid
+  reviewedAt          DateTime?
+  nextReviewAt        DateTime?
+  createdAt           DateTime                  @default(now())
+  jobPosting          JobPosting                @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  jobPostingVersion   JobPostingVersion         @relation(fields: [jobPostingVersionId], references: [id], onDelete: Cascade)
 
   @@index([jobPostingId, createdAt])
   @@index([jobPostingVersionId, createdAt])
   @@index([publicationDecision, nextReviewAt])
   @@index([reviewedByUserId])
+}
+
+model JobPostingAuditEvent {
+  id                  String                @id @default(cuid())
+  jobPostingId        String
+  jobPostingVersionId String?
+  actorUserId         String?               @db.Uuid
+  action              JobPostingAuditAction
+  fromStatus          JobPostingStatus?
+  toStatus            JobPostingStatus?
+  reason              String?               @db.Text
+  metadata            Json?
+  createdAt           DateTime              @default(now())
+  jobPosting          JobPosting            @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  jobPostingVersion   JobPostingVersion?    @relation(fields: [jobPostingVersionId], references: [id], onDelete: SetNull)
+  actor               User?                 @relation("JobPostingAuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([jobPostingId, createdAt])
+  @@index([jobPostingVersionId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
 }
 
 model PrivateJobTarget {
@@ -783,23 +863,23 @@ model PrivateJobTarget {
 }
 
 model PrivateJobTargetVersion {
-  id                      String              @id @default(cuid())
-  privateJobTargetId       String
+  id                        String             @id @default(cuid())
+  privateJobTargetId        String
   sourceJobPostingVersionId String?
-  version                 Int
-  companyName             String?
-  roleTitle               String
-  description             String?             @db.Text
-  requirements            String[]            @default([])
-  skills                  Json?
-  contentHash             String
-  createdAt               DateTime            @default(now())
-  privateJobTarget        PrivateJobTarget    @relation("PrivateJobTargetVersions", fields: [privateJobTargetId], references: [id], onDelete: Cascade)
-  currentForTarget        PrivateJobTarget?   @relation("CurrentPrivateJobTargetVersion")
-  sourceJobPostingVersion JobPostingVersion?  @relation(fields: [sourceJobPostingVersionId], references: [id], onDelete: SetNull)
-  tailoringRuns           TailoringRun[]
-  jobApplications         JobApplication[]
-  interviewSessions       InterviewSession[]
+  version                   Int
+  companyName               String?
+  roleTitle                 String
+  description               String?            @db.Text
+  requirements              String[]           @default([])
+  skills                    Json?
+  contentHash               String
+  createdAt                 DateTime           @default(now())
+  privateJobTarget          PrivateJobTarget   @relation("PrivateJobTargetVersions", fields: [privateJobTargetId], references: [id], onDelete: Cascade)
+  currentForTarget          PrivateJobTarget?  @relation("CurrentPrivateJobTargetVersion")
+  sourceJobPostingVersion   JobPostingVersion? @relation(fields: [sourceJobPostingVersionId], references: [id], onDelete: SetNull)
+  tailoringRuns             TailoringRun[]
+  jobApplications           JobApplication[]
+  interviewSessions         InterviewSession[]
 
   @@unique([privateJobTargetId, version])
   @@unique([privateJobTargetId, contentHash])
@@ -824,38 +904,97 @@ model CandidateDocument {
   @@index([userId, status, updatedAt])
 }
 
+model CandidateDocumentUploadReservation {
+  id                String                             @id @default(cuid())
+  userId            String                             @db.Uuid
+  idempotencyKey    String                             @unique
+  expectedBucket    String
+  expectedKey       String
+  expectedMimeType  String
+  expectedExtension String
+  expectedSizeBytes Int
+  checksumSha256    String?
+  originalFileName  String
+  documentTitle     String
+  documentKind      CandidateDocumentKind              @default(cv)
+  status            DocumentUploadReservationStatus    @default(reserved)
+  createdAt         DateTime                           @default(now())
+  expiresAt         DateTime
+  usedAt            DateTime?
+  rejectedAt        DateTime?
+  user              User                               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processingEvents  CandidateDocumentProcessingEvent[]
+
+  @@unique([expectedBucket, expectedKey])
+  @@index([userId, status, createdAt])
+  @@index([expiresAt])
+}
+
+model CandidateDocumentProcessingEvent {
+  id                  String                              @id @default(cuid())
+  eventId             String                              @unique
+  userId              String?                             @db.Uuid
+  uploadReservationId String?
+  documentVersionId   String?
+  quarantineBucket    String
+  quarantineKey       String
+  status              DocumentProcessingEventStatus       @default(processing)
+  attempts            Int                                 @default(0)
+  failureCode         String?
+  failureMessage      String?                             @db.Text
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime                            @default(now())
+  updatedAt           DateTime                            @updatedAt
+  user                User?                               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  uploadReservation   CandidateDocumentUploadReservation? @relation(fields: [uploadReservationId], references: [id], onDelete: SetNull)
+  documentVersion     CandidateDocumentVersion?           @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status, createdAt])
+  @@index([uploadReservationId])
+  @@index([documentVersionId])
+  @@index([quarantineBucket, quarantineKey])
+}
+
 model CandidateDocumentVersion {
-  id                            String                         @id @default(cuid())
-  userId                        String                         @db.Uuid
-  documentId                    String
-  sourceVersionId               String?
-  version                       Int
-  status                        CandidateDocumentVersionStatus @default(quarantined)
-  r2Bucket                      String
-  r2Key                         String
-  r2Etag                        String?
-  checksumSha256                String?
-  contentHash                   String?
-  mimeType                      String
-  sizeBytes                     Int
-  scanStatus                    DocumentScanStatus             @default(pending)
-  scanProvider                  String?
-  scanVersion                   String?
-  structuredFactsSchemaVersion  String?
-  parsedTextHash                String?
-  createdAt                     DateTime                       @default(now())
-  deletedAt                     DateTime?
-  user                          User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document                      CandidateDocument              @relation("CandidateDocumentVersions", fields: [documentId], references: [id], onDelete: Cascade)
-  currentForDocument            CandidateDocument?             @relation("CurrentCandidateDocumentVersion")
-  sourceVersion                 CandidateDocumentVersion?      @relation("CandidateDocumentDerivation", fields: [sourceVersionId], references: [id], onDelete: SetNull)
-  derivedVersions               CandidateDocumentVersion[]     @relation("CandidateDocumentDerivation")
-  facts                         CandidateFact[]
-  sourceTailoringRuns           TailoringRun[]                 @relation("TailoringSourceDocumentVersion")
-  outputTailoringRun            TailoringRun?                  @relation("TailoringOutputDocumentVersion")
-  jobApplications               JobApplication[]
-  interviewSessions             InterviewSession[]
-  storageUsages                 StorageUsage[]
+  id                           String                             @id @default(cuid())
+  userId                       String                             @db.Uuid
+  documentId                   String
+  sourceVersionId              String?
+  version                      Int
+  status                       CandidateDocumentVersionStatus     @default(quarantined)
+  r2Bucket                     String
+  r2Key                        String
+  r2Etag                       String?
+  checksumSha256               String?
+  contentHash                  String?
+  mimeType                     String
+  sizeBytes                    Int
+  scanStatus                   DocumentScanStatus                 @default(pending)
+  scanProvider                 String?
+  scanVersion                  String?
+  parserProvider               String?
+  parserVersion                String?
+  structuredFactsSchemaVersion String?
+  parsedTextHash               String?
+  processingEvidence           Json?
+  rejectionCode                String?
+  rejectionMessage             String?                            @db.Text
+  createdAt                    DateTime                           @default(now())
+  deletedAt                    DateTime?
+  user                         User                               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document                     CandidateDocument                  @relation("CandidateDocumentVersions", fields: [documentId], references: [id], onDelete: Cascade)
+  currentForDocument           CandidateDocument?                 @relation("CurrentCandidateDocumentVersion")
+  sourceVersion                CandidateDocumentVersion?          @relation("CandidateDocumentDerivation", fields: [sourceVersionId], references: [id], onDelete: SetNull)
+  derivedVersions              CandidateDocumentVersion[]         @relation("CandidateDocumentDerivation")
+  facts                        CandidateFact[]
+  sourceTailoringRuns          TailoringRun[]                     @relation("TailoringSourceDocumentVersion")
+  outputTailoringRun           TailoringRun?                      @relation("TailoringOutputDocumentVersion")
+  tailoringExports             TailoringExport[]
+  jobApplications              JobApplication[]
+  interviewSessions            InterviewSession[]
+  storageUsages                StorageUsage[]
+  processingEvents             CandidateDocumentProcessingEvent[]
 
   @@unique([r2Bucket, r2Key])
   @@unique([documentId, version])
@@ -866,23 +1005,23 @@ model CandidateDocumentVersion {
 }
 
 model CandidateFact {
-  id                       String                      @id @default(cuid())
-  userId                   String                      @db.Uuid
-  documentId               String?
-  sourceDocumentVersionId  String?
-  skillId                  String?
-  type                     CandidateFactType
-  evidenceSource           CandidateFactEvidenceSource
-  label                    String
-  normalizedData           Json?
-  sourceExcerpt            String?                     @db.Text
-  userConfirmedAt          DateTime?
-  createdAt                DateTime                    @default(now())
-  updatedAt                DateTime                    @updatedAt
-  user                     User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document                 CandidateDocument?          @relation(fields: [documentId], references: [id], onDelete: SetNull)
-  sourceDocumentVersion    CandidateDocumentVersion?   @relation(fields: [sourceDocumentVersionId], references: [id], onDelete: SetNull)
-  skill                    Skill?                      @relation(fields: [skillId], references: [id], onDelete: SetNull)
+  id                      String                      @id @default(cuid())
+  userId                  String                      @db.Uuid
+  documentId              String?
+  sourceDocumentVersionId String?
+  skillId                 String?
+  type                    CandidateFactType
+  evidenceSource          CandidateFactEvidenceSource
+  label                   String
+  normalizedData          Json?
+  sourceExcerpt           String?                     @db.Text
+  userConfirmedAt         DateTime?
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+  user                    User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document                CandidateDocument?          @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  sourceDocumentVersion   CandidateDocumentVersion?   @relation(fields: [sourceDocumentVersionId], references: [id], onDelete: SetNull)
+  skill                   Skill?                      @relation(fields: [skillId], references: [id], onDelete: SetNull)
 
   @@index([userId, type])
   @@index([documentId])
@@ -919,6 +1058,7 @@ model TailoringRun {
   privateJobTargetVersion   PrivateJobTargetVersion?  @relation(fields: [privateJobTargetVersionId], references: [id], onDelete: SetNull)
   outputDocumentVersion     CandidateDocumentVersion? @relation("TailoringOutputDocumentVersion", fields: [outputDocumentVersionId], references: [id], onDelete: SetNull)
   editDecisions             TailoringEditDecision[]
+  exports                   TailoringExport[]
   modelUsages               ModelUsage[]
   creditLedgerEntries       CreditLedgerEntry[]
 
@@ -928,32 +1068,59 @@ model TailoringRun {
   @@index([privateJobTargetVersionId])
 }
 
+model TailoringExport {
+  id                    String                    @id @default(cuid())
+  userId                String                    @db.Uuid
+  tailoringRunId        String
+  documentVersionId     String?
+  format                TailoringExportFormat
+  r2Bucket              String
+  r2Key                 String
+  r2Etag                String?
+  checksumSha256        String?
+  contentHash           String?
+  mimeType              String
+  sizeBytes             Int
+  accessibilityEvidence Json?
+  createdAt             DateTime                  @default(now())
+  deletedAt             DateTime?
+  user                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tailoringRun          TailoringRun              @relation(fields: [tailoringRunId], references: [id], onDelete: Cascade)
+  documentVersion       CandidateDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([tailoringRunId, format])
+  @@unique([r2Bucket, r2Key])
+  @@index([userId, createdAt])
+  @@index([documentVersionId])
+  @@index([format, deletedAt])
+}
+
 model TailoringEditDecision {
-  id              String                    @id @default(cuid())
-  tailoringRunId  String
-  userId          String                    @db.Uuid
-  suggestionKey   String
-  decision        TailoringEditDecisionType
-  acceptedText    String?                   @db.Text
-  userEditedText  String?                   @db.Text
-  createdAt       DateTime                  @default(now())
-  tailoringRun    TailoringRun              @relation(fields: [tailoringRunId], references: [id], onDelete: Cascade)
-  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String                    @id @default(cuid())
+  tailoringRunId String
+  userId         String                    @db.Uuid
+  suggestionKey  String
+  decision       TailoringEditDecisionType
+  acceptedText   String?                   @db.Text
+  userEditedText String?                   @db.Text
+  createdAt      DateTime                  @default(now())
+  tailoringRun   TailoringRun              @relation(fields: [tailoringRunId], references: [id], onDelete: Cascade)
+  user           User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([tailoringRunId, suggestionKey])
   @@index([userId, createdAt])
 }
 
 model SavedJob {
-  id                  String            @id @default(cuid())
-  userId              String            @db.Uuid
-  jobPostingId        String
-  savedVersionId      String?
-  createdAt           DateTime          @default(now())
-  deletedAt           DateTime?
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  jobPosting          JobPosting        @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
-  savedVersion        JobPostingVersion? @relation(fields: [savedVersionId], references: [id], onDelete: SetNull)
+  id             String             @id @default(cuid())
+  userId         String             @db.Uuid
+  jobPostingId   String
+  savedVersionId String?
+  createdAt      DateTime           @default(now())
+  deletedAt      DateTime?
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobPosting     JobPosting         @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  savedVersion   JobPostingVersion? @relation(fields: [savedVersionId], references: [id], onDelete: SetNull)
 
   @@unique([userId, jobPostingId])
   @@index([userId, deletedAt, createdAt])
@@ -961,22 +1128,25 @@ model SavedJob {
 }
 
 model JobApplication {
-  id                        String                    @id @default(cuid())
-  userId                    String                    @db.Uuid
+  id                        String                     @id @default(cuid())
+  userId                    String                     @db.Uuid
   jobPostingVersionId       String?
   privateJobTargetVersionId String?
   documentVersionId         String?
-  currentStatus             ApplicationStatus         @default(interested)
+  currentStatus             ApplicationStatus          @default(interested)
   appliedAt                 DateTime?
   nextActionAt              DateTime?
-  notes                     String?                   @db.Text
-  createdAt                 DateTime                  @default(now())
-  updatedAt                 DateTime                  @updatedAt
+  reminderEnabled           Boolean                    @default(false)
+  reminderLeadDays          Int?
+  reminderTimeZone          String?
+  notes                     String?                    @db.Text
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
   deletedAt                 DateTime?
-  user                      User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  jobPostingVersion         JobPostingVersion?        @relation(fields: [jobPostingVersionId], references: [id], onDelete: SetNull)
-  privateJobTargetVersion   PrivateJobTargetVersion?  @relation(fields: [privateJobTargetVersionId], references: [id], onDelete: SetNull)
-  documentVersion           CandidateDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
+  user                      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobPostingVersion         JobPostingVersion?         @relation(fields: [jobPostingVersionId], references: [id], onDelete: SetNull)
+  privateJobTargetVersion   PrivateJobTargetVersion?   @relation(fields: [privateJobTargetVersionId], references: [id], onDelete: SetNull)
+  documentVersion           CandidateDocumentVersion?  @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
   statusEvents              ApplicationStatusEvent[]
   outboundEvents            ApplicationOutboundEvent[]
 
@@ -987,33 +1157,33 @@ model JobApplication {
 }
 
 model ApplicationStatusEvent {
-  id               String            @id @default(cuid())
-  applicationId    String
-  userId           String            @db.Uuid
-  fromStatus       ApplicationStatus?
-  toStatus         ApplicationStatus
-  note             String?           @db.Text
-  occurredAt       DateTime          @default(now())
-  createdAt        DateTime          @default(now())
-  application      JobApplication    @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String             @id @default(cuid())
+  applicationId String
+  userId        String             @db.Uuid
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  note          String?            @db.Text
+  occurredAt    DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  application   JobApplication     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([applicationId, occurredAt])
   @@index([userId, occurredAt])
 }
 
 model ApplicationOutboundEvent {
-  id                  String             @id @default(cuid())
-  userId              String?            @db.Uuid
+  id                  String            @id @default(cuid())
+  userId              String?           @db.Uuid
   jobApplicationId    String?
   jobPostingVersionId String
   destinationHost     String
   destinationHash     String
   userAgentHash       String?
-  occurredAt          DateTime           @default(now())
-  user                User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  jobApplication      JobApplication?    @relation(fields: [jobApplicationId], references: [id], onDelete: SetNull)
-  jobPostingVersion   JobPostingVersion  @relation(fields: [jobPostingVersionId], references: [id], onDelete: Restrict)
+  occurredAt          DateTime          @default(now())
+  user                User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  jobApplication      JobApplication?   @relation(fields: [jobApplicationId], references: [id], onDelete: SetNull)
+  jobPostingVersion   JobPostingVersion @relation(fields: [jobPostingVersionId], references: [id], onDelete: Restrict)
 
   @@index([jobPostingVersionId, occurredAt])
   @@index([userId, occurredAt])
@@ -1021,47 +1191,47 @@ model ApplicationOutboundEvent {
 }
 
 model EvaluationFramework {
-  id            String                @id @default(cuid())
-  key           String                @unique
-  name          String
-  description   String?               @db.Text
-  isActive      Boolean               @default(true)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  planModules   InterviewPlanModule[]
-  questions     Question[]
-  rubrics       Rubric[]
+  id             String                @id @default(cuid())
+  key            String                @unique
+  name           String
+  description    String?               @db.Text
+  isActive       Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  planModules    InterviewPlanModule[]
+  questions      Question[]
+  rubrics        Rubric[]
   interviewTurns InterviewTurn[]
 
   @@index([isActive, key])
 }
 
 model InterviewPlan {
-  id                     String                @id @default(cuid())
-  slug                   String
-  version                Int
-  marketId               String?
-  companyId              String?
-  roleFamilyId           String
-  jobRoleId              String?
-  seniorityLevelId       String
-  interviewStageId       String?
-  focusMode              InterviewFocusMode   @default(recommended)
-  status                 ContentStatus        @default(draft)
-  promptVersion          String
-  questionSetVersion     String
-  rubricVersion          String
-  rationale              String?              @db.Text
-  createdAt              DateTime             @default(now())
-  retiredAt              DateTime?
-  market                 Market?              @relation(fields: [marketId], references: [id], onDelete: SetNull)
-  company                Company?             @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  roleFamily             RoleFamily           @relation(fields: [roleFamilyId], references: [id], onDelete: Restrict)
-  jobRole                JobRole?             @relation(fields: [jobRoleId], references: [id], onDelete: SetNull)
-  seniorityLevel         SeniorityLevel        @relation(fields: [seniorityLevelId], references: [id], onDelete: Restrict)
-  interviewStage         InterviewStage?       @relation(fields: [interviewStageId], references: [id], onDelete: SetNull)
-  modules                InterviewPlanModule[]
-  interviewSessions      InterviewSession[]
+  id                 String                @id @default(cuid())
+  slug               String
+  version            Int
+  marketId           String?
+  companyId          String?
+  roleFamilyId       String
+  jobRoleId          String?
+  seniorityLevelId   String
+  interviewStageId   String?
+  focusMode          InterviewFocusMode    @default(recommended)
+  status             ContentStatus         @default(draft)
+  promptVersion      String
+  questionSetVersion String
+  rubricVersion      String
+  rationale          String?               @db.Text
+  createdAt          DateTime              @default(now())
+  retiredAt          DateTime?
+  market             Market?               @relation(fields: [marketId], references: [id], onDelete: SetNull)
+  company            Company?              @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  roleFamily         RoleFamily            @relation(fields: [roleFamilyId], references: [id], onDelete: Restrict)
+  jobRole            JobRole?              @relation(fields: [jobRoleId], references: [id], onDelete: SetNull)
+  seniorityLevel     SeniorityLevel        @relation(fields: [seniorityLevelId], references: [id], onDelete: Restrict)
+  interviewStage     InterviewStage?       @relation(fields: [interviewStageId], references: [id], onDelete: SetNull)
+  modules            InterviewPlanModule[]
+  interviewSessions  InterviewSession[]
 
   @@unique([slug, version])
   @@index([status, roleFamilyId, seniorityLevelId])
@@ -1070,16 +1240,16 @@ model InterviewPlan {
 
 model InterviewPlanModule {
   id                    String              @id @default(cuid())
-  interviewPlanId        String
-  evaluationFrameworkId  String
-  competencyId           String?
-  weight                 Int
-  displayOrder           Int                @default(0)
-  rubricKey              String?
-  selectionRules         Json?
-  interviewPlan          InterviewPlan      @relation(fields: [interviewPlanId], references: [id], onDelete: Cascade)
-  evaluationFramework    EvaluationFramework @relation(fields: [evaluationFrameworkId], references: [id], onDelete: Restrict)
-  competency             Competency?        @relation(fields: [competencyId], references: [id], onDelete: SetNull)
+  interviewPlanId       String
+  evaluationFrameworkId String
+  competencyId          String?
+  weight                Int
+  displayOrder          Int                 @default(0)
+  rubricKey             String?
+  selectionRules        Json?
+  interviewPlan         InterviewPlan       @relation(fields: [interviewPlanId], references: [id], onDelete: Cascade)
+  evaluationFramework   EvaluationFramework @relation(fields: [evaluationFrameworkId], references: [id], onDelete: Restrict)
+  competency            Competency?         @relation(fields: [competencyId], references: [id], onDelete: SetNull)
 
   @@unique([interviewPlanId, evaluationFrameworkId, competencyId])
   @@index([evaluationFrameworkId])
@@ -1087,26 +1257,26 @@ model InterviewPlanModule {
 }
 
 model Question {
-  id                    String                 @id @default(cuid())
+  id                    String               @id @default(cuid())
   slug                  String
   version               Int
-  prompt                String                 @db.Text
+  prompt                String               @db.Text
   evaluationFrameworkId String
   industryId            String?
   difficulty            String?
   seniorityLevelId      String?
   followUpToQuestionId  String?
-  publicationStatus     ContentStatus          @default(draft)
-  confidence            ConfidenceLevel        @default(low)
+  publicationStatus     ContentStatus        @default(draft)
+  confidence            ConfidenceLevel      @default(low)
   reviewedAt            DateTime?
   nextReviewAt          DateTime?
-  createdAt             DateTime               @default(now())
+  createdAt             DateTime             @default(now())
   retiredAt             DateTime?
-  evaluationFramework   EvaluationFramework    @relation(fields: [evaluationFrameworkId], references: [id], onDelete: Restrict)
-  industry              Industry?              @relation(fields: [industryId], references: [id], onDelete: SetNull)
-  seniorityLevel        SeniorityLevel?        @relation(fields: [seniorityLevelId], references: [id], onDelete: SetNull)
-  followUpToQuestion    Question?              @relation("QuestionFollowUps", fields: [followUpToQuestionId], references: [id], onDelete: SetNull)
-  followUps             Question[]             @relation("QuestionFollowUps")
+  evaluationFramework   EvaluationFramework  @relation(fields: [evaluationFrameworkId], references: [id], onDelete: Restrict)
+  industry              Industry?            @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  seniorityLevel        SeniorityLevel?      @relation(fields: [seniorityLevelId], references: [id], onDelete: SetNull)
+  followUpToQuestion    Question?            @relation("QuestionFollowUps", fields: [followUpToQuestionId], references: [id], onDelete: SetNull)
+  followUps             Question[]           @relation("QuestionFollowUps")
   variants              QuestionVariant[]
   companies             QuestionCompany[]
   roles                 QuestionRole[]
@@ -1126,16 +1296,16 @@ model Question {
 }
 
 model QuestionCompany {
-  id              String          @id @default(cuid())
-  questionId      String
-  companyId       String
-  sourceId        String?
-  weight          Int             @default(1)
-  rationale       String?         @db.Text
-  createdAt       DateTime        @default(now())
-  question        Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  source          ContentSource?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  id         String         @id @default(cuid())
+  questionId String
+  companyId  String
+  sourceId   String?
+  weight     Int            @default(1)
+  rationale  String?        @db.Text
+  createdAt  DateTime       @default(now())
+  question   Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  company    Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  source     ContentSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
 
   @@unique([questionId, companyId])
   @@index([companyId, weight])
@@ -1143,16 +1313,16 @@ model QuestionCompany {
 }
 
 model QuestionRole {
-  id             String      @id @default(cuid())
-  questionId     String
-  roleFamilyId   String?
-  jobRoleId      String?
-  weight         Int         @default(1)
-  rationale      String?     @db.Text
-  createdAt      DateTime    @default(now())
-  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  roleFamily     RoleFamily? @relation(fields: [roleFamilyId], references: [id], onDelete: Cascade)
-  jobRole        JobRole?    @relation(fields: [jobRoleId], references: [id], onDelete: Cascade)
+  id           String      @id @default(cuid())
+  questionId   String
+  roleFamilyId String?
+  jobRoleId    String?
+  weight       Int         @default(1)
+  rationale    String?     @db.Text
+  createdAt    DateTime    @default(now())
+  question     Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  roleFamily   RoleFamily? @relation(fields: [roleFamilyId], references: [id], onDelete: Cascade)
+  jobRole      JobRole?    @relation(fields: [jobRoleId], references: [id], onDelete: Cascade)
 
   @@index([roleFamilyId, weight])
   @@index([jobRoleId, weight])
@@ -1160,49 +1330,49 @@ model QuestionRole {
 }
 
 model QuestionCompetency {
-  id            String      @id @default(cuid())
-  questionId    String
-  competencyId  String
-  weight        Int         @default(1)
-  rationale     String?     @db.Text
-  createdAt     DateTime    @default(now())
-  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  competency    Competency  @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  id           String     @id @default(cuid())
+  questionId   String
+  competencyId String
+  weight       Int        @default(1)
+  rationale    String?    @db.Text
+  createdAt    DateTime   @default(now())
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  competency   Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
 
   @@unique([questionId, competencyId])
   @@index([competencyId, weight])
 }
 
 model QuestionVariant {
-  id          String    @id @default(cuid())
-  questionId  String
-  locale      String    @default("en")
-  prompt      String    @db.Text
-  createdAt   DateTime  @default(now())
-  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  questionId String
+  locale     String   @default("en")
+  prompt     String   @db.Text
+  createdAt  DateTime @default(now())
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([questionId, locale])
 }
 
 model StrongAnswerSignal {
-  id          String    @id @default(cuid())
-  questionId  String
-  label       String
-  description String    @db.Text
+  id           String   @id @default(cuid())
+  questionId   String
+  label        String
+  description  String   @db.Text
   displayOrder Int      @default(0)
-  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([questionId, displayOrder])
 }
 
 model RedFlag {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   questionId   String
   label        String
-  description  String    @db.Text
-  severity     Int       @default(1)
-  displayOrder Int       @default(0)
-  question     Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  description  String   @db.Text
+  severity     Int      @default(1)
+  displayOrder Int      @default(0)
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([questionId, severity])
 }
@@ -1262,8 +1432,8 @@ model RubricCriterion {
 model InterviewSession {
   id                          String                    @id @default(cuid())
   userId                      String                    @db.Uuid
-  visaTypeId                  String
-  originCountryId             String
+  visaTypeId                  String?
+  originCountryId             String?
   previousRejections          String                    @default("None")
   onboardingData              Json                      @default("{}")
   concerns                    String?
@@ -1291,8 +1461,8 @@ model InterviewSession {
   rubricVersion               String?
   promptVersion               String?
   user                        User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  visaType                    VisaType                  @relation(fields: [visaTypeId], references: [id], onDelete: Cascade)
-  originCountry               Country                   @relation("OriginCountryInterviews", fields: [originCountryId], references: [id], onDelete: Cascade)
+  visaType                    VisaType?                 @relation(fields: [visaTypeId], references: [id], onDelete: Cascade)
+  originCountry               Country?                  @relation("OriginCountryInterviews", fields: [originCountryId], references: [id], onDelete: Cascade)
   market                      Market?                   @relation(fields: [marketId], references: [id], onDelete: SetNull)
   company                     Company?                  @relation(fields: [companyId], references: [id], onDelete: SetNull)
   roleFamily                  RoleFamily?               @relation(fields: [roleFamilyId], references: [id], onDelete: SetNull)
@@ -1429,24 +1599,24 @@ model Report {
 }
 
 model InterviewReport {
-  id                String             @id @default(cuid())
+  id                String            @id @default(cuid())
   sessionId         String
   version           Int
-  evidenceStatus    String             @default("complete")
-  answeredQuestions Int                @default(0)
+  evidenceStatus    String            @default("complete")
+  answeredQuestions Int               @default(0)
   score             Int?
-  summary           String             @db.Text
-  strengths         String[]           @default([])
-  priorities        String[]           @default([])
-  actions           String[]           @default([])
+  summary           String            @db.Text
+  strengths         String[]          @default([])
+  priorities        String[]          @default([])
+  actions           String[]          @default([])
   reportVersion     String
   promptVersion     String?
   rubricVersion     String?
   provider          String?
   modelName         String?
   rawSnapshot       Json?
-  createdAt         DateTime           @default(now())
-  session           InterviewSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt         DateTime          @default(now())
+  session           InterviewSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   competencyScores  CompetencyScore[]
   starScores        StarScore[]
   technicalScores   TechnicalScore[]
@@ -1457,62 +1627,62 @@ model InterviewReport {
 }
 
 model CompetencyScore {
-  id               String          @id @default(cuid())
+  id                String          @id @default(cuid())
   interviewReportId String
-  competencyId     String
-  score            Int?
-  evidenceExcerpts String[]        @default([])
-  explanation      String          @db.Text
-  createdAt        DateTime        @default(now())
-  interviewReport  InterviewReport @relation(fields: [interviewReportId], references: [id], onDelete: Cascade)
-  competency       Competency      @relation(fields: [competencyId], references: [id], onDelete: Restrict)
+  competencyId      String
+  score             Int?
+  evidenceExcerpts  String[]        @default([])
+  explanation       String          @db.Text
+  createdAt         DateTime        @default(now())
+  interviewReport   InterviewReport @relation(fields: [interviewReportId], references: [id], onDelete: Cascade)
+  competency        Competency      @relation(fields: [competencyId], references: [id], onDelete: Restrict)
 
   @@unique([interviewReportId, competencyId])
   @@index([competencyId, score])
 }
 
 model StarScore {
-  id                  String              @id @default(cuid())
-  interviewReportId   String
-  interviewTurnId     String?
-  situationStatus     StarComponentStatus @default(missing)
-  situationScore      Int?
-  situationEvidence   String?             @db.Text
-  taskStatus          StarComponentStatus @default(missing)
-  taskScore           Int?
-  taskEvidence        String?             @db.Text
-  actionStatus        StarComponentStatus @default(missing)
-  actionScore         Int?
-  actionEvidence      String?             @db.Text
-  resultStatus        StarComponentStatus @default(missing)
-  resultScore         Int?
-  resultEvidence      String?             @db.Text
-  createdAt           DateTime            @default(now())
-  interviewReport     InterviewReport     @relation(fields: [interviewReportId], references: [id], onDelete: Cascade)
-  interviewTurn       InterviewTurn?      @relation(fields: [interviewTurnId], references: [id], onDelete: SetNull)
+  id                String              @id @default(cuid())
+  interviewReportId String
+  interviewTurnId   String?
+  situationStatus   StarComponentStatus @default(missing)
+  situationScore    Int?
+  situationEvidence String?             @db.Text
+  taskStatus        StarComponentStatus @default(missing)
+  taskScore         Int?
+  taskEvidence      String?             @db.Text
+  actionStatus      StarComponentStatus @default(missing)
+  actionScore       Int?
+  actionEvidence    String?             @db.Text
+  resultStatus      StarComponentStatus @default(missing)
+  resultScore       Int?
+  resultEvidence    String?             @db.Text
+  createdAt         DateTime            @default(now())
+  interviewReport   InterviewReport     @relation(fields: [interviewReportId], references: [id], onDelete: Cascade)
+  interviewTurn     InterviewTurn?      @relation(fields: [interviewTurnId], references: [id], onDelete: SetNull)
 
   @@index([interviewReportId])
   @@index([interviewTurnId])
 }
 
 model TechnicalScore {
-  id                  String          @id @default(cuid())
-  interviewReportId   String
-  interviewTurnId     String?
-  frameworkKey        String
-  accuracy            Int?
-  completeness        Int?
-  clarity             Int?
-  mechanism           Int?
-  practicalUse        Int?
-  depth               Int?
-  tradeOffs           Int?
-  evidenceExcerpts    String[]        @default([])
-  explanation         String          @db.Text
-  criteriaSnapshot    Json?
-  createdAt           DateTime        @default(now())
-  interviewReport     InterviewReport @relation(fields: [interviewReportId], references: [id], onDelete: Cascade)
-  interviewTurn       InterviewTurn?  @relation(fields: [interviewTurnId], references: [id], onDelete: SetNull)
+  id                String          @id @default(cuid())
+  interviewReportId String
+  interviewTurnId   String?
+  frameworkKey      String
+  accuracy          Int?
+  completeness      Int?
+  clarity           Int?
+  mechanism         Int?
+  practicalUse      Int?
+  depth             Int?
+  tradeOffs         Int?
+  evidenceExcerpts  String[]        @default([])
+  explanation       String          @db.Text
+  criteriaSnapshot  Json?
+  createdAt         DateTime        @default(now())
+  interviewReport   InterviewReport @relation(fields: [interviewReportId], references: [id], onDelete: Cascade)
+  interviewTurn     InterviewTurn?  @relation(fields: [interviewTurnId], references: [id], onDelete: SetNull)
 
   @@index([interviewReportId, frameworkKey])
   @@index([interviewTurnId])
@@ -1622,26 +1792,26 @@ model CreditLedgerEntry {
 }
 
 model ModelUsage {
-  id                 String             @id @default(cuid())
-  userId             String?            @db.Uuid
-  interviewSessionId String?
-  tailoringRunId     String?
-  provider           String
-  model              String
-  operation          ModelOperation
-  modality           ModelModality
-  inputTokens        Int?
-  outputTokens       Int?
-  cachedInputTokens  Int?
-  audioSeconds       Int?
-  documentBytes      Int?
+  id                  String            @id @default(cuid())
+  userId              String?           @db.Uuid
+  interviewSessionId  String?
+  tailoringRunId      String?
+  provider            String
+  model               String
+  operation           ModelOperation
+  modality            ModelModality
+  inputTokens         Int?
+  outputTokens        Int?
+  cachedInputTokens   Int?
+  audioSeconds        Int?
+  documentBytes       Int?
   estimatedCostAmount Decimal?          @db.Decimal(18, 8)
-  currency           String?
-  requestIdHash      String?
-  createdAt          DateTime           @default(now())
-  user               User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  interviewSession   InterviewSession?  @relation(fields: [interviewSessionId], references: [id], onDelete: SetNull)
-  tailoringRun       TailoringRun?      @relation(fields: [tailoringRunId], references: [id], onDelete: SetNull)
+  currency            String?
+  requestIdHash       String?
+  createdAt           DateTime          @default(now())
+  user                User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  interviewSession    InterviewSession? @relation(fields: [interviewSessionId], references: [id], onDelete: SetNull)
+  tailoringRun        TailoringRun?     @relation(fields: [tailoringRunId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@index([operation, model, createdAt])
@@ -1650,19 +1820,19 @@ model ModelUsage {
 }
 
 model StorageUsage {
-  id                String                    @id @default(cuid())
-  userId            String?                   @db.Uuid
-  documentVersionId String?
-  operation         StorageOperation
-  bucket            String
-  objectKeyHash     String?
-  bytes             Int?
-  objectCount       Int                       @default(1)
-  estimatedCostAmount Decimal?                @db.Decimal(18, 8)
-  currency          String?
-  createdAt         DateTime                  @default(now())
-  user              User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  documentVersion   CandidateDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
+  id                  String                    @id @default(cuid())
+  userId              String?                   @db.Uuid
+  documentVersionId   String?
+  operation           StorageOperation
+  bucket              String
+  objectKeyHash       String?
+  bytes               Int?
+  objectCount         Int                       @default(1)
+  estimatedCostAmount Decimal?                  @db.Decimal(18, 8)
+  currency            String?
+  createdAt           DateTime                  @default(now())
+  user                User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  documentVersion     CandidateDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@index([documentVersionId])

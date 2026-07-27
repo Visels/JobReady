@@ -41,6 +41,9 @@ const sessionWithReportAndMessages =
 type SessionWithReportAndMessages = Prisma.InterviewSessionGetPayload<
   typeof sessionWithReportAndMessages
 >;
+type LegacySessionWithReportAndMessages = SessionWithReportAndMessages & {
+  visaType: NonNullable<SessionWithReportAndMessages["visaType"]>;
+};
 
 type UserPlanSource = {
   credits: number;
@@ -104,8 +107,14 @@ function durationMinutes(session: SessionWithReportAndMessages) {
   return Math.max(1, Math.round((last.getTime() - first.getTime()) / 60000));
 }
 
-function toDashboardSession(
+function hasVisaContext(
   session: SessionWithReportAndMessages,
+): session is LegacySessionWithReportAndMessages {
+  return Boolean(session.visaType);
+}
+
+function toDashboardSession(
+  session: LegacySessionWithReportAndMessages,
 ): DashboardSession {
   const score =
     session.report?.evidenceStatus === "complete"
@@ -266,7 +275,7 @@ export async function getDashboardSidebarPlan(userId: string) {
       },
     }),
     prisma.interviewSession.findFirst({
-      where: { userId },
+      where: { userId, sessionKind: "legacy_visa" },
       orderBy: { createdAt: "desc" },
       select: { visaType: { select: { name: true } } },
     }),
@@ -274,7 +283,7 @@ export async function getDashboardSidebarPlan(userId: string) {
 
   return {
     ...getPlan(user ?? { credits: 0, purchases: [] }),
-    currentVisaType: latestSession?.visaType.name ?? null,
+    currentVisaType: latestSession?.visaType?.name ?? null,
   };
 }
 
@@ -312,29 +321,39 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
       },
     }),
     prisma.interviewSession.findMany({
-      where: { userId },
+      where: { userId, sessionKind: "legacy_visa" },
       orderBy: { createdAt: "desc" },
       take: 3,
       ...sessionWithReportAndMessages,
     }),
     prisma.report.findMany({
-      where: { session: { userId }, evidenceStatus: "complete" },
+      where: {
+        session: { userId, sessionKind: "legacy_visa" },
+        evidenceStatus: "complete",
+      },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.interviewSession.count({ where: { userId, status: "completed" } }),
-    prisma.interviewSession.count({ where: { userId } }),
+    prisma.interviewSession.count({
+      where: { userId, sessionKind: "legacy_visa", status: "completed" },
+    }),
+    prisma.interviewSession.count({ where: { userId, sessionKind: "legacy_visa" } }),
     prisma.interviewSession.findMany({
-      where: { userId, createdAt: { gte: sevenDaysAgo } },
+      where: {
+        userId,
+        sessionKind: "legacy_visa",
+        createdAt: { gte: sevenDaysAgo },
+      },
       select: { createdAt: true },
     }),
     prisma.interviewSession.findFirst({
-      where: { userId, status: "ongoing" },
+      where: { userId, sessionKind: "legacy_visa", status: "ongoing" },
       orderBy: { createdAt: "desc" },
       select: { id: true, visaType: { select: { name: true } } },
     }),
   ]);
 
   const plan = getPlan(user ?? { credits: 0, purchases: [] });
+  const legacyLastThreeSessions = lastThreeSessions.filter(hasVisaContext);
   const recentReports = lastThreeSessions
     .map((session) => session.report)
     .filter(
@@ -363,8 +382,8 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     },
     interviewContext: {
       visaType:
-        activeSession?.visaType.name ??
-        lastThreeSessions[0]?.visaType.name ??
+        activeSession?.visaType?.name ??
+        legacyLastThreeSessions[0]?.visaType.name ??
         null,
       daysUntilInterview: null,
       hasActiveSession: Boolean(activeSession),
@@ -377,7 +396,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     weakestArea,
     latestReportSessionId: latestReport?.sessionId ?? null,
     criteria,
-    recentSessions: lastThreeSessions.map(toDashboardSession),
+    recentSessions: legacyLastThreeSessions.map(toDashboardSession),
     streakDays: getStreakDays(lastSevenDaySessions),
     streakSessionCount: lastSevenDaySessions.length,
     tips: getTips(latestReport),

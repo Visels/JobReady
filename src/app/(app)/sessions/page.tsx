@@ -51,7 +51,7 @@ export default async function SessionsPage() {
   if (!user) redirect("/login");
 
   const sessions = await prisma.interviewSession.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, sessionKind: "legacy_visa" },
     orderBy: { createdAt: "desc" },
     include: {
       report: { select: { score: true, evidenceStatus: true } },
@@ -118,6 +118,8 @@ export default async function SessionsPage() {
               <tbody className="divide-y divide-[#edf1ef]">
                 {sessions.length > 0 ? (
                   sessions.map((item) => {
+                    if (!item.visaType) return null;
+
                     const score =
                       item.report?.evidenceStatus === "complete"
                         ? item.report.score

@@ -160,7 +160,7 @@ export async function POST(
     where: { id },
     include: interviewSessionInclude,
   });
-  if (!refreshedSession) {
+  if (!refreshedSession || !refreshedSession.visaType || !refreshedSession.originCountry) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
   const saved = await prisma.$transaction(async (tx) => {

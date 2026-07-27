@@ -36,11 +36,11 @@ export default async function InterviewPage({
 
   const { id } = await params;
   const interviewSession = await prisma.interviewSession.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: user.id, sessionKind: "legacy_visa" },
     include: interviewSessionInclude,
   });
 
-  if (!interviewSession) notFound();
+  if (!interviewSession || !interviewSession.visaType) notFound();
   if (interviewSession.status === "completed") redirect(`/session/${id}/report`);
   const officer = getOfficerProfile(
     interviewSession.visaType.destinationCountry.name,

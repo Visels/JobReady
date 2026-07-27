@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { countries as allCountries } from "../src/lib/countries";
+import { seedJobreadyReferenceFixtures } from "./jobready-reference-fixtures";
 
 const prisma = new PrismaClient();
 
@@ -2001,6 +2002,8 @@ async function main() {
       },
     });
   }
+
+  await seedJobreadyReferenceFixtures(prisma);
 }
 
 main()

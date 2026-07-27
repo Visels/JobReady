@@ -57,6 +57,7 @@ export default async function PracticePage({
           },
         },
         interviews: {
+          where: { sessionKind: "legacy_visa" },
           orderBy: { createdAt: "desc" },
           take: 1,
           select: {
@@ -117,12 +118,13 @@ export default async function PracticePage({
       )
     : null;
   const lastInterviewDestinationCountryId =
-    user?.interviews[0]?.visaType.destinationCountryId;
-  const lastInterviewVisaTypeId = user?.interviews[0]?.visaTypeId;
+    user?.interviews[0]?.visaType?.destinationCountryId ?? undefined;
+  const lastInterviewVisaTypeId = user?.interviews[0]?.visaTypeId ?? undefined;
   const initialDestinationCountryId =
     requestedVisaType?.destinationCountryId ??
     requestedDestinationCountry?.id ??
-    lastInterviewDestinationCountryId;
+    lastInterviewDestinationCountryId ??
+    undefined;
   const initialVisaTypeId =
     requestedVisaType?.id ?? (requestedVisa ? "" : lastInterviewVisaTypeId);
   const prefillNotice = requestedVisa

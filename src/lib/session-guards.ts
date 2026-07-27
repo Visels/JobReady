@@ -25,6 +25,32 @@ export const interviewSessionInclude = {
   originCountry: true,
 } satisfies Prisma.InterviewSessionInclude;
 
+export type LegacyInterviewSessionWithContext =
+  Prisma.InterviewSessionGetPayload<{
+    include: typeof interviewSessionInclude;
+  }> & {
+    visaType: NonNullable<
+      Prisma.InterviewSessionGetPayload<{
+        include: typeof interviewSessionInclude;
+      }>["visaType"]
+    >;
+    originCountry: NonNullable<
+      Prisma.InterviewSessionGetPayload<{
+        include: typeof interviewSessionInclude;
+      }>["originCountry"]
+    >;
+  };
+
+type RequireOwnedSessionResult =
+  | {
+      interviewSession: LegacyInterviewSessionWithContext;
+      response: null;
+    }
+  | {
+      interviewSession: null;
+      response: NextResponse;
+    };
+
 export async function requireUser() {
   const sessionUser = await getCurrentUser();
 
@@ -50,18 +76,28 @@ export async function requireUser() {
   return { user, response: null };
 }
 
-export async function requireOwnedSession(sessionId: string, userId: string) {
+export async function requireOwnedSession(
+  sessionId: string,
+  userId: string,
+): Promise<RequireOwnedSessionResult> {
   const interviewSession = await prisma.interviewSession.findFirst({
-    where: { id: sessionId, userId },
+    where: { id: sessionId, userId, sessionKind: "legacy_visa" },
     include: interviewSessionInclude,
   });
 
-  if (!interviewSession) {
+  if (
+    !interviewSession ||
+    !interviewSession.visaType ||
+    !interviewSession.originCountry
+  ) {
     return {
       interviewSession: null,
       response: NextResponse.json({ error: "Session not found" }, { status: 404 }),
     };
   }
 
-  return { interviewSession, response: null };
+  return {
+    interviewSession: interviewSession as LegacyInterviewSessionWithContext,
+    response: null,
+  };
 }

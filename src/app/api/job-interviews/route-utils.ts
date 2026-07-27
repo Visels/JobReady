@@ -1,0 +1,58 @@
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { JobInterviewSessionError } from "@/lib/interviews";
+
+export async function requestData(request: Request) {
+  const contentType = request.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    return (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  }
+
+  if (
+    contentType.includes("application/x-www-form-urlencoded") ||
+    contentType.includes("multipart/form-data")
+  ) {
+    return Object.fromEntries(await request.formData()) as Record<string, unknown>;
+  }
+
+  return {};
+}
+
+export function jsonJobInterviewError(error: unknown) {
+  if (error instanceof ZodError) {
+    return NextResponse.json(
+      {
+        error: "Invalid job interview session request.",
+        code: "invalid_input",
+        issues: error.issues,
+      },
+      { status: 400 },
+    );
+  }
+
+  if (error instanceof JobInterviewSessionError) {
+    const status =
+      error.code === "insufficient_credits"
+        ? 402
+        : error.code === "not_found" ||
+            error.code === "target_unavailable" ||
+            error.code === "document_unavailable"
+          ? 404
+          : error.code === "idempotency_conflict" ||
+              error.code === "plan_unavailable"
+            ? 409
+            : 400;
+
+    return NextResponse.json(
+      { error: error.message, code: error.code, details: error.details },
+      { status },
+    );
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    console.error(error);
+  }
+
+  return NextResponse.json({ error: "Request failed." }, { status: 500 });
+}
