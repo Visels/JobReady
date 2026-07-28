@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  BarChart3,
   BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
@@ -14,8 +13,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
   Target,
-  UsersRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -291,7 +290,7 @@ function TextAction({
 
 function HeroInterviewPreview() {
   return (
-    <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none">
+    <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:scale-[1.12] lg:origin-center">
       <Image
         src="/marketing/jobready-interview-hero.png"
         alt="Jobready mock interview room showing an interviewer, candidate, interview question, score, and controls"
@@ -383,16 +382,12 @@ function HeroSearchForm({ options }: { options: HeroSearchOptions }) {
 
 function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-[#fbf8f2] px-5 pb-12 pt-14 text-[#071512] md:px-7 md:pb-16 md:pt-20 lg:px-8 lg:pb-20 lg:pt-24">
+    <section className="relative isolate overflow-hidden bg-[#fbf8f2] px-5 pb-12 pt-8 text-[#071512] md:px-7 md:pb-16 md:pt-12 lg:px-8 lg:pb-20 lg:pt-14">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_4%_14%,rgba(215,168,79,0.07),transparent_24%),radial-gradient(circle_at_78%_20%,rgba(0,83,63,0.04),transparent_30%)]" />
-      <div className="mx-auto grid max-w-[1440px] gap-14 lg:grid-cols-[minmax(390px,0.82fr)_minmax(620px,1.18fr)] lg:items-center lg:gap-14 xl:gap-20">
+      <div className="mx-auto grid max-w-[1536px] gap-14 lg:grid-cols-[minmax(360px,0.72fr)_minmax(660px,1.28fr)] lg:items-center lg:gap-10 xl:gap-16">
         <div className="reveal-up lg:pb-3">
-          <p className="inline-flex items-center gap-2 rounded-full bg-[#e8f0e7] px-4 py-2 text-sm font-bold text-[#00533f]">
-            <UsersRound className="h-4 w-4" strokeWidth={2.2} />
-            Built for Kenyans & Africans
-          </p>
-          <h1 className="mt-6 max-w-[9ch] text-[clamp(3rem,4.7vw,5.25rem)] font-bold leading-[0.98] tracking-[-0.058em] text-[#071512] text-balance">
-            Ace your next <span className="text-[#006b4f]">job interview.</span>
+          <h1 className="max-w-[9ch] text-[clamp(3rem,4.7vw,5.25rem)] font-bold leading-[0.98] tracking-[-0.058em] text-[#071512] text-balance">
+            Ace your next job <span className="text-[#007a55]">interview.</span>
           </h1>
           <p className="mt-6 max-w-[45ch] text-[1.08rem] font-medium leading-8 text-[#35433f] md:text-[1.18rem]">
             Realistic mock interviews. Expert feedback. Better answers for the opportunities you want.
@@ -401,9 +396,9 @@ function HeroSection() {
             <Link
               href={candidateHref("/interviews/new")}
               data-analytics-event="hero_interview_start_click"
-              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#00533f] px-6 text-[0.98rem] font-bold text-white shadow-[0_8px_18px_rgba(0,83,63,0.2)] transition hover:-translate-y-px hover:bg-[#043b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#007a55] px-6 text-[0.98rem] font-bold text-white shadow-[0_8px_18px_rgba(0,122,85,0.2)] transition hover:-translate-y-px hover:bg-[#005e42] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#007a55]"
             >
-              Start Free Mock Interview
+              Start Mock Interview
               <ArrowRight className="h-4 w-4" strokeWidth={2.4} />
             </Link>
             <Link
@@ -415,11 +410,7 @@ function HeroSection() {
               Explore Roles
             </Link>
           </div>
-          <div className="mt-10 grid max-w-[580px] gap-5 sm:grid-cols-3">
-            <HeroBenefit icon={Target} title="Realistic AI interviewer" copy="Role-specific questions" />
-            <HeroBenefit icon={BarChart3} title="Smart feedback" copy="Get scored and improve" />
-            <HeroBenefit icon={ClipboardCheck} title="Practice anytime" copy="On web or mobile" />
-          </div>
+          <HeroSocialProof />
         </div>
 
         <div className="reveal-up delay-soft-2">
@@ -430,14 +421,59 @@ function HeroSection() {
   );
 }
 
-function HeroBenefit({ icon: Icon, title, copy }: { icon: LucideIcon; title: string; copy: string }) {
+const heroApplicants = [
+    "hero-applicant-1.jpg",
+    "hero-applicant-2.jpg",
+    "hero-applicant-3.jpg",
+    "hero-applicant-4.jpg",
+    "testimonial-daniel.jpg",
+];
+
+function HeroSocialProof() {
   return (
-    <div className="flex items-start gap-3">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eaf2e9] text-[#006b4f]">
-        <Icon className="h-5 w-5" strokeWidth={2} />
-      </span>
-      <p className="text-sm leading-5 text-[#65706b]"><span className="block font-bold text-[#14241f]">{title}</span>{copy}</p>
+    <div className="mt-10 flex flex-wrap items-center gap-4">
+      <div className="flex -space-x-3" aria-label="Jobready candidates">
+        {heroApplicants.map((applicant, index) => (
+          <Image
+            key={applicant}
+            src={`/marketing/avatars/${applicant}`}
+            alt={`Jobready candidate ${index + 1}`}
+            width={50}
+            height={50}
+            className="h-11 w-11 rounded-full border-2 border-[#fbf8f2] object-cover"
+          />
+        ))}
+      </div>
+      <div>
+        <p className="flex items-center gap-0.5 text-[#d7a84f]" aria-label="Five star rating">
+          {Array.from({ length: 5 }, (_, index) => (
+            <Star key={index} className="h-3.5 w-3.5 fill-current" strokeWidth={1.5} />
+          ))}
+        </p>
+        <p className="mt-1 text-sm font-semibold text-[#26342f]">
+          Job seekers across Kenya & Africa
+        </p>
+      </div>
     </div>
+  );
+}
+
+function SocialProofSection() {
+  return (
+    <section className="bg-[#fbf8f2] px-5 pb-14 md:px-7 md:pb-16 lg:px-8 lg:pb-20">
+      <div className="mx-auto max-w-[1400px] rounded-[1.35rem] border border-[#edf0e9] bg-[#f1f1ea] px-6 py-7 shadow-[0_12px_32px_rgba(41,57,47,0.04)] md:px-10">
+        <p className="text-center text-xs font-bold uppercase tracking-[0.16em] text-[#79827c]">
+          Prepare for opportunities at
+        </p>
+        <div className="mt-5 grid grid-cols-2 items-center gap-x-8 gap-y-5 text-center text-[1.65rem] font-bold tracking-[-0.05em] text-[#717773] sm:grid-cols-3 lg:grid-cols-5 lg:text-[2rem]">
+          <span className="italic">Safaricom</span>
+          <span className="text-[1.35rem] tracking-[-0.07em] lg:text-[1.65rem]">EQUITY</span>
+          <span className="text-[2rem] font-semibold lg:text-[2.4rem]">KCB</span>
+          <span>Andela</span>
+          <span className="lowercase">absa</span>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -1107,6 +1143,7 @@ export default async function Home() {
         })}
       />
       <HeroSection />
+      <SocialProofSection />
       <HeroSearchForm options={searchOptions} />
       <FreshJobsSection jobs={jobs} />
       <ProductPathsSection />

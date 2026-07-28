@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AuthNavigationLink } from "@/components/marketing/AuthNavigationLink";
 import { BrandMark } from "@/components/ui/BrandMark";
@@ -11,7 +11,11 @@ type MarketingNavProps = {
 };
 
 const navItems = [
-  { label: "How it works", href: "/#how-it-works", analytics: "how_it_works" },
+  {
+    label: "How it works",
+    href: "/#how-it-works",
+    analytics: "how_it_works",
+  },
   {
     label: "Features",
     href: "/#product-paths",
@@ -21,14 +25,16 @@ const navItems = [
     label: "Roles",
     href: "/jobs",
     analytics: "roles",
+    hasChevron: true,
   },
+  { label: "Pricing", href: "/#pricing", analytics: "pricing" },
   {
     label: "Resources",
     href: "/career-resources",
     analytics: "resources",
+    hasChevron: true,
     private: true,
   },
-  { label: "Pricing", href: "/#pricing", analytics: "pricing" },
 ] as const;
 
 function candidateHref(href: string, isAuthenticated: boolean) {
@@ -85,13 +91,13 @@ export function MarketingNav({
     <header
       className={`sticky top-0 z-50 w-full border-b backdrop-blur-md transition-[background-color,border-color,box-shadow,transform] duration-300 ease-soft ${
         scrolled
-          ? "border-[#e0d8cc] bg-white/92 shadow-[0_14px_34px_rgba(27,42,37,0.08)]"
-          : "border-[#ece5db] bg-white/82 shadow-none"
+          ? "border-[#e5ddd1] bg-[#fbf8f2]/96 shadow-[0_10px_28px_rgba(27,42,37,0.05)]"
+          : "border-transparent bg-[#fbf8f2] shadow-none"
       }`}
     >
       <div
-        className={`mx-auto flex max-w-[1764px] items-center justify-between gap-4 px-5 transition-[padding] duration-300 ease-soft md:px-7 lg:px-8 ${
-          scrolled ? "py-3" : "py-4"
+        className={`mx-auto flex max-w-[1536px] items-center justify-between gap-4 px-6 transition-[padding] duration-300 ease-soft md:px-10 lg:px-14 ${
+          scrolled ? "py-4" : "py-6"
         }`}
       >
         <Link
@@ -102,13 +108,13 @@ export function MarketingNav({
         >
           <BrandMark
             className="inline-flex items-center"
-            wordmarkClassName="h-7 md:h-8"
+            wordmarkClassName="h-9 md:h-11"
           />
         </Link>
 
         <nav
           aria-label="Public navigation"
-          className="hidden items-center gap-0.5 text-[1rem] font-medium text-[#071512] lg:flex"
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-3 text-[1.03rem] font-semibold text-[#071512] lg:flex"
         >
           {navItems.map((item) => {
             const href = isPrivateNavItem(item)
@@ -120,15 +126,18 @@ export function MarketingNav({
                 key={item.label}
                 href={href}
                 data-analytics-event={`nav_${item.analytics}`}
-                className="rounded-md px-3 py-2 transition duration-200 hover:bg-[#f3ede4] hover:text-[#00533f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00533f]"
+                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 transition duration-200 hover:text-[#00533f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00533f]"
               >
                 {item.label}
+                {"hasChevron" in item && item.hasChevron ? (
+                  <ChevronDown className="h-4 w-4" strokeWidth={2.2} />
+                ) : null}
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <AuthNavigationLink
               href="/dashboard"
@@ -143,7 +152,7 @@ export function MarketingNav({
               <AuthNavigationLink
                 href={signInHref}
                 data-analytics-event="nav_sign_in_click"
-                className="hidden min-h-[2.75rem] items-center justify-center rounded-lg border border-[#d0cac2] px-5 text-center text-[0.95rem] font-semibold text-[#071512] transition duration-200 hover:border-[#00533f] hover:text-[#00533f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] sm:inline-flex"
+                className="hidden min-h-[2.9rem] items-center justify-center rounded-lg px-3 text-center text-[1rem] font-semibold text-[#071512] transition duration-200 hover:text-[#00533f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] sm:inline-flex"
                 loadingLabel="Loading sign in"
               >
                 Log in
@@ -151,7 +160,7 @@ export function MarketingNav({
               <AuthNavigationLink
                 href={signUpHref}
                 data-analytics-event="nav_create_account_click"
-                className="hidden min-h-[2.75rem] items-center justify-center rounded-lg bg-[#00533f] px-6 text-center text-[0.95rem] font-bold text-white shadow-[0_2px_8px_rgba(0,83,63,0.25)] transition duration-200 hover:-translate-y-px hover:bg-[#043b30] hover:shadow-[0_4px_14px_rgba(0,83,63,0.3)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98] md:inline-flex"
+                className="hidden min-h-[3.15rem] items-center justify-center rounded-xl bg-[#00533f] px-7 text-center text-[1rem] font-bold text-white shadow-[0_4px_12px_rgba(0,83,63,0.2)] transition duration-200 hover:-translate-y-px hover:bg-[#043b30] hover:shadow-[0_6px_18px_rgba(0,83,63,0.26)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98] md:inline-flex"
                 loadingLabel="Loading account creation"
               >
                 Get Started
