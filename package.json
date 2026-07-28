@@ -26,6 +26,8 @@
     "test:candidate-workspace": "tsx scripts/test-candidate-workspace.ts",
     "test:pricing-payments-costs": "tsx scripts/test-pricing-payments-costs.ts",
     "test:admin-content": "tsx scripts/test-admin-content-operations.ts",
+    "seed:kenyan-launch-catalog": "tsx scripts/seed-kenyan-launch-catalog.ts",
+    "test:kenyan-launch-catalog": "tsx scripts/test-kenyan-launch-catalog.ts",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },

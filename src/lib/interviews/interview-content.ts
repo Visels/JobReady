@@ -40,7 +40,9 @@ export type InterviewContentSelectionLevel =
 
 export type InterviewContentWarning =
   | "company_context_unreviewed"
+  | "company_plan_unavailable_using_generic_plan"
   | "company_plan_unavailable_using_template"
+  | "company_questions_unavailable_using_role_or_industry"
   | "company_questions_fell_back_to_role_or_industry"
   | "template_plan_used";
 
@@ -1105,6 +1107,14 @@ export class InterviewContentService {
       context,
       focusMode,
     );
+    if (
+      persistedPlan &&
+      context.company &&
+      context.companyReviewed &&
+      persistedPlan.companyId === null
+    ) {
+      warnings.add("company_plan_unavailable_using_generic_plan");
+    }
     const planBundle = persistedPlan
       ? {
           source: "reviewed_plan" as const,
@@ -1192,7 +1202,13 @@ export class InterviewContentService {
       });
     }
 
-    if (context.company && companyQuestionCount > 0 && fallbackQuestionCount > 0) {
+    if (context.company && companyQuestionCount === 0 && fallbackQuestionCount > 0) {
+      warnings.add("company_questions_unavailable_using_role_or_industry");
+    } else if (
+      context.company &&
+      companyQuestionCount > 0 &&
+      fallbackQuestionCount > 0
+    ) {
       warnings.add("company_questions_fell_back_to_role_or_industry");
     }
 
@@ -1927,6 +1943,19 @@ export class InterviewContentService {
     const industryMatch =
       Boolean(context.company?.industryId) &&
       question.industryId === context.company?.industryId;
+
+    if (companyAssociation && !exactRole && !familyRole && !roleFamilyMatch) {
+      return null;
+    }
+
+    if (
+      question.roles.length > 0 &&
+      !exactRole &&
+      !familyRole &&
+      !roleFamilyMatch
+    ) {
+      return null;
+    }
 
     if (
       !companyAssociation &&
