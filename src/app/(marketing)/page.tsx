@@ -459,18 +459,46 @@ function HeroSocialProof() {
 }
 
 function SocialProofSection() {
+  const companies = [
+    "Safaricom",
+    "Equity",
+    "KCB",
+    "NCBA",
+    "Co-operative Bank",
+    "Branch",
+    "Airtel",
+    "MTN",
+    "TotalEnergies",
+    "KenGen",
+    "KPLC",
+    "Kenya Ports Authority",
+    "Kenya Airways",
+    "Deloitte",
+    "PwC",
+    "KPMG",
+    "Coca-Cola",
+    "EABL",
+    "Unilever",
+    "British American Tobacco",
+    "Jubilee Insurance",
+    "Britam",
+  ];
+  const marqueeCompanies = [...companies, ...companies];
+
   return (
     <section className="bg-[#fbf8f2] px-5 pb-14 md:px-7 md:pb-16 lg:px-8 lg:pb-20">
-      <div className="mx-auto max-w-[1400px] rounded-[1.35rem] border border-[#edf0e9] bg-[#f1f1ea] px-6 py-7 shadow-[0_12px_32px_rgba(41,57,47,0.04)] md:px-10">
+      <div className="mx-auto max-w-[1400px] overflow-hidden rounded-[1.35rem] border border-[#edf0e9] bg-[#f1f1ea] py-7 shadow-[0_12px_32px_rgba(41,57,47,0.04)]">
         <p className="text-center text-xs font-bold uppercase tracking-[0.16em] text-[#79827c]">
           Prepare for opportunities at
         </p>
-        <div className="mt-5 grid grid-cols-2 items-center gap-x-8 gap-y-5 text-center text-[1.65rem] font-bold tracking-[-0.05em] text-[#717773] sm:grid-cols-3 lg:grid-cols-5 lg:text-[2rem]">
-          <span className="italic">Safaricom</span>
-          <span className="text-[1.35rem] tracking-[-0.07em] lg:text-[1.65rem]">EQUITY</span>
-          <span className="text-[2rem] font-semibold lg:text-[2.4rem]">KCB</span>
-          <span>Andela</span>
-          <span className="lowercase">absa</span>
+        <div className="mt-5 overflow-hidden">
+          <div className="launch-marquee-track flex w-max items-center gap-10 pr-10 text-[1.55rem] font-bold tracking-[-0.05em] text-[#717773] lg:gap-14 lg:text-[2rem]">
+            {marqueeCompanies.map((company, index) => (
+              <span key={`${company}-${index}`} className="shrink-0 whitespace-nowrap">
+                {company}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>

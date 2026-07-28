@@ -3,10 +3,9 @@ import {
   JobCard,
   JobsEmptyState,
   JobsFilterForm,
-  JobsMarketplaceHero,
   JobsPagination,
-  JobsPublicHeader,
 } from "@/components/jobs/PublicJobsMarketplace";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildPublicJobsBreadcrumbJsonLd,
@@ -82,31 +81,26 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   const authenticated = Boolean(currentUser);
 
   return (
-    <main className="min-h-viewport bg-[radial-gradient(circle_at_12%_8%,rgba(215,168,79,0.22),transparent_28%),radial-gradient(circle_at_88%_4%,rgba(0,83,63,0.14),transparent_30%),#f7efe5] px-5 py-6 text-[#071512] md:px-9">
+    <>
+      <MarketingNav isAuthenticated={authenticated} />
+      <main className="min-h-viewport bg-[#fbf8f2] px-5 py-10 text-[#071512] md:px-9 md:py-14">
       <JsonLd data={buildPublicJobsBreadcrumbJsonLd()} />
       <div className="mx-auto max-w-[1180px]">
-        <JobsPublicHeader authenticated={authenticated} />
-        <JobsMarketplaceHero />
-        <section className="mt-8">
+        <h1 className="text-[clamp(2.2rem,4vw,3.6rem)] font-bold tracking-[-0.055em] text-[#071512]">
+          Verified jobs
+        </h1>
+        <section className="mt-7">
           <JobsFilterForm filters={result.filters} options={filterOptions} />
         </section>
 
-        <section className="mt-8" aria-live="polite">
+        <section className="mt-10" aria-live="polite">
           <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#956615]">
-                Active verified vacancies
-              </p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.05em] text-[#071512]">
+              <h2 className="text-2xl font-bold tracking-[-0.045em] text-[#071512]">
                 {result.total.toLocaleString()} job
                 {result.total === 1 ? "" : "s"} found
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-6 text-[#52605b]">
-              Active search excludes draft, retired, closed, and expired jobs.
-              Official application links remain public and point through the
-              reviewed stored destination only.
-            </p>
           </div>
 
           {result.jobs.length > 0 ? (
@@ -122,6 +116,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
           <JobsPagination result={result} />
         </section>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
