@@ -731,6 +731,8 @@ export class JobInterviewVoiceSessionService {
           data: {
             userId,
             interviewSessionId: sessionId,
+            productAction: "interview",
+            preparationMode: "voice",
             provider: REALTIME_PROVIDER,
             model: realtime.model,
             operation: "realtime_session",

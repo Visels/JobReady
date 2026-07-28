@@ -1,4 +1,7 @@
 import {
+  createHash,
+} from "node:crypto";
+import {
   Prisma,
   type PrismaClient,
   type StarComponentStatus,
@@ -985,6 +988,12 @@ function scoreFromCriterion(
   return turn.criteria.find((criterion) => criterion.key === criterionKey)?.score ?? null;
 }
 
+function reportUsageRequestHash(sessionId: string, reportId: string) {
+  return createHash("sha256")
+    .update(`jobready-report:${sessionId}:${reportId}:v1`)
+    .digest("hex");
+}
+
 export class JobInterviewReportService {
   private readonly prisma: PrismaClient;
   private readonly now: () => Date;
@@ -1213,6 +1222,34 @@ export class JobInterviewReportService {
           rawSnapshot: jsonInput(snapshot),
         },
       });
+      const reportUsageHash = reportUsageRequestHash(session.id, report.id);
+      const existingReportUsage = await tx.modelUsage.findFirst({
+        where: {
+          requestIdHash: reportUsageHash,
+          operation: "report_generation",
+        },
+        select: { id: true },
+      });
+
+      if (!existingReportUsage) {
+        await tx.modelUsage.create({
+          data: {
+            userId: session.userId,
+            interviewSessionId: session.id,
+            productAction: "interview",
+            preparationMode: session.interviewMode ?? "text",
+            provider: "deterministic",
+            model: "jobready-report-aggregator-v1",
+            operation: "report_generation",
+            modality: "text",
+            inputTokens: 0,
+            outputTokens: 0,
+            estimatedCostAmount: new Prisma.Decimal(0),
+            currency: "USD",
+            requestIdHash: reportUsageHash,
+          },
+        });
+      }
 
       await tx.competencyScore.deleteMany({
         where: { interviewReportId: report.id },

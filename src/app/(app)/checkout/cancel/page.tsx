@@ -5,8 +5,7 @@ import { generateSEO } from "@/lib/seo";
 
 export const metadata: Metadata = generateSEO({
   title: "Private Checkout Cancelled",
-  description:
-    "Private checkout cancellation route for VisaInterview users.",
+  description: "Private checkout cancellation route for Jobready users.",
   slug: "/checkout/cancel",
   noIndex: true,
 });

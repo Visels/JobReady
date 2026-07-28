@@ -53,6 +53,9 @@ type BaseLedgerInput = {
   metadata?: Prisma.InputJsonValue;
 };
 
+export type GrantEntitlementInput = BaseLedgerInput;
+export type EntitlementTransactionClient = TransactionClient;
+
 type AdjustmentInput = Omit<BaseLedgerInput, "units"> & {
   units: number;
   reason: string;
@@ -385,46 +388,57 @@ export async function getEntitlementReconciliation(input: {
   });
 }
 
-export async function grantEntitlement(input: BaseLedgerInput) {
+export async function grantEntitlementInTransaction(
+  tx: EntitlementTransactionClient,
+  input: GrantEntitlementInput,
+) {
+  assertProductAction(input.productAction);
   assertPositiveUnits(input.units);
   assertIdempotencyKey(input.idempotencyKey);
 
-  return runLedgerTransaction(input, async (tx) => {
-    const existing = await getExistingEntry(tx, input.idempotencyKey);
-    if (existing) {
-      assertExistingEntryMatches(existing, input, "grant");
-      return {
-        entry: existing,
-        reconciliation: await getReconciliationInTransaction(
-          tx,
-          input.userId,
-          input.productAction,
-        ),
-        created: false,
-      };
-    }
+  await lockUser(tx, input.userId);
 
-    const before = await getReconciliationInTransaction(
-      tx,
-      input.userId,
-      input.productAction,
-    );
-    const entry = await createEntry(tx, {
-      ...input,
-      action: "grant",
-      balanceAfter: before.balance + input.units,
-    });
-
+  const existing = await getExistingEntry(tx, input.idempotencyKey);
+  if (existing) {
+    assertExistingEntryMatches(existing, input, "grant");
     return {
-      entry,
+      entry: existing,
       reconciliation: await getReconciliationInTransaction(
         tx,
         input.userId,
         input.productAction,
       ),
-      created: true,
+      created: false,
     };
+  }
+
+  const before = await getReconciliationInTransaction(
+    tx,
+    input.userId,
+    input.productAction,
+  );
+  const entry = await createEntry(tx, {
+    ...input,
+    action: "grant",
+    balanceAfter: before.balance + input.units,
   });
+
+  return {
+    entry,
+    reconciliation: await getReconciliationInTransaction(
+      tx,
+      input.userId,
+      input.productAction,
+    ),
+    created: true,
+  };
+}
+
+export async function grantEntitlement(input: GrantEntitlementInput) {
+  return prisma.$transaction(
+    async (tx) => grantEntitlementInTransaction(tx, input),
+    { timeout: 15000 },
+  );
 }
 
 export async function reserveEntitlement(input: ReservationInput) {

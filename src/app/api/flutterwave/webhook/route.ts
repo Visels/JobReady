@@ -21,7 +21,7 @@ export function GET() {
   return NextResponse.json(
     {
       error:
-        "Flutterwave webhooks must be sent as POST requests to https://www.visainterview.ai/api/flutterwave/webhook.",
+        "Flutterwave webhooks must be sent as POST requests to the configured Jobready /api/flutterwave/webhook endpoint.",
     },
     { status: 405, headers: { Allow: "POST" } },
   );

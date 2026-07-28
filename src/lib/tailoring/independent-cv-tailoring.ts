@@ -1109,6 +1109,8 @@ export class IndependentCvTailoringService {
         data: {
           userId: input.userId,
           tailoringRunId: created.id,
+          productAction: "tailoring",
+          preparationMode: target.type,
           provider: this.model.provider,
           model: this.model.name,
           operation: "cv_tailoring",
@@ -1378,6 +1380,8 @@ export class IndependentCvTailoringService {
             {
               userId: input.userId,
               documentVersionId: outputVersion.id,
+              productAction: "tailoring",
+              preparationMode: "tailoring_export",
               operation: "export_write",
               bucket: stored.canonical.bucket,
               objectKeyHash: hashObjectKey(stored.canonical),
@@ -1386,6 +1390,8 @@ export class IndependentCvTailoringService {
             {
               userId: input.userId,
               documentVersionId: outputVersion.id,
+              productAction: "tailoring",
+              preparationMode: "tailoring_export",
               operation: "export_write",
               bucket: stored.docx.bucket,
               objectKeyHash: hashObjectKey(stored.docx),
@@ -1394,6 +1400,8 @@ export class IndependentCvTailoringService {
             {
               userId: input.userId,
               documentVersionId: outputVersion.id,
+              productAction: "tailoring",
+              preparationMode: "tailoring_export",
               operation: "export_write",
               bucket: stored.pdf.bucket,
               objectKeyHash: hashObjectKey(stored.pdf),
@@ -1611,6 +1619,8 @@ export class IndependentCvTailoringService {
           data: {
             userId: input.userId,
             documentVersionId: run.outputDocumentVersionId,
+            productAction: "tailoring",
+            preparationMode: "tailoring_export_delete",
             operation: "delete_object",
             bucket: pointer.bucket,
             objectKeyHash: hashObjectKey(pointer),

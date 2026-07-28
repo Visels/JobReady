@@ -91,6 +91,8 @@ export interface SidebarPlan {
   daysRemaining: number;
   freeSessionsRemaining: number;
   hasUnlimitedSessions: boolean;
+  interviewCredits?: number;
+  tailoringCredits?: number;
   currentVisaType: string | null;
   savedJobCount?: number;
   openApplicationCount?: number;

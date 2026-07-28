@@ -24,6 +24,8 @@
     "test:job-interview-reports": "tsx scripts/test-job-interview-reports.ts",
     "test:job-interview-voice": "tsx scripts/test-job-interview-voice-session.ts",
     "test:candidate-workspace": "tsx scripts/test-candidate-workspace.ts",
+    "test:pricing-payments-costs": "tsx scripts/test-pricing-payments-costs.ts",
+    "test:admin-content": "tsx scripts/test-admin-content-operations.ts",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },

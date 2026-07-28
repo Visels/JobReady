@@ -15,7 +15,7 @@ type ToastContent = {
 const toastContent: Record<CheckoutStatus, ToastContent> = {
   success: {
     title: "Payment received",
-    copy: "Your paid access is active and ready.",
+    copy: "Your Jobready preparation credits are active and ready.",
     icon: CheckCircle2,
     tone: "border-[#b8dbc9] bg-[#f5fbf7] text-[#00533f]",
   },
@@ -27,7 +27,7 @@ const toastContent: Record<CheckoutStatus, ToastContent> = {
   },
   pending: {
     title: "Payment processing",
-    copy: "We are waiting for payment confirmation. Access will activate once it clears.",
+    copy: "We are waiting for payment confirmation. Credits will activate once it clears.",
     icon: Clock3,
     tone: "border-[#efd4b3] bg-[#fff9ef] text-[#8a5a12]",
   },

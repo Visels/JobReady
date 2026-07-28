@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Private Checkout Success",
   description:
-    "Private checkout confirmation route for authenticated VisaInterview users.",
+    "Private checkout confirmation route for authenticated Jobready users.",
   slug: "/checkout/success",
   noIndex: true,
 });
@@ -61,13 +61,13 @@ export default async function CheckoutSuccessPage({
     }
   } catch {
     if (isFlutterwave) {
-      redirect(appendCheckoutStatus(params.return_path ?? "/practice", "pending"));
+      redirect(appendCheckoutStatus(params.return_path ?? "/billing", "pending"));
     }
 
-    redirect("/practice?checkout=error");
+    redirect("/billing?checkout=error");
   }
 
-  if (!result) redirect("/practice?checkout=error");
+  if (!result) redirect("/billing?checkout=error");
 
   const returnPath = result.returnPath;
   const status = result.paymentStatus === "paid" ? "success" : "pending";

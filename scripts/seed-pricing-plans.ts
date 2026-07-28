@@ -1,43 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { PAID_PLANS } from "../src/lib/plans";
 
 const prisma = new PrismaClient();
-
-const pricingPlans = [
-  {
-    slug: "weekly",
-    name: "7-day access",
-    productName: "VisaInterview 7-Day Access",
-    durationDays: 7,
-    displayOrder: 1,
-    prices: [
-      { countryCode: "DEFAULT", currency: "usd", amount: 1000 },
-      { countryCode: "US", currency: "usd", amount: 1000 },
-      { countryCode: "KE", currency: "kes", amount: 130000 },
-      { countryCode: "GB", currency: "gbp", amount: 800 },
-      { countryCode: "CA", currency: "cad", amount: 1400 },
-      { countryCode: "AU", currency: "aud", amount: 1500 },
-      { countryCode: "IN", currency: "inr", amount: 85000 },
-      { countryCode: "NG", currency: "ngn", amount: 1560000 },
-    ],
-  },
-  {
-    slug: "monthly",
-    name: "30-day access",
-    productName: "VisaInterview 30-Day Access",
-    durationDays: 30,
-    displayOrder: 2,
-    prices: [
-      { countryCode: "DEFAULT", currency: "usd", amount: 2400 },
-      { countryCode: "US", currency: "usd", amount: 2400 },
-      { countryCode: "KE", currency: "kes", amount: 315000 },
-      { countryCode: "GB", currency: "gbp", amount: 1900 },
-      { countryCode: "CA", currency: "cad", amount: 3300 },
-      { countryCode: "AU", currency: "aud", amount: 3700 },
-      { countryCode: "IN", currency: "inr", amount: 205000 },
-      { countryCode: "NG", currency: "ngn", amount: 3750000 },
-    ],
-  },
-] as const;
 
 async function protectedCounts() {
   const [users, interviews, purchases, reports, messages] = await Promise.all([
@@ -51,28 +15,99 @@ async function protectedCounts() {
   return { users, interviews, purchases, reports, messages };
 }
 
+function planProductAction(plan: (typeof PAID_PLANS)[keyof typeof PAID_PLANS]) {
+  const first = plan.entitlements.at(0);
+  const allSame =
+    first &&
+    plan.entitlements.every(
+      (entitlement) => entitlement.productAction === first.productAction,
+    );
+
+  return allSame ? first.productAction : null;
+}
+
 async function main() {
   const before = await protectedCounts();
 
-  for (const plan of pricingPlans) {
+  for (const plan of Object.values(PAID_PLANS)) {
     const savedPlan = await prisma.pricingPlan.upsert({
       where: { slug: plan.slug },
       create: {
         slug: plan.slug,
         name: plan.name,
         productName: plan.productName,
+        productAction: planProductAction(plan),
         durationDays: plan.durationDays,
+        checkoutEnabled: plan.checkoutEnabled,
         displayOrder: plan.displayOrder,
         isActive: true,
+        metadata: {
+          category: plan.category,
+          description: plan.description,
+          highlighted: Boolean(plan.highlighted),
+          legacy: Boolean(plan.legacy),
+          modeLabel: plan.modeLabel,
+          budgetLimitUsd: plan.budgetLimitUsd,
+          durationLimitMinutes: plan.durationLimitMinutes ?? null,
+        },
       },
       update: {
         name: plan.name,
         productName: plan.productName,
+        productAction: planProductAction(plan),
         durationDays: plan.durationDays,
+        checkoutEnabled: plan.checkoutEnabled,
         displayOrder: plan.displayOrder,
         isActive: true,
+        metadata: {
+          category: plan.category,
+          description: plan.description,
+          highlighted: Boolean(plan.highlighted),
+          legacy: Boolean(plan.legacy),
+          modeLabel: plan.modeLabel,
+          budgetLimitUsd: plan.budgetLimitUsd,
+          durationLimitMinutes: plan.durationLimitMinutes ?? null,
+        },
       },
     });
+
+    const productActions = plan.entitlements.map(
+      (entitlement) => entitlement.productAction,
+    );
+
+    await prisma.pricingPlanEntitlement.deleteMany({
+      where: {
+        planId: savedPlan.id,
+        productAction: { notIn: productActions },
+      },
+    });
+
+    for (const entitlement of plan.entitlements) {
+      await prisma.pricingPlanEntitlement.upsert({
+        where: {
+          planId_productAction: {
+            planId: savedPlan.id,
+            productAction: entitlement.productAction,
+          },
+        },
+        create: {
+          planId: savedPlan.id,
+          productAction: entitlement.productAction,
+          units: entitlement.units,
+          expiresAfterDays: entitlement.expiresAfterDays,
+          metadata: {
+            source: "task22_pricing_seed",
+          },
+        },
+        update: {
+          units: entitlement.units,
+          expiresAfterDays: entitlement.expiresAfterDays,
+          metadata: {
+            source: "task22_pricing_seed",
+          },
+        },
+      });
+    }
 
     for (const price of plan.prices) {
       await prisma.pricingPlanPrice.upsert({
@@ -96,21 +131,27 @@ async function main() {
     }
   }
 
-  const [after, planCount, priceCount] = await Promise.all([
+  const [after, planCount, priceCount, entitlementCount] = await Promise.all([
     protectedCounts(),
     prisma.pricingPlan.count(),
     prisma.pricingPlanPrice.count(),
+    prisma.pricingPlanEntitlement.count(),
   ]);
 
   console.log("Protected table counts before:", before);
   console.log("Protected table counts after:", after);
   console.log("Pricing plans:", planCount);
   console.log("Pricing rows:", priceCount);
+  console.log("Entitlement rows:", entitlementCount);
 }
 
 main()
   .catch((error) => {
-    console.error(error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error(error.code, error.message);
+    } else {
+      console.error(error);
+    }
     process.exit(1);
   })
   .finally(async () => {

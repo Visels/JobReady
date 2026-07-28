@@ -7,6 +7,7 @@ import type {
   TailoringStatus,
 } from "@prisma/client";
 import { publicProductConfig } from "@/config/public";
+import { ledgerBalanceEffect } from "@/lib/entitlements";
 import { getActivePaidAccess, purchasePlanName } from "@/lib/plans";
 import { prisma as defaultPrisma } from "@/lib/prisma";
 import type {
@@ -38,6 +39,7 @@ type UserPlanSource = {
     plan: string | null;
     planDays: number | null;
     accessExpiresAt: Date | null;
+    fulfillmentState?: string | null;
   }>;
 };
 
@@ -124,23 +126,49 @@ function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * 86_400_000);
 }
 
-function getPlan(source: UserPlanSource): SidebarPlan {
+function getPlan(
+  source: UserPlanSource,
+  balances: { interviewCredits?: number; tailoringCredits?: number } = {},
+): SidebarPlan {
   const activeAccess = getActivePaidAccess(source.purchases);
   const daysRemaining = activeAccess?.daysRemaining ?? 0;
-  const hasUnlimitedSessions = Boolean(activeAccess);
+  const interviewCredits = balances.interviewCredits ?? 0;
+  const tailoringCredits = balances.tailoringCredits ?? 0;
   const planName = activeAccess
-    ? `${purchasePlanName(activeAccess.purchase)} plan`
+    ? `${purchasePlanName(activeAccess.purchase)}`
+    : interviewCredits > 0 || tailoringCredits > 0
+      ? "Jobready credits"
     : source.credits > 0
-      ? "Free plan"
-      : "No active plan";
+      ? "Starter diagnostic"
+      : "No active credits";
 
   return {
     name: planName,
     daysRemaining,
     freeSessionsRemaining: source.credits,
-    hasUnlimitedSessions,
+    hasUnlimitedSessions: false,
+    interviewCredits,
+    tailoringCredits,
     currentVisaType: null,
   };
+}
+
+async function ledgerBalance(
+  db: PrismaClient,
+  userId: string,
+  productAction: "interview" | "tailoring",
+) {
+  const entries = await db.creditLedgerEntry.findMany({
+    where: { userId, productAction },
+    select: {
+      action: true,
+      units: true,
+      relatedEntryId: true,
+    },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+  });
+
+  return entries.reduce((total, entry) => total + ledgerBalanceEffect(entry), 0);
 }
 
 function titleCaseEnum(value: string | null | undefined) {
@@ -931,7 +959,15 @@ export async function getDashboardSidebarPlan(
   const db = input.prisma ?? defaultPrisma;
   const now = input.now ?? new Date();
   const soon = addDays(now, 7);
-  const [user, savedJobCount, openApplicationCount, candidateDocumentCount, urgentSavedJobCount] =
+  const [
+    user,
+    savedJobCount,
+    openApplicationCount,
+    candidateDocumentCount,
+    urgentSavedJobCount,
+    interviewCredits,
+    tailoringCredits,
+  ] =
     await Promise.all([
       db.user.findUnique({
         where: { id: userId },
@@ -945,6 +981,7 @@ export async function getDashboardSidebarPlan(
               plan: true,
               planDays: true,
               accessExpiresAt: true,
+              fulfillmentState: true,
             },
           },
         },
@@ -972,9 +1009,14 @@ export async function getDashboardSidebarPlan(
           },
         },
       }),
+      ledgerBalance(db, userId, "interview"),
+      ledgerBalance(db, userId, "tailoring"),
     ]);
 
-  const plan = getPlan(user ?? { credits: 0, purchases: [] });
+  const plan = getPlan(user ?? { credits: 0, purchases: [] }, {
+    interviewCredits,
+    tailoringCredits,
+  });
 
   return {
     ...plan,
@@ -984,7 +1026,11 @@ export async function getDashboardSidebarPlan(
     unreadNotificationCount:
       urgentSavedJobCount +
       (openApplicationCount > 0 ? 1 : 0) +
-      (!plan.hasUnlimitedSessions && plan.freeSessionsRemaining === 0 ? 1 : 0),
+      ((plan.interviewCredits ?? 0) === 0 &&
+      (plan.tailoringCredits ?? 0) === 0 &&
+      plan.freeSessionsRemaining === 0
+        ? 1
+        : 0),
   };
 }
 
@@ -1002,6 +1048,8 @@ export async function getDashboardData(
     documentRecords,
     tailoringRunRecords,
     interviewRecords,
+    interviewCredits,
+    tailoringCredits,
   ] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
@@ -1018,6 +1066,7 @@ export async function getDashboardData(
             plan: true,
             planDays: true,
             accessExpiresAt: true,
+            fulfillmentState: true,
           },
         },
       },
@@ -1127,9 +1176,14 @@ export async function getDashboardData(
       orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
       take: 24,
     }),
+    ledgerBalance(db, userId, "interview"),
+    ledgerBalance(db, userId, "tailoring"),
   ]);
 
-  const plan = getPlan(user ?? { credits: 0, purchases: [] });
+  const plan = getPlan(user ?? { credits: 0, purchases: [] }, {
+    interviewCredits,
+    tailoringCredits,
+  });
   const savedJobs = mapSavedJobs(savedJobRecords, now);
   const documents = mapDocuments(documentRecords);
   const tailoredVersions = mapTailoredVersions(tailoringRunRecords);

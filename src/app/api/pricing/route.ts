@@ -1,23 +1,30 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { DEFAULT_PAID_PLAN, PAID_PLANS } from "@/lib/plans";
-import { planPriceForHeaders } from "@/lib/pricing";
+import { DEFAULT_PAID_PLAN } from "@/lib/plans";
+import { pricingCatalogForHeaders } from "@/lib/pricing";
 
 export async function GET() {
   const headersList = await headers();
-  const plans = await Promise.all(Object.values(PAID_PLANS).map(async (plan) => {
-    const price = await planPriceForHeaders(headersList, plan.slug);
+  const plans = await pricingCatalogForHeaders(headersList);
 
-    return {
-      plan: plan.slug,
-      name: price.name,
-      sessions: "unlimited",
-      planDays: price.planDays,
-      amount: price.amount,
-      currency: price.currency,
-      display: price.display,
-    };
-  }));
-
-  return NextResponse.json({ defaultPlan: DEFAULT_PAID_PLAN, plans });
+  return NextResponse.json({
+    defaultPlan: DEFAULT_PAID_PLAN,
+    plans: plans.map((plan) => ({
+      plan: plan.plan,
+      name: plan.name,
+      productName: plan.productName,
+      description: plan.description,
+      category: plan.category,
+      planDays: plan.planDays,
+      amount: plan.amount,
+      currency: plan.currency,
+      display: plan.display,
+      checkoutEnabled: plan.checkoutEnabled,
+      highlighted: plan.highlighted,
+      modeLabel: plan.modeLabel,
+      budgetLimitUsd: plan.budgetLimitUsd,
+      durationLimitMinutes: plan.durationLimitMinutes,
+      entitlements: plan.entitlements,
+    })),
+  });
 }

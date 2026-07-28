@@ -301,6 +301,9 @@ enum ModelOperation {
   document_parsing
   cv_tailoring
   job_extraction
+  target_extraction
+  generic_parsing
+  retry
 }
 
 enum ModelModality {
@@ -319,6 +322,16 @@ enum StorageOperation {
   export_write
   delete_object
   lifecycle_cleanup
+  r2_put
+  r2_get
+  r2_head
+  r2_list
+  r2_delete
+  queue_enqueue
+  queue_process
+  scanner_run
+  parser_run
+  export_read
 }
 
 model User {
@@ -353,8 +366,26 @@ model User {
   creditLedgerEntries        CreditLedgerEntry[]
   modelUsages                ModelUsage[]
   storageUsages              StorageUsage[]
+  adminAuditEvents           AdminAuditEvent[]                    @relation("AdminAuditActor")
 
   @@index([email])
+}
+
+model AdminAuditEvent {
+  id           String   @id @default(cuid())
+  actorUserId  String?  @db.Uuid
+  actorEmail   String?
+  action       String
+  resourceType String
+  resourceId   String?
+  summary      String   @db.Text
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  actor        User?    @relation("AdminAuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([resourceType, resourceId, createdAt])
+  @@index([action, createdAt])
 }
 
 model Country {
@@ -1712,10 +1743,12 @@ model PracticeQuestion {
 model Purchase {
   id                       String                   @id @default(cuid())
   userId                   String                   @db.Uuid
+  pricingPlanId            String?
   provider                 PaymentProvider          @default(flutterwave)
   stripeCheckoutSessionId  String?                  @unique
   flutterwaveTxRef         String?                  @unique
   flutterwaveTransactionId String?                  @unique
+  supportReference         String?                  @unique
   plan                     String                   @default("monthly")
   planDays                 Int                      @default(30)
   accessExpiresAt          DateTime?
@@ -1725,31 +1758,59 @@ model Purchase {
   referredByUserId         String?                  @db.Uuid
   productAction            LedgerProductAction?
   fulfillmentState         PurchaseFulfillmentState @default(fulfilled)
+  providerPaymentStatus    String?
   idempotencyKey           String?                  @unique
+  settledAt                DateTime?
+  failedAt                 DateTime?
+  refundedAt               DateTime?
+  metadata                 Json?
   createdAt                DateTime                 @default(now())
   user                     User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pricingPlan              PricingPlan?             @relation(fields: [pricingPlanId], references: [id], onDelete: SetNull)
   referrer                 User?                    @relation("ReferralPurchases", fields: [referredByUserId], references: [id], onDelete: SetNull)
   ledgerEntries            CreditLedgerEntry[]
 
   @@index([referredByUserId])
   @@index([userId, createdAt])
+  @@index([pricingPlanId])
   @@index([productAction, fulfillmentState])
+  @@index([fulfillmentState, createdAt])
 }
 
 model PricingPlan {
-  id            String               @id @default(cuid())
-  slug          String               @unique
-  name          String
-  productName   String
-  productAction LedgerProductAction?
-  durationDays  Int
-  isActive      Boolean              @default(true)
-  displayOrder  Int                  @default(0)
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
-  prices        PricingPlanPrice[]
+  id              String                   @id @default(cuid())
+  slug            String                   @unique
+  name            String
+  productName     String
+  productAction   LedgerProductAction?
+  durationDays    Int
+  checkoutEnabled Boolean                  @default(true)
+  metadata        Json?
+  isActive        Boolean                  @default(true)
+  displayOrder    Int                      @default(0)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  prices          PricingPlanPrice[]
+  entitlements    PricingPlanEntitlement[]
+  purchases       Purchase[]
 
   @@index([productAction, isActive, displayOrder])
+  @@index([checkoutEnabled, isActive, displayOrder])
+}
+
+model PricingPlanEntitlement {
+  id               String              @id @default(cuid())
+  planId           String
+  productAction    LedgerProductAction
+  units            Int
+  expiresAfterDays Int?
+  metadata         Json?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  plan             PricingPlan         @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, productAction])
+  @@index([productAction])
 }
 
 model PricingPlanPrice {
@@ -1796,10 +1857,13 @@ model CreditLedgerEntry {
 }
 
 model ModelUsage {
-  id                  String            @id @default(cuid())
-  userId              String?           @db.Uuid
+  id                  String               @id @default(cuid())
+  userId              String?              @db.Uuid
   interviewSessionId  String?
   tailoringRunId      String?
+  productAction       LedgerProductAction?
+  pricingPlanSlug     String?
+  preparationMode     String?
   provider            String
   model               String
   operation           ModelOperation
@@ -1809,15 +1873,17 @@ model ModelUsage {
   cachedInputTokens   Int?
   audioSeconds        Int?
   documentBytes       Int?
-  estimatedCostAmount Decimal?          @db.Decimal(18, 8)
+  retryCount          Int                  @default(0)
+  estimatedCostAmount Decimal?             @db.Decimal(18, 8)
   currency            String?
   requestIdHash       String?
-  createdAt           DateTime          @default(now())
-  user                User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
-  interviewSession    InterviewSession? @relation(fields: [interviewSessionId], references: [id], onDelete: SetNull)
-  tailoringRun        TailoringRun?     @relation(fields: [tailoringRunId], references: [id], onDelete: SetNull)
+  createdAt           DateTime             @default(now())
+  user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  interviewSession    InterviewSession?    @relation(fields: [interviewSessionId], references: [id], onDelete: SetNull)
+  tailoringRun        TailoringRun?        @relation(fields: [tailoringRunId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
+  @@index([productAction, pricingPlanSlug, preparationMode, createdAt])
   @@index([operation, model, createdAt])
   @@index([interviewSessionId])
   @@index([tailoringRunId])
@@ -1827,6 +1893,9 @@ model StorageUsage {
   id                  String                    @id @default(cuid())
   userId              String?                   @db.Uuid
   documentVersionId   String?
+  productAction       LedgerProductAction?
+  pricingPlanSlug     String?
+  preparationMode     String?
   operation           StorageOperation
   bucket              String
   objectKeyHash       String?
@@ -1839,6 +1908,7 @@ model StorageUsage {
   documentVersion     CandidateDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
+  @@index([productAction, pricingPlanSlug, preparationMode, createdAt])
   @@index([documentVersionId])
   @@index([operation, createdAt])
   @@index([bucket])

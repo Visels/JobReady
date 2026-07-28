@@ -118,7 +118,7 @@ async function flutterwaveRequest<T>(path: string, init?: RequestInit) {
 }
 
 export function flutterwaveTxRef() {
-  return `visa-${crypto.randomUUID()}`;
+  return `jobready-${crypto.randomUUID()}`;
 }
 
 export function minorAmountToFlutterwaveAmount(amount: number) {
@@ -145,7 +145,7 @@ export function createFlutterwaveInlineConfig(input: CreateFlutterwavePaymentInp
       name: input.customer.name,
     },
     customizations: {
-      title: "VisaInterview",
+      title: "Jobready",
       description: input.description,
       logo: new URL("/og-default.png", `${getSiteUrl()}/`).toString(),
     },
@@ -166,7 +166,7 @@ export async function createFlutterwavePayment(input: CreateFlutterwavePaymentIn
         name: input.customer.name,
       },
       customizations: {
-        title: "VisaInterview",
+        title: "Jobready",
         description: input.description,
         logo: new URL("/og-default.png", `${getSiteUrl()}/`).toString(),
       },

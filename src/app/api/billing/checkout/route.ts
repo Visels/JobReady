@@ -1,6 +1,9 @@
 import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { normalizeReturnPath } from "@/lib/checkout";
+import {
+  normalizeReturnPath,
+  serializeCheckoutEntitlements,
+} from "@/lib/checkout";
 import {
   createFlutterwaveInlineConfig,
   flutterwaveTxRef,
@@ -63,7 +66,7 @@ export async function POST(request: Request) {
 
   if (!plan) {
     return NextResponse.json(
-      { error: "Choose either 7-day or 30-day access." },
+      { error: "Choose a current Jobready preparation product." },
       { status: 400 },
     );
   }
@@ -77,12 +80,22 @@ export async function POST(request: Request) {
     cookieStore.get(REFERRAL_COOKIE_NAME)?.value,
     user.id,
   );
+  const entitlements = price.entitlements;
+
+  if (!price.checkoutEnabled || price.amount <= 0 || entitlements.length === 0) {
+    return NextResponse.json(
+      { error: "This product is not available for paid checkout." },
+      { status: 400 },
+    );
+  }
+
   const checkoutMetadata: Record<string, string> = {
     userId: user.id,
     credits: "0",
     plan,
     planDays: String(price.planDays),
     returnPath,
+    entitlements: serializeCheckoutEntitlements(entitlements),
   };
 
   if (referredByUserId) {
@@ -107,7 +120,7 @@ export async function POST(request: Request) {
             unit_amount: price.amount,
             product_data: {
               name: price.productName,
-              description: `One-time access for ${price.planDays} days of unlimited AI consular interview practice`,
+              description: `${price.name}: ${price.description}`,
             },
           },
         },
@@ -125,10 +138,10 @@ export async function POST(request: Request) {
     currency: price.currency,
     redirectUrl,
     customer: {
-      email: user.email ?? "customer@visainterview.ai",
+      email: user.email ?? "customer@jobready.africa",
       name: user.name ?? undefined,
     },
-    description: `One-time access for ${price.planDays} days of unlimited AI consular interview practice`,
+    description: `${price.name}: ${price.description}`,
     meta: {
       ...checkoutMetadata,
       amountMinor: String(price.amount),

@@ -12,6 +12,7 @@ import {
   EntitlementLedgerError,
   reserveEntitlement,
 } from "@/lib/entitlements";
+import { getCommercialLimits } from "@/lib/commercial-limits";
 import {
   type ComposedInterviewPlanDto,
   InterviewContentError,
@@ -349,6 +350,8 @@ export class JobInterviewSessionService {
     userId: string,
     input: CreateJobInterviewSessionInput,
   ): Promise<JobInterviewSessionResponse> {
+    this.assertDurationWithinCommercialLimits(input);
+
     const context = await this.resolveCanonicalContext(input);
     const target = await this.resolveTarget(userId, input, context);
     const documentContext = await this.resolveDocumentContext(userId, input);
@@ -423,6 +426,24 @@ export class JobInterviewSessionService {
           });
         }
 
+        await tx.modelUsage.create({
+          data: {
+            userId,
+            interviewSessionId: session.id,
+            productAction: "interview",
+            preparationMode: input.interviewMode,
+            provider: "deterministic",
+            model: "jobready-reviewed-question-selector-v1",
+            operation: "interview_question",
+            modality: "text",
+            inputTokens: 0,
+            outputTokens: 0,
+            estimatedCostAmount: new Prisma.Decimal(0),
+            currency: "USD",
+            requestIdHash: `job-interview-question-selection:${session.id}`,
+          },
+        });
+
         await tx.creditLedgerEntry.update({
           where: { id: reservation.entry.id },
           data: { interviewSessionId: session.id },
@@ -457,6 +478,28 @@ export class JobInterviewSessionService {
     }
 
     return this.toResponse(session);
+  }
+
+  private assertDurationWithinCommercialLimits(
+    input: CreateJobInterviewSessionInput,
+  ) {
+    const limits = getCommercialLimits();
+    const maxMinutes =
+      input.interviewMode === "voice"
+        ? Math.ceil(limits.realtimeAudioSeconds / 60)
+        : limits.extendedInterviewMinutes;
+
+    if (input.durationMinutes > maxMinutes) {
+      throw new JobInterviewSessionError(
+        "invalid_input",
+        `This interview exceeds the configured ${maxMinutes}-minute preparation limit.`,
+        {
+          requestedDurationMinutes: input.durationMinutes,
+          maxDurationMinutes: maxMinutes,
+          interviewMode: input.interviewMode,
+        },
+      );
+    }
   }
 
   private async reserveInterviewCredit(

@@ -250,6 +250,7 @@ const textSessionInclude = {
       },
       session: {
         select: {
+          userId: true,
           promptVersion: true,
         },
       },
@@ -1254,6 +1255,34 @@ export class JobInterviewTextSessionService {
           rawSnapshot: jsonInput(evaluation),
         },
       });
+      const usageHash = `general-text-evaluation:${turn.id}`;
+      const existingUsage = await tx.modelUsage.findFirst({
+        where: {
+          requestIdHash: usageHash,
+          operation: "answer_evaluation",
+        },
+        select: { id: true },
+      });
+
+      if (!existingUsage) {
+        await tx.modelUsage.create({
+          data: {
+            userId: turn.session.userId,
+            interviewSessionId: turn.sessionId,
+            productAction: "interview",
+            preparationMode: "text",
+            provider: "deterministic",
+            model: "jobready-general-interview-rules-v1",
+            operation: "answer_evaluation",
+            modality: "text",
+            inputTokens: 0,
+            outputTokens: 0,
+            estimatedCostAmount: new Prisma.Decimal(0),
+            currency: "USD",
+            requestIdHash: usageHash,
+          },
+        });
+      }
 
       for (const competency of evaluation.competencies) {
         await tx.competencyScore.upsert({

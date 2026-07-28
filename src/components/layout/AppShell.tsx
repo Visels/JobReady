@@ -127,6 +127,13 @@ const accountItems: AccountItem[] = [
   },
 ];
 
+const adminItem: NavItem = {
+  label: "Admin",
+  shortLabel: "AD",
+  href: "/admin",
+  match: (pathname) => pathname.startsWith("/admin"),
+};
+
 const pageContexts = [
   {
     match: (pathname: string) => pathname === "/dashboard",
@@ -184,6 +191,12 @@ const pageContexts = [
     action: { href: "/interviews/new", label: "Use a credit" },
   },
   {
+    match: (pathname: string) => pathname.startsWith("/admin"),
+    title: "Admin",
+    kicker: "Content operations",
+    action: { href: "/admin", label: "Admin home" },
+  },
+  {
     match: (pathname: string) => pathname.startsWith("/help"),
     title: "Help",
     kicker: "Support",
@@ -228,8 +241,21 @@ function accountInitial(user: SidebarUser) {
 }
 
 function planSummary(plan: SidebarPlan) {
-  if (plan.hasUnlimitedSessions) {
-    return `${plan.daysRemaining} days unlimited`;
+  const balances = [
+    plan.interviewCredits && plan.interviewCredits > 0
+      ? `${plan.interviewCredits} interview`
+      : null,
+    plan.tailoringCredits && plan.tailoringCredits > 0
+      ? `${plan.tailoringCredits} CV`
+      : null,
+  ].filter(Boolean);
+
+  if (balances.length > 0) {
+    return `${balances.join(" / ")} credit${balances.length === 1 ? "" : "s"}`;
+  }
+
+  if (plan.daysRemaining > 0) {
+    return `${plan.daysRemaining} days active`;
   }
 
   if (plan.freeSessionsRemaining > 0) {
@@ -289,6 +315,7 @@ function DesktopSidebar({
   pathname,
   user,
   plan,
+  canManageContent,
   onOpenAccount,
 }: {
   collapsed: boolean;
@@ -296,6 +323,7 @@ function DesktopSidebar({
   pathname: string;
   user: SidebarUser;
   plan: SidebarPlan;
+  canManageContent: boolean;
   onOpenAccount: () => void;
 }) {
   const brandName = publicProductConfig.brand.name;
@@ -385,6 +413,25 @@ function DesktopSidebar({
             ))}
           </div>
         </section>
+
+        {canManageContent ? (
+          <section>
+            {!collapsed ? (
+              <h2 className="px-2 text-[10px] font-black uppercase tracking-badge text-white/52">
+                Operations
+              </h2>
+            ) : (
+              <span className="sr-only">Operations</span>
+            )}
+            <div className="mt-2 space-y-1.5">
+              <NavLink
+                item={adminItem}
+                collapsed={collapsed}
+                pathname={pathname}
+              />
+            </div>
+          </section>
+        ) : null}
       </nav>
 
       <div className="space-y-3">
@@ -568,16 +615,16 @@ function AccountMenuPanel({
             </Link>
           ))}
 
-          {!plan.hasUnlimitedSessions ? (
+          {(plan.interviewCredits ?? 0) === 0 && (plan.tailoringCredits ?? 0) === 0 ? (
             <div className="grid gap-2 rounded-2xl border border-muted-line bg-surface-soft p-3 sm:grid-cols-2">
               <PurchaseButton
-                label="7-day access"
-                plan="weekly"
+                label="Standard interview"
+                plan="interview-standard"
                 variant="accountMenu"
               />
               <PurchaseButton
-                label="30-day access"
-                plan="monthly"
+                label="CV plus interviews"
+                plan="job-readiness-bundle"
                 variant="accountMenu"
               />
             </div>
@@ -679,7 +726,11 @@ function WorkspaceTopBar({
         time: "Today",
       });
     }
-    if (!plan.hasUnlimitedSessions && plan.freeSessionsRemaining === 0) {
+    if (
+      (plan.interviewCredits ?? 0) === 0 &&
+      (plan.tailoringCredits ?? 0) === 0 &&
+      plan.freeSessionsRemaining === 0
+    ) {
       items.push({
         id: "credits",
         title: "Interview credits",
@@ -822,11 +873,13 @@ export function AppShell({
   plan,
   user,
   className,
+  canManageContent = false,
 }: {
   children: React.ReactNode;
   plan: SidebarPlan;
   user: SidebarUser;
   className: string;
+  canManageContent?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -892,6 +945,7 @@ export function AppShell({
         pathname={pathname}
         user={user}
         plan={plan}
+        canManageContent={canManageContent}
         onOpenAccount={() => setAccountOpen(true)}
       />
 

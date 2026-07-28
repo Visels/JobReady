@@ -34,7 +34,8 @@ export async function POST(request: Request) {
 
   if (
     event.type === "checkout.session.completed" ||
-    event.type === "checkout.session.async_payment_succeeded"
+    event.type === "checkout.session.async_payment_succeeded" ||
+    event.type === "checkout.session.async_payment_failed"
   ) {
     const checkoutSession = event.data.object;
     await grantCreditsForCheckoutSession(checkoutSession);

@@ -920,6 +920,34 @@ export class BehavioralEvaluationService {
           rawSnapshot: evaluation as Prisma.InputJsonValue,
         },
       });
+      const usageHash = `behavioral-evaluation:${turn.id}`;
+      const existingUsage = await tx.modelUsage.findFirst({
+        where: {
+          requestIdHash: usageHash,
+          operation: "answer_evaluation",
+        },
+        select: { id: true },
+      });
+
+      if (!existingUsage) {
+        await tx.modelUsage.create({
+          data: {
+            userId: turn.session.userId,
+            interviewSessionId: turn.sessionId,
+            productAction: "interview",
+            preparationMode: "text",
+            provider: "deterministic",
+            model: "jobready-behavioral-star-rules-v1",
+            operation: "answer_evaluation",
+            modality: "text",
+            inputTokens: 0,
+            outputTokens: 0,
+            estimatedCostAmount: new Prisma.Decimal(0),
+            currency: "USD",
+            requestIdHash: usageHash,
+          },
+        });
+      }
 
       await tx.interviewTurn.update({
         where: { id: turn.id },
