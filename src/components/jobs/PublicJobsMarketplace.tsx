@@ -134,13 +134,17 @@ export function JobsPublicHeader() {
 export function JobsFilterForm({
   filters,
   options,
+  action = "/jobs",
+  resetHref = "/jobs",
 }: {
   filters: PublicJobsSearchFilters;
   options: PublicJobFilterOptions;
+  action?: string;
+  resetHref?: string;
 }) {
   return (
     <form
-      action="/jobs"
+      action={action}
       className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6"
     >
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -208,7 +212,7 @@ export function JobsFilterForm({
           Search jobs
         </button>
         <Link
-          href="/jobs"
+          href={resetHref}
           className="rounded-full border border-[#d9cbb8] px-6 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#173a32] transition hover:border-[#00533f] hover:text-[#00533f]"
         >
           Reset filters
@@ -218,7 +222,13 @@ export function JobsFilterForm({
   );
 }
 
-export function JobCard({ job }: { job: PublicJobSummary }) {
+export function JobCard({
+  job,
+  authenticated = false,
+}: {
+  job: PublicJobSummary;
+  authenticated?: boolean;
+}) {
   const canApply =
     job.availability === "active" || job.availability === "closing_soon";
 
@@ -307,20 +317,37 @@ export function JobCard({ job }: { job: PublicJobSummary }) {
               Apply on official site
             </a>
           ) : null}
-          <Link
-            href={personalActionHref(job.slug, "save")}
-            className="rounded-full bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#ffe5a3]"
-          >
-            Save job
-          </Link>
+          {authenticated ? (
+            <form action={`/api/jobs/${job.slug}/save`} method="post">
+              <button
+                type="submit"
+                className="w-full rounded-full bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#ffe5a3]"
+              >
+                Save job
+              </button>
+            </form>
+          ) : (
+            <Link
+              href={personalActionHref(job.slug, "save")}
+              className="rounded-full bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#ffe5a3]"
+            >
+              Save job
+            </Link>
+          )}
         </div>
       </div>
     </article>
   );
 }
 
-export function JobsEmptyState({ filters }: { filters: PublicJobsSearchFilters }) {
-  const hasFilters = buildPublicJobsHref(filters) !== "/jobs";
+export function JobsEmptyState({
+  filters,
+  basePath = "/jobs",
+}: {
+  filters: PublicJobsSearchFilters;
+  basePath?: string;
+}) {
+  const hasFilters = buildPublicJobsHref(filters, {}, basePath) !== basePath;
 
   return (
     <section className="rounded-[2rem] border border-dashed border-[#cbbba6] bg-[#fffaf3] p-8 text-center">
@@ -336,7 +363,7 @@ export function JobsEmptyState({ filters }: { filters: PublicJobsSearchFilters }
       </p>
       {hasFilters ? (
         <Link
-          href="/jobs"
+          href={basePath}
           className="mt-6 inline-flex rounded-full bg-[#00533f] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white"
         >
           Clear filters
@@ -348,6 +375,7 @@ export function JobsEmptyState({ filters }: { filters: PublicJobsSearchFilters }
 
 export function JobsPagination({
   result,
+  basePath = "/jobs",
 }: {
   result: {
     filters: PublicJobsSearchFilters;
@@ -356,6 +384,7 @@ export function JobsPagination({
     hasPreviousPage: boolean;
     hasNextPage: boolean;
   };
+  basePath?: string;
 }) {
   if (result.totalPages <= 1) return null;
 
@@ -372,7 +401,7 @@ export function JobsPagination({
           <Link
             href={buildPublicJobsHref(result.filters, {
               page: result.page - 1,
-            })}
+            }, basePath)}
             className="rounded-full border border-[#d9cbb8] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#173a32]"
           >
             Previous
@@ -382,7 +411,7 @@ export function JobsPagination({
           <Link
             href={buildPublicJobsHref(result.filters, {
               page: result.page + 1,
-            })}
+            }, basePath)}
             className="rounded-full bg-[#00533f] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-white"
           >
             Next

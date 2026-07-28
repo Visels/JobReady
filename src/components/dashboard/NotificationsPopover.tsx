@@ -1,35 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bell, CalendarCheck, CheckCircle2, Clock3 } from "lucide-react";
 
-const notifications = [
+export type DashboardNotification = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+};
+
+const defaultNotifications: DashboardNotification[] = [
   {
-    id: "practice-reminder",
-    title: "Practice reminder",
-    body: "Complete one session today to keep your streak moving.",
-    time: "Today",
-    icon: CalendarCheck,
-  },
-  {
-    id: "report-ready",
-    title: "Latest report ready",
-    body: "Your readiness notes are available from the most recent session.",
-    time: "2h ago",
-    icon: CheckCircle2,
-  },
-  {
-    id: "weekly-check",
-    title: "Weekly focus",
-    body: "Financial clarity and study purpose need the next review.",
-    time: "Yesterday",
-    icon: Clock3,
+    id: "workspace-ready",
+    title: "Workspace ready",
+    body: "Find jobs, tailor a CV/resume, and practise interviews independently.",
+    time: "Now",
   },
 ];
 
-export function NotificationsPopover() {
+export function DashboardNotificationsPopover({
+  notifications = defaultNotifications,
+}: {
+  notifications?: DashboardNotification[];
+}) {
   const [open, setOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(notifications);
+  const [unreadNotifications, setUnreadNotifications] =
+    useState(notifications);
   const popoverRef = useRef<HTMLDivElement>(null);
   const unreadCount = unreadNotifications.length;
 
@@ -72,11 +68,11 @@ export function NotificationsPopover() {
         aria-haspopup="dialog"
         title="Notifications"
         onClick={() => setOpen((current) => !current)}
-        className="relative grid h-9 w-9 place-items-center rounded-lg text-primary transition duration-300 ease-soft hover:bg-white active:scale-press"
+        className="relative grid h-10 w-10 place-items-center rounded-full border border-muted-line bg-surface text-[12px] font-black text-primary transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
       >
-        <Bell className="h-5 w-5" strokeWidth={1.7} />
+        <span aria-hidden="true">NT</span>
         {unreadCount > 0 ? (
-          <span className="absolute right-2.5 top-2 h-2 w-2 rounded-full bg-accent" />
+          <span className="absolute right-2.5 top-2 h-2.5 w-2.5 rounded-full bg-accent" />
         ) : null}
       </button>
 
@@ -84,55 +80,53 @@ export function NotificationsPopover() {
         <section
           role="dialog"
           aria-label="Notifications"
-          className="absolute right-0 top-[calc(100%+10px)] z-20 w-[320px] overflow-hidden rounded-xl border border-[#dce5e1] bg-white shadow-[0_24px_70px_rgba(15,47,40,0.14)]"
+          className="absolute right-0 top-[calc(100%+10px)] z-40 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-[1.3rem] border border-muted-line bg-surface shadow-[0_24px_70px_rgba(27,36,48,0.14)]"
         >
-          <div className="flex items-center justify-between border-b border-[#edf1ef] px-4 py-3">
-            <h2 className="text-[14px] font-semibold leading-5 text-primary">
+          <div className="flex items-center justify-between border-b border-muted-line px-4 py-3">
+            <h2 className="text-[14px] font-black leading-5 text-foreground">
               Notifications
             </h2>
             {unreadCount > 0 ? (
-              <span className="rounded-md bg-[#ffe5df] px-2 py-1 text-[10px] font-semibold leading-none text-[#d73521]">
+              <span className="rounded-full bg-accent-surface px-2 py-1 text-[10px] font-black leading-none text-accent-strong">
                 {unreadCount} new
               </span>
             ) : (
-              <span className="rounded-md bg-[#eef5f1] px-2 py-1 text-[10px] font-semibold leading-none text-primary">
+              <span className="rounded-full bg-primary-soft px-2 py-1 text-[10px] font-black leading-none text-primary">
                 All read
               </span>
             )}
           </div>
-          <div className="divide-y divide-[#edf1ef]">
-            {unreadNotifications.length > 0 ? unreadNotifications.map((notification) => {
-              const Icon = notification.icon;
-
-              return (
+          <div className="divide-y divide-muted-line">
+            {unreadNotifications.length > 0 ? (
+              unreadNotifications.map((notification) => (
                 <article
                   key={notification.id}
-                  className="grid grid-cols-[34px_1fr] gap-3 px-4 py-3 transition hover:bg-[#f8fbfa]"
+                  className="grid grid-cols-[34px_1fr] gap-3 px-4 py-3 transition duration-300 ease-soft hover:bg-surface-soft motion-reduce:transition-none"
                 >
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-[#eef5f1] text-primary">
-                    <Icon className="h-4 w-4" strokeWidth={1.7} />
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-primary-soft text-[10px] font-black text-primary">
+                    JR
                   </span>
                   <span className="min-w-0">
                     <span className="flex items-center justify-between gap-3">
-                      <span className="truncate text-[13px] font-semibold leading-5 text-primary">
+                      <span className="truncate text-[13px] font-black leading-5 text-foreground">
                         {notification.title}
                       </span>
-                      <span className="flex-none text-[11px] leading-4 text-[#7a8581]">
+                      <span className="flex-none text-[11px] leading-4 text-muted-subtle">
                         {notification.time}
                       </span>
                     </span>
-                    <span className="mt-0.5 block text-[12px] leading-5 text-[#52605b]">
+                    <span className="mt-0.5 block text-[12px] leading-5 text-muted">
                       {notification.body}
                     </span>
                   </span>
                 </article>
-              );
-            }) : (
+              ))
+            ) : (
               <div className="px-4 py-6 text-center">
-                <p className="text-[13px] font-semibold leading-5 text-primary">
+                <p className="text-[13px] font-black leading-5 text-foreground">
                   No unread notifications
                 </p>
-                <p className="mt-1 text-[12px] leading-5 text-[#52605b]">
+                <p className="mt-1 text-[12px] leading-5 text-muted">
                   You are all caught up for now.
                 </p>
               </div>
@@ -145,7 +139,7 @@ export function NotificationsPopover() {
               markAllAsRead();
             }}
             disabled={unreadCount === 0}
-            className="min-h-10 w-full border-t border-[#edf1ef] bg-white px-4 text-[12px] font-semibold text-primary transition hover:bg-[#f8fbfa] active:scale-press disabled:cursor-not-allowed disabled:text-[#9aa5a1]"
+            className="min-h-10 w-full border-t border-muted-line bg-surface px-4 text-[12px] font-black text-primary transition duration-300 ease-soft hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press disabled:cursor-not-allowed disabled:text-muted-subtle motion-reduce:transition-none"
           >
             Mark all as read
           </button>
@@ -154,3 +148,5 @@ export function NotificationsPopover() {
     </div>
   );
 }
+
+export const NotificationsPopover = DashboardNotificationsPopover;

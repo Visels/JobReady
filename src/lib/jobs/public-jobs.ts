@@ -267,6 +267,7 @@ export function sanitizePublicJobSearchParams(
 export function buildPublicJobsHref(
   filters: PublicJobsSearchFilters,
   overrides: Partial<PublicJobsSearchFilters> = {},
+  basePath = "/jobs",
 ) {
   const next = { ...filters, ...overrides };
   const params = new URLSearchParams();
@@ -285,7 +286,7 @@ export function buildPublicJobsHref(
   }
 
   const query = params.toString();
-  return query ? `/jobs?${query}` : "/jobs";
+  return query ? `${basePath}?${query}` : basePath;
 }
 
 function addDays(date: Date, days: number) {

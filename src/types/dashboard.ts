@@ -92,6 +92,10 @@ export interface SidebarPlan {
   freeSessionsRemaining: number;
   hasUnlimitedSessions: boolean;
   currentVisaType: string | null;
+  savedJobCount?: number;
+  openApplicationCount?: number;
+  candidateDocumentCount?: number;
+  unreadNotificationCount?: number;
 }
 
 export interface SidebarUser {
@@ -99,3 +103,156 @@ export interface SidebarUser {
   email: string | null;
   image: string | null;
 }
+
+export type WorkspaceTone = "success" | "warning" | "danger" | "neutral";
+
+export type WorkspaceAction = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  reason: string;
+  href: string;
+  label: string;
+  tone: WorkspaceTone;
+};
+
+export type WorkspaceLaunchChoice = {
+  id: "jobs" | "cv" | "interview";
+  title: string;
+  body: string;
+  href: string;
+  label: string;
+};
+
+export type WorkspaceEmptyState = {
+  id: "saved_jobs" | "tailoring" | "applications" | "interviews";
+  title: string;
+  body: string;
+  href: string;
+  label: string;
+};
+
+export type WorkspaceSavedJob = {
+  id: string;
+  slug: string;
+  title: string;
+  companyName: string;
+  href: string;
+  savedAt: Date;
+  closesAt: Date | null;
+  status: string;
+  statusLabel: string;
+  closingSoon: boolean;
+  needsAction: boolean;
+  warning: string | null;
+};
+
+export type WorkspaceApplication = {
+  id: string;
+  targetTitle: string;
+  companyName: string | null;
+  status: string;
+  statusLabel: string;
+  appliedAt: Date | null;
+  nextActionAt: Date | null;
+  updatedAt: Date;
+  targetHref: string;
+  tailorHref: string;
+  practiceHref: string;
+  applyHref: string | null;
+  documentVersionId: string | null;
+  linkedDocumentTitle: string | null;
+  linkedTailoringRunId: string | null;
+  linkedTailoredVersionId: string | null;
+  linkedInterviewId: string | null;
+  linkedInterviewHref: string | null;
+  warning: string | null;
+};
+
+export type WorkspaceDocument = {
+  id: string;
+  title: string;
+  kind: string;
+  status: string;
+  currentVersionId: string | null;
+  currentVersionNumber: number | null;
+  factCount: number;
+  updatedAt: Date;
+};
+
+export type WorkspaceTailoredVersion = {
+  id: string;
+  runId: string;
+  roleTitle: string;
+  companyName: string | null;
+  targetLabel: string;
+  status: string;
+  statusLabel: string;
+  completedAt: Date | null;
+  outputDocumentVersionId: string | null;
+  exportFormats: string[];
+  href: string;
+};
+
+export type WorkspaceInterview = {
+  id: string;
+  targetTitle: string;
+  companyName: string | null;
+  status: string;
+  statusLabel: string;
+  mode: string | null;
+  focusMode: string | null;
+  createdAt: Date;
+  updatedAt: Date | null;
+  score: number | null;
+  evidenceStatus: string | null;
+  reportHref: string | null;
+  resumeHref: string;
+  rubricVersion: string | null;
+  nextPracticePriority: string | null;
+};
+
+export type WorkspacePipelineStage = {
+  status: string;
+  label: string;
+  count: number;
+};
+
+export type WorkspaceReportTrend = {
+  compatible: boolean;
+  label: string;
+  latestScore: number | null;
+  previousScore: number | null;
+  delta: number | null;
+  reason: string;
+};
+
+export type WorkspaceActivity = {
+  id: string;
+  type: "saved_job" | "application" | "tailoring" | "interview";
+  title: string;
+  body: string;
+  href: string;
+  actionLabel: string;
+  occurredAt: Date;
+};
+
+export type CandidateWorkspaceData = {
+  user: DashboardUser;
+  brandName: string;
+  isFirstLogin: boolean;
+  nextBestAction: WorkspaceAction;
+  launchChoices: WorkspaceLaunchChoice[];
+  firstLoginEmptyStates: WorkspaceEmptyState[];
+  savedJobs: WorkspaceSavedJob[];
+  urgentSavedJobs: WorkspaceSavedJob[];
+  applications: WorkspaceApplication[];
+  applicationPipeline: WorkspacePipelineStage[];
+  currentDocument: WorkspaceDocument | null;
+  documents: WorkspaceDocument[];
+  tailoredVersions: WorkspaceTailoredVersion[];
+  interviews: WorkspaceInterview[];
+  latestInterviewReport: WorkspaceInterview | null;
+  reportTrend: WorkspaceReportTrend;
+  recentActivity: WorkspaceActivity[];
+};

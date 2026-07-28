@@ -29,9 +29,5 @@ export function DashboardGreeting({
     };
   }, []);
 
-  return (
-    <>
-      {greeting}, {name} <span aria-hidden="true">{"\u{1F44B}"}</span>
-    </>
-  );
+  return <>{greeting}, {name}</>;
 }
