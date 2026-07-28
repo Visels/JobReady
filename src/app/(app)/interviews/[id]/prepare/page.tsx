@@ -214,10 +214,12 @@ export default async function InterviewPreparationPage({
                     Start text interview
                   </Link>
                 ) : (
-                  <div className="rounded-[1.25rem] border border-white/15 bg-white/8 p-4 text-[13px] leading-5 text-white/76">
-                    Voice delivery is scheduled for Task 20. Create a text
-                    setup if you want to practise this plan now.
-                  </div>
+                  <Link
+                    href={`/interviews/${session.id}/voice`}
+                    className="rounded-full bg-[#d7a84f] px-5 py-3 text-center text-[12px] font-black uppercase tracking-[0.14em] text-[#071512] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#e6b94c] active:scale-press"
+                  >
+                    Start voice interview
+                  </Link>
                 )}
                 <Link
                   href="/interviews/new"

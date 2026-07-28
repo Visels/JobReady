@@ -204,6 +204,14 @@ function CurrentQuestion({
         <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#52605b]">
           {state.reportEvidence.summary}
         </p>
+        {state.progress.isComplete ? (
+          <Link
+            href={`/interviews/${state.session.id}/report`}
+            className="mt-5 inline-flex rounded-full bg-[#00533f] px-5 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#064534] active:scale-press"
+          >
+            View report
+          </Link>
+        ) : null}
       </section>
     );
   }
@@ -664,6 +672,14 @@ export function JobTextInterviewRoom({ initialState }: Props) {
               <p className="mt-3 text-[14px] leading-6 text-[#52605b]">
                 {state.reportEvidence.summary}
               </p>
+              {state.progress.isComplete ? (
+                <Link
+                  href={`/interviews/${state.session.id}/report`}
+                  className="mt-4 inline-flex w-full justify-center rounded-full bg-[#00533f] px-4 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#064534] active:scale-press"
+                >
+                  View report
+                </Link>
+              ) : null}
               {state.reportEvidence.warnings.length > 0 ? (
                 <ul className="mt-3 grid gap-2">
                   {state.reportEvidence.warnings.map((warning) => (

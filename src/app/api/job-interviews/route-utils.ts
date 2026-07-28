@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import {
+  JobInterviewReportError,
   JobInterviewSessionError,
   JobInterviewTextSessionError,
+  JobInterviewVoiceSessionError,
 } from "@/lib/interviews";
 
 export async function requestData(request: Request) {
@@ -66,6 +68,44 @@ export function jsonJobInterviewError(error: unknown) {
               error.code === "entitlement_error"
             ? 500
             : 400;
+
+    return NextResponse.json(
+      { error: error.message, code: error.code, details: error.details },
+      { status },
+    );
+  }
+
+  if (error instanceof JobInterviewReportError) {
+    const status =
+      error.code === "not_found"
+        ? 404
+        : error.code === "invalid_session"
+          ? 409
+          : 500;
+
+    return NextResponse.json(
+      { error: error.message, code: error.code, details: error.details },
+      { status },
+    );
+  }
+
+  if (error instanceof JobInterviewVoiceSessionError) {
+    const status =
+      error.code === "not_found"
+        ? 404
+        : error.code === "unauthorized_tool"
+          ? 403
+          : error.code === "already_completed" ||
+              error.code === "not_voice_mode" ||
+              error.code === "turn_conflict" ||
+              error.code === "duplicate_event_conflict" ||
+              error.code === "realtime_unavailable" ||
+              error.code === "transcript_incomplete"
+            ? 409
+            : error.code === "evaluation_failed" ||
+                error.code === "entitlement_error"
+              ? 500
+              : 400;
 
     return NextResponse.json(
       { error: error.message, code: error.code, details: error.details },

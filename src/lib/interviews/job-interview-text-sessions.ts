@@ -1,6 +1,7 @@
 import {
   Prisma,
   type CreditLedgerEntry,
+  type InterviewMode,
   type PrismaClient,
 } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/prisma";
@@ -838,45 +839,80 @@ export class JobInterviewTextSessionService {
     answerInput: JobInterviewTextAnswerInput;
     simulateEvaluationFailure?: boolean;
   }): Promise<JobInterviewTextAnswerResponse> {
+    const persisted = await this.recordPersistedTurnAnswer({
+      userId: input.userId,
+      sessionId: input.sessionId,
+      turnId: input.answerInput.turnId,
+      answer: input.answerInput.answer,
+      expectedMode: "text",
+      simulateEvaluationFailure: input.simulateEvaluationFailure,
+    });
+
+    if (!persisted.idempotent && persisted.answeredAll) {
+      await this.completeSession(input.userId, input.sessionId, {
+        reason: persisted.finalAnswerWasNonAnswer
+          ? "final_non_answer"
+          : "all_questions_answered",
+      });
+    }
+
+    const state = await this.getState(input.userId, input.sessionId);
+    const submittedTurn = state.answeredTurns.find(
+      (turn) => turn.id === persisted.turnId,
+    );
+    if (!submittedTurn) {
+      throw new JobInterviewTextSessionError(
+        "evaluation_failed",
+        "The submitted turn could not be loaded after evaluation.",
+      );
+    }
+
+    return jobInterviewTextAnswerResponseSchema.parse({
+      state,
+      submittedTurn,
+      idempotent: persisted.idempotent,
+    });
+  }
+
+  async recordPersistedTurnAnswer(input: {
+    userId: string;
+    sessionId: string;
+    turnId: string;
+    answer: string;
+    expectedMode: InterviewMode;
+    simulateEvaluationFailure?: boolean;
+  }) {
     const session = await this.loadSession(input.userId, input.sessionId);
-    this.assertTextSession(session);
+    this.assertInterviewSession(session, input.expectedMode);
+
+    const requestedTurn = session.interviewTurns.find(
+      (turn) => turn.id === input.turnId,
+    );
+    if (!requestedTurn) {
+      throw new JobInterviewTextSessionError(
+        "turn_conflict",
+        "This question does not belong to the interview session.",
+        { receivedTurnId: input.turnId },
+      );
+    }
+
+    const existingAnswer = requestedTurn.candidateAnswer?.trim();
+    if (existingAnswer) {
+      return {
+        turnId: requestedTurn.id,
+        idempotent: true,
+        answeredAll: session.interviewTurns.every((turn) =>
+          Boolean(turn.candidateAnswer),
+        ),
+        finalAnswerWasNonAnswer: this.isNonAnswerText(existingAnswer),
+      };
+    }
 
     if (session.status === "completed") {
       throw new JobInterviewTextSessionError(
         "already_completed",
         "This interview is already completed.",
       );
-    }
-
-    const requestedTurn = session.interviewTurns.find(
-      (turn) => turn.id === input.answerInput.turnId,
-    );
-    if (!requestedTurn) {
-      throw new JobInterviewTextSessionError(
-        "turn_conflict",
-        "This question does not belong to the interview session.",
-        { receivedTurnId: input.answerInput.turnId },
-      );
-    }
-
-    const existingAnswer = requestedTurn.candidateAnswer?.trim();
-    if (existingAnswer) {
-      const state = await this.getState(input.userId, input.sessionId);
-      const submittedTurn = state.answeredTurns.find(
-        (turn) => turn.id === requestedTurn.id,
-      );
-      if (!submittedTurn) {
-        throw new JobInterviewTextSessionError(
-          "evaluation_failed",
-          "The answer was saved but its evaluation could not be loaded.",
-        );
-      }
-
-      return jobInterviewTextAnswerResponseSchema.parse({
-        state,
-        submittedTurn,
-        idempotent: true,
-      });
     }
 
     const currentTurn = this.currentTurn(session);
@@ -893,7 +929,7 @@ export class JobInterviewTextSessionService {
         "This is not the active interview question. Refresh and continue from the current question.",
         {
           expectedTurnId: currentTurn.id,
-          receivedTurnId: input.answerInput.turnId,
+          receivedTurnId: requestedTurn.id,
         },
       );
     }
@@ -905,7 +941,14 @@ export class JobInterviewTextSessionService {
       );
     }
 
-    const answer = normalizeWhitespace(input.answerInput.answer);
+    const answer = normalizeWhitespace(input.answer);
+    if (!answer) {
+      throw new JobInterviewTextSessionError(
+        "invalid_input",
+        "The candidate answer cannot be empty.",
+      );
+    }
+
     await this.evaluateTurn({
       userId: input.userId,
       sessionId: input.sessionId,
@@ -915,36 +958,15 @@ export class JobInterviewTextSessionService {
     await this.rebuildAggregateReport(input.sessionId);
 
     const afterEvaluation = await this.loadSession(input.userId, input.sessionId);
-    const answeredTurns = afterEvaluation.interviewTurns.filter((turn) =>
-      Boolean(turn.candidateAnswer),
-    );
-    const answeredAll =
-      answeredTurns.length === afterEvaluation.interviewTurns.length;
 
-    if (answeredAll) {
-      await this.completeSession(input.userId, input.sessionId, {
-        reason: this.isNonAnswerText(answer)
-          ? "final_non_answer"
-          : "all_questions_answered",
-      });
-    }
-
-    const state = await this.getState(input.userId, input.sessionId);
-    const submittedTurn = state.answeredTurns.find(
-      (turn) => turn.id === currentTurn.id,
-    );
-    if (!submittedTurn) {
-      throw new JobInterviewTextSessionError(
-        "evaluation_failed",
-        "The submitted turn could not be loaded after evaluation.",
-      );
-    }
-
-    return jobInterviewTextAnswerResponseSchema.parse({
-      state,
-      submittedTurn,
+    return {
+      turnId: currentTurn.id,
       idempotent: false,
-    });
+      answeredAll: afterEvaluation.interviewTurns.every((turn) =>
+        Boolean(turn.candidateAnswer),
+      ),
+      finalAnswerWasNonAnswer: this.isNonAnswerText(answer),
+    };
   }
 
   async completeSession(
@@ -1065,10 +1087,19 @@ export class JobInterviewTextSessionService {
   }
 
   private assertTextSession(session: TextSessionRecord) {
-    if (session.interviewMode !== "text") {
+    this.assertInterviewSession(session, "text");
+  }
+
+  private assertInterviewSession(
+    session: TextSessionRecord,
+    expectedMode: InterviewMode,
+  ) {
+    if (session.interviewMode !== expectedMode) {
       throw new JobInterviewTextSessionError(
-        "not_text_mode",
-        "This setup is not a text interview. Voice delivery is handled separately.",
+        expectedMode === "text" ? "not_text_mode" : "invalid_input",
+        expectedMode === "text"
+          ? "This setup is not a text interview. Voice delivery is handled separately."
+          : "This setup is not a voice interview.",
         { interviewMode: session.interviewMode },
       );
     }

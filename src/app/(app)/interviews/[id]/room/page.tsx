@@ -43,21 +43,21 @@ function VoicePendingPage({ id }: { id: string }) {
     <main className="min-h-[calc(100dvh-40px)] bg-[radial-gradient(circle_at_12%_8%,rgba(215,168,79,0.18),transparent_28%),#f7efe5] px-4 py-5 text-[#071512] md:px-7">
       <section className="mx-auto max-w-[820px] rounded-[2.2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-9">
         <p className="text-[13px] font-black uppercase tracking-[0.2em] text-[#956615]">
-          Voice delivery pending
+          Voice delivery ready
         </p>
         <h1 className="mt-5 text-[clamp(2.2rem,5vw,4.5rem)] font-black leading-[0.92] tracking-[-0.075em] text-[#071512]">
           This setup is marked for voice.
         </h1>
         <p className="mt-5 max-w-2xl text-[16px] leading-7 text-[#52605b]">
-          Task 18 only ships the text interview vertical slice. Voice interviews
-          stay separate for Task 20, so we will not fake a voice room here.
+          This session should open in the realtime voice room. The text room
+          stays reserved for keyboard-based practice.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            href={`/interviews/${id}/prepare`}
+            href={`/interviews/${id}/voice`}
             className="rounded-full border border-[#d9cbb8] bg-white px-5 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-[#173a32] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#00533f] active:scale-press"
           >
-            Back to preparation
+            Open voice room
           </Link>
           <Link
             href="/interviews/new"
