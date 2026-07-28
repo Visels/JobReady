@@ -11,23 +11,21 @@ type MarketingNavProps = {
 };
 
 const navItems = [
-  { label: "Jobs", href: "/jobs", analytics: "jobs" },
+  { label: "How it works", href: "/#how-it-works", analytics: "how_it_works" },
   {
-    label: "Interview Practice",
-    href: "/interviews/new",
-    analytics: "interview_practice",
-    private: true,
+    label: "Features",
+    href: "/#product-paths",
+    analytics: "features",
   },
   {
-    label: "CV & Resume",
-    href: "/cv-resume",
-    analytics: "cv_resume",
-    private: true,
+    label: "Roles",
+    href: "/jobs",
+    analytics: "roles",
   },
   {
-    label: "Career Resources",
+    label: "Resources",
     href: "/career-resources",
-    analytics: "career_resources",
+    analytics: "resources",
     private: true,
   },
   { label: "Pricing", href: "/#pricing", analytics: "pricing" },
@@ -148,7 +146,7 @@ export function MarketingNav({
                 className="hidden min-h-[2.75rem] items-center justify-center rounded-lg border border-[#d0cac2] px-5 text-center text-[0.95rem] font-semibold text-[#071512] transition duration-200 hover:border-[#00533f] hover:text-[#00533f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] sm:inline-flex"
                 loadingLabel="Loading sign in"
               >
-                Sign In
+                Log in
               </AuthNavigationLink>
               <AuthNavigationLink
                 href={signUpHref}
@@ -156,7 +154,7 @@ export function MarketingNav({
                 className="hidden min-h-[2.75rem] items-center justify-center rounded-lg bg-[#00533f] px-6 text-center text-[0.95rem] font-bold text-white shadow-[0_2px_8px_rgba(0,83,63,0.25)] transition duration-200 hover:-translate-y-px hover:bg-[#043b30] hover:shadow-[0_4px_14px_rgba(0,83,63,0.3)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98] md:inline-flex"
                 loadingLabel="Loading account creation"
               >
-                Create Account
+                Get Started
               </AuthNavigationLink>
             </>
           )}
@@ -227,7 +225,7 @@ export function MarketingNav({
                 className="inline-flex min-h-[2.75rem] items-center justify-center rounded-lg border border-[#d0cac2] px-6 text-center text-[0.95rem] font-semibold text-[#071512] transition hover:border-[#00533f] hover:text-[#00533f]"
                 loadingLabel="Loading sign in"
               >
-                Sign In
+                Log in
               </AuthNavigationLink>
               <AuthNavigationLink
                 href={signUpHref}
@@ -236,7 +234,7 @@ export function MarketingNav({
                 className="inline-flex min-h-[2.75rem] items-center justify-center rounded-lg bg-[#00533f] px-6 text-center text-[0.95rem] font-bold text-white transition hover:bg-[#043b30]"
                 loadingLabel="Loading account creation"
               >
-                Create Account
+                Get Started
               </AuthNavigationLink>
             </div>
           )}
