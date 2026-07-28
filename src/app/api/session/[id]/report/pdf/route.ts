@@ -32,7 +32,7 @@ export async function GET(
   const purposeMetricLabel =
     owned.interviewSession.visaType.category.slug === "student"
       ? "Study purpose"
-      : "Visa purpose fit";
+      : "Purpose fit";
   const questions = buildInterviewQuestionTurns(
     transcriptMessagesForSession(owned.interviewSession),
   );

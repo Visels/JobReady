@@ -49,15 +49,15 @@ function GoogleIcon() {
 
 function normalizeReturnPath(value?: string) {
   if (value === "/interview/new") return "/interviews/new";
-  if (value === "/dashboard") return "/practice";
+  if (value === "/practice") return "/dashboard";
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/practice";
+    return "/dashboard";
   }
 
   const url = new URL(value, CANONICAL_SITE_URL);
-  if (url.origin !== CANONICAL_SITE_URL) return "/practice";
+  if (url.origin !== CANONICAL_SITE_URL) return "/dashboard";
   if (url.pathname.startsWith("/api") || url.pathname.startsWith("/auth/callback")) {
-    return "/practice";
+    return "/dashboard";
   }
 
   return `${url.pathname}${url.search}${url.hash}`;
@@ -283,8 +283,8 @@ export function AuthForm({
           {showForgotPassword
             ? "Enter your email and we will send a secure reset link."
             : isSignup
-              ? "Start practicing with a private VisaInterview workspace."
-              : "Sign in to your account to continue."}
+              ? "Start with a private Jobready workspace for jobs, CV/resume tailoring, and interviews."
+              : "Sign in to continue to your Jobready workspace."}
         </p>
       </div>
 

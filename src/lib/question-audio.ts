@@ -8,7 +8,7 @@ type QuestionAudioProvider =
   | "elevenlabs";
 
 const defaultVoiceInstructions = [
-  "Speak as a calm, professional visa officer.",
+  "Speak as a calm, professional interviewer.",
   "Use a direct interview tone, clear pacing, and natural pauses.",
   "Read only the supplied question text without adding commentary.",
 ].join(" ");

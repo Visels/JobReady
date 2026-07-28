@@ -1,9 +1,10 @@
 import { buildWelcomeEmail } from "../../emails/templates/welcome-email";
+import { publicProductConfig } from "@/config/public";
 import { getAbsoluteUrl } from "@/lib/site-url";
 
 const RESEND_EMAIL_ENDPOINT = "https://api.resend.com/emails";
 const RESEND_CONTACTS_ENDPOINT = "https://api.resend.com/contacts";
-const DEFAULT_SUPPORT_EMAIL = "support@visainterview.ai";
+const DEFAULT_SUPPORT_EMAIL = publicProductConfig.legal.supportEmail;
 
 let missingEmailConfigWarned = false;
 let missingContactConfigWarned = false;
@@ -163,8 +164,10 @@ export async function sendWelcomeEmail(input: {
   const email = buildWelcomeEmail({
     name: input.name,
     appUrl: getAbsoluteUrl("/"),
-    practiceUrl: getAbsoluteUrl("/practice"),
-    learningUrl: getAbsoluteUrl("/learning"),
+    workspaceUrl: getAbsoluteUrl("/dashboard"),
+    jobsUrl: getAbsoluteUrl("/jobs"),
+    tailoringUrl: getAbsoluteUrl("/cv-resume"),
+    interviewUrl: getAbsoluteUrl("/interviews/new"),
     supportEmail,
   });
 

@@ -4,7 +4,7 @@ export const REFERRAL_REWARD_LABEL = "20% of their first paid checkout";
 export function buildReferralLink(siteUrl: string, referrerId: string) {
   const url = new URL("/login", `${siteUrl}/`);
   url.searchParams.set("ref", referrerId);
-  url.searchParams.set("callbackUrl", "/practice");
+  url.searchParams.set("callbackUrl", "/dashboard");
   return url.toString();
 }
 

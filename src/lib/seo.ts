@@ -59,7 +59,7 @@ export function generateSEO({
   title,
   description,
   slug,
-  ogImage = "/og-default.png",
+  ogImage = publicProductConfig.brand.assets.socialOg,
   ogImageParams,
   noIndex = false,
   keywords = [],

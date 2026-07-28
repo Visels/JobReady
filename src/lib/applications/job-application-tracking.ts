@@ -328,7 +328,7 @@ function applicationLinks(target: ApplicationTargetSummary, applicationId: strin
   }
 
   return {
-    tailorHref: `/practice?target=${encodeURIComponent(target.privateJobTargetVersionId)}&applicationId=${encodeURIComponent(applicationId)}&intent=tailor`,
+    tailorHref: "/cv-resume",
     practiceHref: `/interviews/new?target=${encodeURIComponent(target.privateJobTargetVersionId)}&applicationId=${encodeURIComponent(applicationId)}`,
     applyHref: null,
   };

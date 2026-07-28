@@ -216,7 +216,12 @@ function normalizeSearchText(value: string | null | undefined) {
 }
 
 function normalizeFilterToken(value: string | undefined) {
-  const normalized = value?.trim().toLowerCase();
+  const normalized = value
+    ?.trim()
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
   if (!normalized || !FILTER_TOKEN_PATTERN.test(normalized)) return undefined;
   return normalized;
 }

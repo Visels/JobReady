@@ -57,7 +57,7 @@ export function PolicyShell({
                   <a
                     key={section.id}
                     href={`#${section.id}`}
-                    className="block text-sm font-semibold leading-6 text-[#4b596b] transition duration-300 ease-soft hover:text-[#ff4f36]"
+                    className="block text-sm font-semibold leading-6 text-[#4b596b] transition duration-300 ease-soft hover:text-[#00533f]"
                   >
                     {section.title}
                   </a>
@@ -117,7 +117,7 @@ export function PolicyEmailLink({ email }: { email: string }) {
   return (
     <a
       href={`mailto:${email}`}
-      className="inline break-all rounded-sm font-bold text-[#00533f] transition duration-300 ease-soft hover:text-[#ff4f36] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff4f36]"
+      className="inline break-all rounded-sm font-bold text-[#00533f] transition duration-300 ease-soft hover:text-[#063c31] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
     >
       {email}
     </a>

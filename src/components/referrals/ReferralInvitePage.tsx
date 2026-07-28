@@ -143,10 +143,10 @@ export function ReferralInvitePage({
     }
 
     const subject = encodeURIComponent(
-      `${firstName(displayName)} invited you to VisaInterview`,
+      `${firstName(displayName)} invited you to Jobready`,
     );
     const body = encodeURIComponent(
-      `I thought VisaInterview could help you practice for your visa interview.\n\nUse my referral link:\n${referralLink}`,
+      `I thought Jobready could help you find roles, tailor your CV/resume, and practise job interviews.\n\nUse my referral link:\n${referralLink}`,
     );
 
     window.open(
@@ -168,7 +168,8 @@ export function ReferralInvitePage({
           Invite friends
         </h1>
         <p className="mt-2 max-w-2xl text-[13px] leading-5 text-[#52605b]">
-          Send your referral link to friends preparing for visa interviews.
+          Send your referral link to friends applying for jobs or preparing for
+          interviews.
         </p>
       </header>
 
@@ -247,7 +248,7 @@ export function ReferralInvitePage({
 
           <button
             type="submit"
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-[13px] font-semibold text-white shadow-[0_14px_28px_rgba(240,106,93,0.2)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#ef513f] active:scale-press sm:w-fit"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-semibold text-white shadow-[0_14px_28px_rgba(0,83,58,0.18)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#063c31] active:scale-press sm:w-fit"
           >
             <Send className="h-4 w-4" strokeWidth={1.8} />
             Open email draft

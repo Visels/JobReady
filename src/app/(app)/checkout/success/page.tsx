@@ -39,7 +39,7 @@ export default async function CheckoutSuccessPage({
     params.provider === "flutterwave" || Boolean(params.transaction_id || params.tx_ref);
 
   if (isFlutterwave && params.status && params.status !== "successful") {
-    redirect(appendCheckoutStatus(params.return_path ?? "/practice", "cancelled"));
+    redirect(appendCheckoutStatus(params.return_path ?? "/billing", "cancelled"));
   }
 
   let result:

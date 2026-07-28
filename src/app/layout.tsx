@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
 import { Analytics as SiteAnalytics } from "@/components/seo/Analytics";
+import { publicProductConfig } from "@/config/public";
 import { getSiteUrl } from "@/lib/site-url";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 
@@ -19,45 +20,45 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "VisaInterview - Practice Your Visa Interview with AI",
-    template: "%s | VisaInterview",
+    default: "Jobready - Jobs, CV Tailoring, and Interview Practice in Africa",
+    template: "%s | Jobready",
   },
   description:
-    "Practice visa interview questions with an AI visa interview simulator built for F1, tourist, UK, Canada, Schengen, and Australia visa preparation.",
-  applicationName: "VisaInterview",
+    "Find sourced jobs, tailor truthful CVs and resumes, and practise realistic company and role interviews for African careers.",
+  applicationName: publicProductConfig.brand.name,
   keywords: [
-    "visa interview questions",
-    "how to prepare for visa interview",
-    "US F1 visa interview questions",
-    "visa interview practice",
-    "visa interview mock practice",
-    "visa interview simulator AI",
+    "jobs in Kenya",
+    "Africa jobs",
+    "CV tailoring Kenya",
+    "resume tailoring Africa",
+    "job interview practice Kenya",
+    "STAR interview practice",
   ],
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: publicProductConfig.brand.assets.favicon,
+    shortcut: publicProductConfig.brand.assets.favicon,
   },
   openGraph: {
     type: "website",
-    siteName: "VisaInterview",
-    title: "VisaInterview - Practice Your Visa Interview with AI",
+    siteName: publicProductConfig.brand.name,
+    title: "Jobready - Jobs, CV Tailoring, and Interview Practice in Africa",
     description:
-      "Practice realistic visa interview questions with AI feedback before your embassy or consulate appointment.",
+      "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
     images: [
       {
-        url: "/og-default.png",
+        url: publicProductConfig.brand.assets.socialOg,
         width: 1200,
         height: 630,
-        alt: "VisaInterview visa interview simulator",
+        alt: "Jobready social preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "VisaInterview - Practice Your Visa Interview with AI",
+    title: "Jobready - Jobs, CV Tailoring, and Interview Practice in Africa",
     description:
-      "Practice realistic visa interview questions with AI feedback before your embassy or consulate appointment.",
-    images: ["/og-default.png"],
+      "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
+    images: [publicProductConfig.brand.assets.socialOg],
   },
   robots: {
     index: true,

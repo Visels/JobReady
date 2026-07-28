@@ -18,9 +18,7 @@ export function BrandMark({
 }) {
   const { brand } = publicProductConfig;
   const isReversed = tone === "reversed";
-  const wordmarkSrc = isReversed
-    ? brand.assets.wordmarkDark
-    : brand.assets.wordmarkLight;
+  const wordmarkSrc = isReversed ? brand.assets.wordmarkDark : brand.assets.wordmark;
   const textColor = isReversed ? "text-white" : "text-foreground";
 
   return (
@@ -40,8 +38,8 @@ export function BrandMark({
         <img
           src={wordmarkSrc}
           alt={brand.name}
-          width={164}
-          height={36}
+          width={194}
+          height={50}
           className={`h-9 w-auto flex-none ${wordmarkClassName}`}
         />
       ) : null}

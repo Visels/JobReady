@@ -15,11 +15,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const title = paramOrDefault(
     searchParams.get("title"),
-    "Practice Your Visa Interview with AI",
+    "Find the role. Prepare for it. Show up ready.",
   );
   const subtitle = paramOrDefault(
     searchParams.get("sub"),
-    "Realistic questions, instant feedback, and interview-ready confidence.",
+    "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
   );
   const badge = searchParams.get("badge")?.trim();
 
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "#071729",
+          background: "#063c31",
           color: "#ffffff",
           fontFamily: "Arial, Helvetica, sans-serif",
           position: "relative",
@@ -92,8 +92,7 @@ export async function GET(request: Request) {
                 letterSpacing: -1,
               }}
             >
-              <span>VisaInterview</span>
-              <span style={{ color: "#d7a84f" }}>.ai</span>
+              <span>jobready</span>
             </div>
             {badge ? (
               <div
@@ -147,9 +146,9 @@ export async function GET(request: Request) {
             }}
           >
             {[
-              ["238K+", "monthly visa searches"],
-              ["5 min", "free page practice"],
-              ["AI", "mock interview simulator"],
+              ["Jobs", "official apply links stay free"],
+              ["CV", "truthful tailoring without invention"],
+              ["Mock", "company and role practice"],
             ].map(([value, label]) => (
               <div
                 key={label}

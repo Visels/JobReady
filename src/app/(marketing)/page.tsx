@@ -3,716 +3,639 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  ChevronDown,
+  BookOpen,
+  BriefcaseBusiness,
+  CheckCircle2,
+  ClipboardCheck,
+  ExternalLink,
   FileText,
-  Globe2,
-  GraduationCap,
-  Play,
+  Route,
+  Search,
   ShieldCheck,
-  Star,
-  TrendingUp,
-  UserRound,
-  WalletCards,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { AuthNavigationLink } from "@/components/marketing/AuthNavigationLink";
-import { CountUpStat, MotionReveal } from "@/components/marketing/LandingMotion";
-import { PricingAudienceSwitcher } from "@/components/marketing/PricingAudienceSwitcher";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { BrandMark } from "@/components/ui/BrandMark";
-import { loginHrefForVisa } from "@/lib/marketing-visa-options";
+import { publicProductConfig } from "@/config/public";
+import type { PublicJobOption, PublicJobSummary } from "@/lib/jobs";
+import { getPublicJobFilterOptions, searchPublicJobs } from "@/lib/jobs";
+import type { PlanPrice } from "@/lib/pricing";
+import { pricingCatalogForCountry } from "@/lib/pricing";
 import { generateSEO } from "@/lib/seo";
+import { generateWebPageSchema } from "@/lib/structured-data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
-  title: "Practice Your Visa Interview with AI",
+  title: "Jobs, CV Tailoring, and Interview Practice for African Careers",
   description:
-    "Practice visa interview questions with an AI visa interview simulator for F1, tourist, UK, Canada, Schengen, and Australia visa preparation.",
+    "Find sourced jobs, tailor truthful CVs and resumes, and practise realistic company and role interviews for Kenya and African career moves.",
   slug: "/",
   keywords: [
-    "visa interview questions",
-    "visa interview practice",
-    "how to prepare for visa interview",
-    "visa interview simulator AI",
-    "visa interview mock practice",
+    "jobs in Kenya",
+    "CV tailoring Kenya",
+    "resume tailoring Africa",
+    "job interview practice Kenya",
+    "Safaricom interview questions",
+    "STAR method Kenya",
   ],
   ogImageParams: {
-    title: "Practice Your Visa Interview with AI",
-    sub: "Realistic officer questions, instant feedback, and readiness reports.",
-    badge: "AI Simulator",
+    title: "Find the role. Prepare for it. Show up ready.",
+    sub: "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
+    badge: "Jobready",
   },
 });
 
-type UseCase = {
+type ProductPath = {
   icon: LucideIcon;
   title: string;
   copy: string;
+  proof: string;
+  href: string;
+  cta: string;
+  analytics: string;
 };
 
-type VisaTrainingType = UseCase & {
-  country: string;
-  flagCode?: string;
-  flagLabel?: string;
-  visas: string[];
-  visaSlugs?: Array<string | null>;
-  primaryVisaSlug?: string;
+type PreparationExample = {
+  company: string;
+  role: string;
+  reviewedAt: string;
+  source: string;
+  focus: string;
 };
 
-const interviewTips = [
-  {
-    title: "4 steps to create a stronger visa interview answer",
-    copy: "Turn long stories into concise, evidence-backed responses the officer can follow.",
-    meta: "Answer structure",
-  },
-  {
-    title: "30-60-90 day prep plan before your interview",
-    copy: "Know what to practice from your first session through appointment week.",
-    meta: "Prep timeline",
-  },
-  {
-    title: "Why consistency matters in every visa answer",
-    copy: "Learn how contradictions create risk and how to keep your story aligned.",
-    meta: "Interview clarity",
-  },
+type HeroSearchOptions = {
+  companies: PublicJobOption[];
+  jobTitles: string[];
+};
+
+const fallbackCompanyOptions: PublicJobOption[] = [
+  { value: "safaricom", label: "Safaricom" },
+  { value: "kcb-bank-kenya", label: "KCB Bank Kenya" },
+  { value: "kenya-pipeline-company", label: "Kenya Pipeline Company" },
 ];
 
-const visaTrainingTypes: VisaTrainingType[] = [
-  {
-    country: "United States",
-    flagCode: "us",
-    flagLabel: "United States flag",
-    icon: GraduationCap,
-    title: "US study and exchange interviews",
-    copy: "Practice school choice, funding, ties home, post-study plans, and genuine student intent.",
-    visas: ["F-1 student", "J-1 exchange visitor", "M-1 vocational student", "F-2 and J-2 dependants"],
-    visaSlugs: ["us-f1-student", "us-j1-exchange", "us-m1-vocational", "us-f2-j2-dependent"],
-    primaryVisaSlug: "us-f1-student",
-  },
-  {
-    country: "United States",
-    flagCode: "us",
-    flagLabel: "United States flag",
-    icon: ShieldCheck,
-    title: "US visitor, work and family interviews",
-    copy: "Prepare trip purpose, employer context, relationship history, sponsor details, and return intent.",
-    visas: ["B-1/B-2 visitor", "H-1B specialty worker", "L-1 transfer", "O-1 ability", "K-1 fiance", "CR-1/IR-1 spouse"],
-    visaSlugs: [
-      "us-b1-b2-visitor",
-      "us-h1b-specialty-worker",
-      "us-l1-transfer",
-      "us-o1-extraordinary-ability",
-      "us-k1-fiance",
-      "us-cr1-ir1-spouse",
-    ],
-    primaryVisaSlug: "us-b1-b2-visitor",
-  },
-  {
-    country: "Canada",
-    flagCode: "ca",
-    flagLabel: "Canada flag",
-    icon: GraduationCap,
-    title: "Canada study, visit and work interviews",
-    copy: "Train for program choice, host details, travel history, employer context, settlement plans, and funds.",
-    visas: ["Study permit", "SDS applications", "Visitor visa", "Super visa", "Work permit", "LMIA-backed roles"],
-    visaSlugs: [
-      "canada-study-permit",
-      "canada-study-permit",
-      "canada-visitor",
-      "canada-visitor",
-      "canada-work-permit",
-      "canada-work-permit",
-    ],
-    primaryVisaSlug: "canada-study-permit",
-  },
-  {
-    country: "United Kingdom",
-    flagCode: "gb",
-    flagLabel: "United Kingdom flag",
-    icon: GraduationCap,
-    title: "UK student, visitor and sponsored work interviews",
-    copy: "Rehearse CAS details, genuine student questions, travel purpose, sponsorship, job duties, and funds.",
-    visas: ["Student visa", "Child student", "Standard visitor", "Skilled worker", "Health and care worker", "Dependants"],
-    visaSlugs: [
-      "uk-student",
-      "uk-student",
-      "uk-standard-visitor",
-      "uk-skilled-worker",
-      "uk-health-care-worker",
-      "uk-student",
-    ],
-    primaryVisaSlug: "uk-student",
-  },
-  {
-    country: "Germany",
-    flagCode: "de",
-    flagLabel: "Germany flag",
-    icon: GraduationCap,
-    title: "Germany study, job seeker and work interviews",
-    copy: "Practice blocked-account, admission, course plan, job search, employer, and career-path answers.",
-    visas: ["Student visa", "Language course", "Job seeker", "Opportunity card", "EU Blue Card", "Family reunion"],
-    visaSlugs: [
-      "germany-student",
-      "germany-student",
-      "germany-job-seeker",
-      "germany-job-seeker",
-      "germany-eu-blue-card",
-      "germany-student",
-    ],
-    primaryVisaSlug: "germany-student",
-  },
-  {
-    country: "Australia",
-    flagCode: "au",
-    flagLabel: "Australia flag",
-    icon: GraduationCap,
-    title: "Australia study, visitor and skilled interviews",
-    copy: "Prepare genuine student intent, course relevance, holiday plans, points, sponsor, and partner questions.",
-    visas: ["Student visa", "Visitor visa", "Working holiday", "Skilled visas", "Employer sponsored", "Partner visa"],
-    visaSlugs: [
-      "australia-student",
-      "australia-visitor",
-      "australia-visitor",
-      "australia-visitor",
-      "australia-visitor",
-      "australia-partner",
-    ],
-    primaryVisaSlug: "australia-student",
-  },
-  {
-    country: "Schengen Area",
-    flagCode: "eu",
-    flagLabel: "European Union flag",
-    icon: WalletCards,
-    title: "Schengen short-stay and national visa interviews",
-    copy: "Prepare itinerary, entry country, hotel bookings, insurance, funds, host details, and return proof.",
-    visas: ["Tourist Schengen", "Business Schengen", "Family visit", "Transit", "Student national visas", "Long-stay visas"],
-    visaSlugs: [
-      "schengen-tourist",
-      "schengen-business",
-      "schengen-tourist",
-      "schengen-tourist",
-      "schengen-tourist",
-      "schengen-tourist",
-    ],
-    primaryVisaSlug: "schengen-tourist",
-  },
-  {
-    country: "And more",
-    icon: FileText,
-    title: "More destinations and visa situations",
-    copy: "If your country or visa is not listed, you can still train around your exact case details.",
-    visas: ["France", "Italy", "Spain", "Netherlands", "Ireland", "New Zealand", "UAE", "Japan", "South Korea", "South Africa"],
-  },
+const fallbackJobTitles = [
+  "Product Manager",
+  "Software Engineer",
+  "Customer Service Officer",
+  "Relationship Manager",
+  "Graduate Trainee Engineer",
+  "Pipeline Engineer",
 ];
 
-const testimonials = [
-  {
-    quote:
-      "I kept giving long answers. The practice report showed exactly where I was losing the officer's attention.",
-    name: "Miriam A.",
-    role: "Graduate applicant, F-1 practice",
-    image: "/marketing/avatars/testimonial-miriam.jpg",
-  },
-  {
-    quote:
-      "The follow-up questions felt uncomfortable in the best way. By my appointment week, my answers were much shorter.",
-    name: "Daniel K.",
-    role: "Tourist visa applicant",
-    image: "/marketing/avatars/testimonial-daniel.jpg",
-  },
-  {
-    quote:
-      "I had a prior refusal and needed to stop sounding defensive. The mock interviews helped me answer calmly.",
-    name: "Nadia R.",
-    role: "Family visit applicant",
-    image: "/marketing/avatars/testimonial-nadia.jpg",
-  },
-];
+function candidateHref(path: string) {
+  return `/login?callbackUrl=${encodeURIComponent(path)}`;
+}
 
-const faqs = [
-  [
-    "Can I practice before buying more sessions?",
-    "Yes. Start from your account and use available sessions whenever you are ready to run a new mock interview.",
-  ],
-  [
-    "Which visa categories are supported?",
-    "VisaInterview supports common study, tourism, work, and family visit situations, with country and visa-type context added before each session.",
-  ],
-  [
-    "Can I answer using my microphone?",
-    "Yes. You can answer by microphone or type your answer, depending on your environment and browser support.",
-  ],
-  [
-    "What does the report score?",
-    "The report reviews answer consistency, financial clarity, return intent, home ties, study or trip purpose, and composure under pressure.",
-  ],
-  [
-    "Can I practice after a previous refusal?",
-    "Yes. You can include prior refusal context so the interview focuses on the areas that need a clearer, calmer explanation.",
-  ],
-];
+function formatDate(value: Date | null) {
+  if (!value) return "Not provided";
 
+  return new Intl.DateTimeFormat("en-KE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "Africa/Nairobi",
+  }).format(value);
+}
 
+function formatFreshness(value: Date | null) {
+  if (!value) return "Review date not provided";
 
-function TrustAvatars() {
-  const avatars = [
-    {
-      src: "/marketing/avatars/hero-applicant-1.jpg",
-      alt: "Visa applicant smiling",
-    },
-    {
-      src: "/marketing/avatars/hero-applicant-2.jpg",
-      alt: "Visa applicant portrait",
-    },
-    {
-      src: "/marketing/avatars/hero-applicant-3.jpg",
-      alt: "Visa applicant portrait",
-    },
-    {
-      src: "/marketing/avatars/hero-applicant-4.jpg",
-      alt: "Visa applicant portrait",
-    },
-  ];
+  const days = Math.max(
+    0,
+    Math.floor((Date.now() - value.getTime()) / 86_400_000),
+  );
+
+  if (days === 0) return "Reviewed today";
+  if (days === 1) return "Reviewed yesterday";
+  return `Reviewed ${days} days ago`;
+}
+
+function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
+  if (entitlements.length === 0) return "No paid credits";
+
+  return entitlements
+    .map((entitlement) =>
+      entitlement.productAction === "tailoring"
+        ? `${entitlement.units} CV tailoring`
+        : `${entitlement.units} interview`,
+    )
+    .join(" + ");
+}
+
+async function getFreshJobs() {
+  try {
+    const result = await searchPublicJobs({
+      searchParams: { pageSize: "3" },
+    });
+
+    return result.jobs;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Could not load fresh jobs for landing page.", error);
+    }
+
+    return [];
+  }
+}
+
+async function getPricingPlans() {
+  try {
+    const catalog = await pricingCatalogForCountry(
+      publicProductConfig.market.defaultCountryCode,
+    );
+    const preferredPlans = [
+      "starter-diagnostic",
+      "interview-standard",
+      "tailoring-single",
+      "job-readiness-bundle",
+    ];
+
+    return preferredPlans
+      .map((slug) => catalog.find((plan) => plan.plan === slug))
+      .filter((plan): plan is PlanPrice => Boolean(plan));
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Could not load pricing for landing page.", error);
+    }
+
+    return [];
+  }
+}
+
+function mergeOptions(
+  primary: PublicJobOption[],
+  fallback: PublicJobOption[],
+) {
+  const options = new Map<string, PublicJobOption>();
+
+  for (const option of [...primary, ...fallback]) {
+    const key = option.label.toLowerCase();
+    if (!options.has(key)) options.set(key, option);
+  }
+
+  return [...options.values()].sort((left, right) =>
+    left.label.localeCompare(right.label),
+  );
+}
+
+function uniqueTextOptions(values: string[]) {
+  const options = new Map<string, string>();
+
+  for (const value of values) {
+    const normalized = value.replace(/\s+/g, " ").trim();
+    if (!normalized) continue;
+    const key = normalized.toLowerCase();
+    if (!options.has(key)) options.set(key, normalized);
+  }
+
+  return [...options.values()].sort((left, right) =>
+    left.localeCompare(right),
+  );
+}
+
+async function getHeroSearchOptions(
+  jobs: PublicJobSummary[],
+): Promise<HeroSearchOptions> {
+  try {
+    const options = await getPublicJobFilterOptions();
+
+    return {
+      companies: mergeOptions(options.companies, fallbackCompanyOptions),
+      jobTitles: uniqueTextOptions([
+        ...jobs.map((job) => job.title),
+        ...jobs.map((job) => job.roleName),
+        ...options.roles.map((role) => role.label),
+        ...fallbackJobTitles,
+      ]),
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Could not load hero search options.", error);
+    }
+
+    return {
+      companies: fallbackCompanyOptions,
+      jobTitles: fallbackJobTitles,
+    };
+  }
+}
+
+function SectionIntro({
+  eyebrow,
+  title,
+  copy,
+  id,
+  tone = "default",
+}: {
+  eyebrow: string;
+  title: string;
+  copy: string;
+  id?: string;
+  tone?: "default" | "reversed";
+}) {
+  const reversed = tone === "reversed";
 
   return (
-    <div className="flex -space-x-2" aria-label="Visa applicants">
-      {avatars.map((avatar) => (
-        <span
-          key={avatar.src}
-          className="block h-8 w-8 overflow-hidden rounded-full border-2 border-white bg-[#e7f0eb] shadow-sm md:h-9 md:w-9"
-        >
-          <Image
-            src={avatar.src}
-            alt={avatar.alt}
-            width={72}
-            height={72}
-            className="h-full w-full object-cover"
-          />
-        </span>
-      ))}
+    <div id={id} className="max-w-4xl">
+      <p
+        className={`text-sm font-bold uppercase tracking-[0.18em] ${
+          reversed ? "text-[#d7a84f]" : "text-[#6f4e00]"
+        }`}
+      >
+        {eyebrow}
+      </p>
+      <h2
+        className={`mt-5 text-[clamp(2.25rem,3.9vw,4.4rem)] font-bold leading-none tracking-[-0.05em] text-balance ${
+          reversed ? "text-white" : "text-[#071512]"
+        }`}
+      >
+        {title}
+      </h2>
+      <p
+        className={`mt-6 max-w-3xl text-base leading-7 md:text-lg md:leading-8 ${
+          reversed ? "text-white/72" : "text-[#52605b]"
+        }`}
+      >
+        {copy}
+      </p>
     </div>
   );
 }
 
-function HeroSection() {
+function TextAction({
+  href,
+  children,
+  analytics,
+}: {
+  href: string;
+  children: React.ReactNode;
+  analytics: string;
+}) {
   return (
-    <section className="relative isolate overflow-hidden bg-[#f7f1e8]">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_34%,rgba(0,83,63,0.08),transparent_34%),radial-gradient(circle_at_12%_78%,rgba(255,79,54,0.06),transparent_28%)]" />
+    <Link
+      href={href}
+      data-analytics-event={analytics}
+      className="inline-flex items-center gap-2 rounded-full px-2 py-2 text-sm font-bold text-[#00533f] underline decoration-[#d7a84f] decoration-2 underline-offset-8 transition hover:text-[#063c31] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+    >
+      {children}
+      <ArrowRight className="h-4 w-4" strokeWidth={2} />
+    </Link>
+  );
+}
 
-      <div className="mx-auto max-w-[1600px] px-5 pb-0 pt-12 md:px-7 md:pt-16 lg:px-8 lg:pt-20">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.82fr)_minmax(620px,1.18fr)] lg:gap-10 xl:gap-16">
-          <MotionReveal className="max-w-[660px] lg:pb-8">
+function HeroInterviewPreview() {
+  return (
+    <aside className="relative mx-auto w-full max-w-[900px] lg:-mt-10 lg:max-w-none xl:-mt-16">
+      <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-[#00533f]/7 blur-3xl" />
+      <div className="overflow-hidden rounded-[1.35rem] border border-[#00533f]/20 bg-white p-1.5 shadow-[0_28px_80px_rgba(20,58,47,0.14)] md:rounded-[1.8rem] md:p-2">
+        <Image
+          src="/marketing/session.png"
+          alt="Jobready mock interview room with an interview question, answer controls, and preparation feedback"
+          width={1531}
+          height={1027}
+          sizes="(min-width: 1024px) 58vw, 100vw"
+          className="h-auto w-full rounded-[1rem] object-cover md:rounded-[1.35rem]"
+          priority
+        />
+      </div>
+    </aside>
+  );
+}
 
-            <h1 className="mt-7 max-w-[12ch] text-[clamp(3.25rem,6vw,6.7rem)] font-bold leading-[0.96] tracking-[-0.055em] text-[#001817] text-balance lg:text-[clamp(4.5rem,5.15vw,6.35rem)]">
-              Pass Your Visa Interview With{" "}
-              <span className="text-[#ff4f36]">Confidence</span>
-            </h1>
-
-            <p className="mt-6 max-w-[57ch] text-[1.02rem] font-medium leading-7 text-[#344457] md:text-[1.12rem] md:leading-8">
-              Realistic mock interviews shaped around your visa, your story,
-              and the pressure points officers probe.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <AuthNavigationLink
-                href="/login"
-                className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-xl bg-[#ff4f36] px-7 text-base font-bold text-white shadow-[0_18px_42px_rgba(255,79,54,0.24)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#ef3d25] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff4f36] active:scale-press md:px-8"
-                loadingLabel="Loading interview practice"
-              >
-                Start Free Interview
-                <ArrowRight
-                  className="h-[1.125rem] w-[1.125rem] transition duration-300 ease-soft group-hover:translate-x-1"
-                  strokeWidth={1.8}
-                />
-              </AuthNavigationLink>
-              <Link
-                href="#how-it-works"
-                className="inline-flex min-h-14 items-center justify-center gap-3 rounded-xl border border-[#00533f]/45 bg-white/55 px-7 text-base font-bold text-[#07483a] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#00533f] hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-press"
-              >
-                See how it works
-                <Play className="h-[1.125rem] w-[1.125rem] fill-current" strokeWidth={1.7} />
-              </Link>
-            </div>
-
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <TrustAvatars />
-              <div>
-                <div className="flex gap-1 text-[#f5b316]">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <Star key={index} className="h-3.5 w-3.5 fill-current md:h-4 md:w-4" strokeWidth={1.4} />
-                  ))}
-                </div>
-                <p className="mt-1 text-[0.82rem] font-medium text-[#344457] md:text-sm">
-                  Trusted by 1,000+ visa applicants
-                </p>
-              </div>
-            </div>
-
-            {/* Visa type chips */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              {[
-                { cc: "us", label: "F1 Student", visaSlug: "us-f1-student" },
-                { cc: "us", label: "B1/B2 Tourist", visaSlug: "us-b1-b2-visitor" },
-                { cc: "gb", label: "UK Visas", visaSlug: "uk-student" },
-                { cc: "ca", label: "Canada", visaSlug: "canada-study-permit" },
-                { cc: "au", label: "Australia", visaSlug: "australia-student" },
-                { cc: "eu", label: "Schengen", visaSlug: "schengen-tourist" },
-              ].map(({ cc, label, visaSlug }) => (
-                <AuthNavigationLink
-                  key={label}
-                  href={loginHrefForVisa(visaSlug)}
-                  loadingLabel={`Loading ${label} practice`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#d6cfc4] bg-white/70 px-3 py-1.5 text-[0.8rem] font-semibold text-[#2b3a35] shadow-[0_1px_3px_rgba(7,21,18,0.06)] backdrop-blur-sm transition duration-200 hover:border-[#00533f]/40 hover:bg-white hover:-translate-y-px active:scale-[0.97]"
-                >
-                  <Image
-                    src={`https://flagcdn.com/w20/${cc}.png`}
-                    alt={label}
-                    width={20}
-                    height={15}
-                    className="h-[15px] w-5 rounded-[2px] object-cover shadow-[0_0_0_1px_rgba(0,0,0,0.08)]"
-                  />
-                  {label}
-                </AuthNavigationLink>
-              ))}
-              <AuthNavigationLink
-                href="/login"
-                loadingLabel="Loading more visa types"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#d6cfc4] bg-white/70 px-3 py-1.5 text-[0.8rem] font-semibold text-[#00533f] shadow-[0_1px_3px_rgba(7,21,18,0.06)] backdrop-blur-sm transition duration-200 hover:border-[#00533f]/40 hover:bg-white hover:-translate-y-px active:scale-[0.97]"
-              >
-                + More
-              </AuthNavigationLink>
-            </div>
-          </MotionReveal>
-
-          <MotionReveal className="relative mx-auto w-full max-w-[900px] lg:max-w-none" delayMs={120}>
-            <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-[#00533f]/7 blur-3xl" />
-            <div className="overflow-hidden rounded-[1.35rem] border border-[#00533f]/20 bg-white p-1.5 shadow-[0_28px_80px_rgba(20,58,47,0.14)] md:rounded-[1.8rem] md:p-2">
-              <Image
-                src="/marketing/session.webp"
-                alt="Live US F1 mock interview with a consular officer, applicant, current question, interview tip, and AI feedback"
-                width={1619}
-                height={971}
-                priority
-                sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 55vw, (min-width: 768px) 88vw, 100vw"
-                className="h-auto w-full rounded-[1rem] md:rounded-[1.35rem]"
+function HeroSearchForm({ options }: { options: HeroSearchOptions }) {
+  return (
+    <div className="mx-auto mt-14 max-w-[1120px] lg:mt-16">
+      <form
+        action="/jobs"
+        data-analytics-event="hero_job_search_submit"
+        data-analytics-product="jobs"
+        className="rounded-[1.35rem] border border-[#d9cbb8] bg-white p-2.5 shadow-[0_18px_48px_rgba(29,43,37,0.08)]"
+      >
+        <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
+          <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
+            Company
+            <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
+              <Search className="h-4 w-4 text-[#00533f]" strokeWidth={2} />
+              <input
+                name="company"
+                list="hero-company-options"
+                placeholder="Safaricom"
+                autoComplete="organization"
+                className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
               />
-            </div>
-          </MotionReveal>
+            </span>
+          </label>
+          <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
+            Job title
+            <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
+              <BriefcaseBusiness
+                className="h-4 w-4 text-[#00533f]"
+                strokeWidth={2}
+              />
+              <input
+                name="role"
+                list="hero-job-title-options"
+                placeholder="Product Manager"
+                autoComplete="off"
+                className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
+              />
+            </span>
+          </label>
+          <button
+            type="submit"
+            className="min-h-12 rounded-xl bg-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-[0_2px_8px_rgba(0,83,63,0.22)] transition hover:-translate-y-px hover:bg-[#043b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98]"
+          >
+            Search jobs
+          </button>
         </div>
+        <datalist id="hero-company-options">
+          {options.companies.map((company) => (
+            <option key={company.value} value={company.label} />
+          ))}
+        </datalist>
+        <datalist id="hero-job-title-options">
+          {options.jobTitles.map((title) => (
+            <option key={title} value={title} />
+          ))}
+        </datalist>
+      </form>
 
-        {/* Floating glassmorphism stats pill — anchored inside the hero */}
-        <div className="px-5 pb-10 pt-8 md:px-7 md:pb-14 md:pt-10 lg:px-8 lg:pb-16">
-          <div className="mx-auto max-w-[1600px]">
-            <div className="rounded-2xl border border-white/60 bg-white/40 shadow-[0_8px_32px_rgba(7,21,18,0.08),inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-md md:rounded-[1.25rem]">
-              <div className="grid grid-cols-2 divide-x divide-white/50 lg:grid-cols-4">
-                {[
-                  {
-                    icon: UserRound,
-                    count: { end: 1000, suffix: "+" },
-                    label: "Visa interviews practiced",
-                    iconBg: "bg-[#00533f]/10",
-                    iconColor: "text-[#00533f]",
-                  },
-                  {
-                    icon: TrendingUp,
-                    count: { end: 97, suffix: "%" },
-                    label: "Users felt more confident",
-                    iconBg: "bg-[#3b5bdb]/10",
-                    iconColor: "text-[#3b5bdb]",
-                  },
-                  {
-                    icon: Globe2,
-                    count: { end: 50, suffix: "+" },
-                    label: "Countries supported",
-                    iconBg: "bg-[#7048c1]/10",
-                    iconColor: "text-[#7048c1]",
-                  },
-                  {
-                    icon: Star,
-                    count: { end: 4.9, suffix: " / 5", decimals: 1 },
-                    label: "Average user rating",
-                    iconBg: "bg-[#c98b00]/10",
-                    iconColor: "text-[#c98b00]",
-                  },
-                ].map(({ icon: Icon, count, label, iconBg, iconColor }, index) => (
-                  <div
-                    key={label}
-                    className="marketing-card-motion flex items-center gap-4 px-6 py-6 md:gap-5 md:px-8 md:py-7 lg:px-10"
-                    style={{ transitionDelay: `${index * 35}ms` }}
-                  >
-                    <span
-                      className={`grid h-12 w-12 flex-none place-items-center rounded-xl ${iconBg} ${iconColor} ring-1 ring-white/50`}
-                    >
-                      <Icon className="h-[1.2rem] w-[1.2rem]" strokeWidth={2} />
-                    </span>
-                    <div>
-                      <p className="text-[1.65rem] font-bold leading-none tracking-[-0.05em] text-[#071512]">
-                        <CountUpStat
-                          end={count.end}
-                          suffix={count.suffix}
-                          decimals={count.decimals}
-                          className="tabular-nums"
-                        />
-                      </p>
-                      <p className="mt-1.5 text-[0.83rem] font-medium leading-tight text-[#5a6b7a]">
-                        {label}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function VisaTrainingTypesSection() {
-  return (
-    <section id="visa-types" className="bg-[#f7efe4] px-5 py-24 md:px-9 md:py-32">
-      <div className="mx-auto max-w-[1450px]">
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-          <div className="lg:sticky lg:top-10">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#00624c]">
-              Interview training types
-            </p>
-            <h2 className="mt-5 text-[clamp(2.8rem,4.8vw,5.8rem)] font-bold leading-none tracking-[-0.055em] text-[#071512] text-balance">
-              Choose the visa interview you need to train for.
-            </h2>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-[#4b596b]">
-              Practice with questions shaped around country, visa category,
-              evidence, sponsor details, and the pressure points officers tend
-              to probe.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2">
-            {visaTrainingTypes.map(({ country, flagCode, flagLabel, title, copy, visas, visaSlugs, primaryVisaSlug }, index) => (
-              <MotionReveal
-                as="article"
-                key={`${country}-${title}`}
-                delayMs={(index % 2) * 90}
-                className={`marketing-card-motion flex flex-col rounded-[1.5rem] bg-white p-7 shadow-[0_18px_50px_rgba(29,43,37,0.06)] ring-1 ring-[#e4dbcf] ${
-                  index % 2 === 1 ? "md:mt-14" : ""
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-[#e7f0eb] ring-1 ring-[#d5e0da]">
-                    {flagCode ? (
-                      <Image
-                        src={`https://flagcdn.com/w80/${flagCode}.png`}
-                        alt={flagLabel ?? `${country} flag`}
-                        width={80}
-                        height={60}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <Globe2 className="h-5 w-5 text-[#00533f]" strokeWidth={1.8} />
-                    )}
-                  </span>
-                  <span className="rounded-full bg-[#f8f4ed] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#00624c]">
-                    {country}
-                  </span>
-                </div>
-                <h3 className="mt-10 text-2xl font-bold leading-tight tracking-[-0.035em] text-[#071512]">
-                  {title}
-                </h3>
-                <p className="mt-4 text-base leading-7 text-[#4b596b]">{copy}</p>
-                <div className="mt-7 flex flex-wrap gap-2">
-                  {visas.map((visa, visaIndex) => {
-                    const slug = visaSlugs?.[visaIndex];
-
-                    return slug ? (
-                      <AuthNavigationLink
-                        key={visa}
-                        href={loginHrefForVisa(slug)}
-                        loadingLabel={`Loading ${visa} onboarding`}
-                        className="inline-flex min-h-7 items-center justify-center rounded-full bg-[#f8f4ed] px-3 py-1 text-xs font-bold text-[#425166] transition duration-200 hover:bg-[#fff1df] hover:text-[#b45a1a] active:scale-[0.98]"
-                      >
-                        {visa}
-                      </AuthNavigationLink>
-                    ) : (
-                      <span
-                        key={visa}
-                        className="rounded-full bg-[#f8f4ed] px-3 py-1 text-xs font-bold text-[#425166]"
-                      >
-                        {visa}
-                      </span>
-                    );
-                  })}
-                </div>
-                <div className="mt-auto pt-7">
-                  <AuthNavigationLink
-                    href={
-                      primaryVisaSlug
-                        ? loginHrefForVisa(primaryVisaSlug)
-                        : "/login?callbackUrl=/practice"
-                    }
-                    loadingLabel={`Loading ${title} onboarding`}
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#00533f] px-5 text-sm font-bold text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#043b30] active:scale-press"
-                  >
-                    Take this interview
-                  </AuthNavigationLink>
-                </div>
-              </MotionReveal>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function F1PracticeCallout() {
-  return (
-    <section className="bg-[#fffaf4] px-5 py-12 md:px-9">
-      <div className="mx-auto flex max-w-[1450px] flex-col gap-5 rounded-[1.5rem] border border-[#e1d8cc] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)] md:flex-row md:items-center md:justify-between md:p-8">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#00624c]">
-            F1 student applicants
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#071512]">
-            Start with free F1 visa interview practice
-          </h2>
-          <p className="mt-3 max-w-3xl text-base leading-7 text-[#52605b]">
-            Use the F1 guide for student visa questions, answer frameworks,
-            and the F1 practice flow before your US embassy appointment.
-          </p>
-        </div>
-        <Link
-          href="/guides/us-f1-student-visa"
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ff4f36] px-6 text-sm font-bold text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#ef3d25] active:scale-press"
+      <div className="mt-5 flex flex-wrap justify-center gap-3 md:justify-start">
+        <TextAction
+          href={candidateHref("/interviews/new")}
+          analytics="hero_interview_start_click"
         >
-          Open free F1 visa interview practice
-          <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
-        </Link>
+          Practise an Interview
+        </TextAction>
+        <TextAction
+          href={candidateHref("/cv-resume")}
+          analytics="hero_tailoring_start_click"
+        >
+          Tailor My CV
+        </TextAction>
       </div>
-    </section>
+      <p className="mt-6 max-w-2xl text-sm font-medium leading-6 text-[#5f6c66]">
+        Browsing jobs and opening official application links is public.
+        Preparation is optional and private to your workspace.
+      </p>
+    </div>
   );
 }
 
-function ProductSection() {
+function HeroSection({ searchOptions }: { searchOptions: HeroSearchOptions }) {
   return (
-    <section id="how-it-works" className="bg-[#fffaf4] px-5 py-24 text-[#071512] md:px-9 md:py-32">
-      <div className="mx-auto grid max-w-[1450px] gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <MotionReveal>
+    <section className="relative isolate overflow-hidden bg-[#f7f1e8] px-5 py-16 text-[#071512] md:px-7 md:py-20 lg:px-8 lg:py-24">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_34%,rgba(0,83,63,0.08),transparent_34%),radial-gradient(circle_at_12%_78%,rgba(215,168,79,0.09),transparent_28%)]" />
+      <div className="mx-auto grid max-w-[1600px] gap-12 lg:grid-cols-[minmax(0,0.84fr)_minmax(560px,1.16fr)] lg:items-start lg:gap-10 xl:gap-16">
+        <div className="reveal-up">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#00624c]">
-            How it works
+            Kenya first / Africa ready
           </p>
-          <h2 className="mt-5 max-w-[11ch] text-[clamp(3rem,5.4vw,6.5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-balance">
-            Practice the interview, not a script.
-          </h2>
-          <p className="mt-7 max-w-xl text-xl leading-9 text-[#405064]">
-            Each session adapts around your country, visa type, background,
-            refusal history, and answers. You get direct follow-up pressure when
-            your explanation is unclear.
+          <h1 className="mt-7 max-w-[14ch] text-[clamp(2.9rem,5.1vw,5.7rem)] font-bold leading-[0.98] tracking-[-0.052em] text-[#071512] text-balance">
+            Find the role. Prepare for it. Show up ready.
+          </h1>
+          <p className="mt-6 max-w-[57ch] text-[1.02rem] font-medium leading-7 text-[#344457] md:text-[1.12rem] md:leading-8">
+            Fresh sourced jobs, truthful CV tailoring, and realistic mock
+            interviews built for African careers.
           </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            {[
-              ["10+", "visa options"],
-              ["6", "readiness areas"],
-              ["1", "focused report"],
-            ].map(([value, label]) => (
-              <div key={label} className="border-l border-[#d6cec3] pl-5">
-                <p className="text-4xl font-bold tracking-[-0.05em] text-[#00533f]">
-                  {value}
-                </p>
-                <p className="mt-2 text-sm font-semibold text-[#405064]">{label}</p>
-              </div>
-            ))}
-          </div>
-        </MotionReveal>
-        <MotionReveal className="relative overflow-hidden rounded-[1.75rem] bg-white p-2 shadow-[0_30px_90px_rgba(29,43,37,0.12)] ring-1 ring-[#dbe6df] lg:-mr-4" delayMs={100}>
-          <Image
-            src="/marketing/interview-room-preview.gif"
-            alt="VisaInterview mock interview room with officer video, current question, answer controls, and officer assessment"
-            width={1536}
-            height={1024}
-            unoptimized
-            sizes="(min-width: 1024px) 58vw, 100vw"
-            className="h-auto w-full rounded-[1.35rem] object-cover"
-          />
-        </MotionReveal>
+        </div>
+
+        <div className="reveal-up delay-soft-2">
+          <HeroInterviewPreview />
+        </div>
       </div>
+      <HeroSearchForm options={searchOptions} />
     </section>
   );
 }
 
-function ReportSection() {
+function FreshJobsSection({ jobs }: { jobs: PublicJobSummary[] }) {
   return (
-    <section className="bg-[#063c31] px-5 py-24 text-white md:px-9 md:py-32">
-      <div className="mx-auto grid max-w-[1450px] gap-16 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <MotionReveal>
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9ee1c7]">
-            Readiness report
-          </p>
-          <h2 className="mt-5 text-[clamp(3rem,5vw,6rem)] font-bold leading-none tracking-[-0.055em] text-balance">
-            Know what to fix before the appointment.
-          </h2>
-          <p className="mt-7 max-w-xl text-xl leading-9 text-white/74">
-            After each mock interview, you get a clear score and a practical
-            breakdown of the areas that could make an officer doubt your case.
-          </p>
-        </MotionReveal>
-        <MotionReveal className="overflow-hidden rounded-[2rem] shadow-[0_30px_90px_rgba(0,0,0,0.22)]" delayMs={100}>
-          <Image
-            src="/marketing/readiness-report-preview.png"
-            alt="Visa Interview Mock Assessment Report preview with readiness score and improvement areas"
-            width={1034}
-            height={810}
-            sizes="(min-width: 1024px) 52vw, 100vw"
-            className="h-auto w-full rounded-[1.45rem] object-cover"
+    <section className="bg-[#fcfcfa] px-5 py-16 md:px-9 md:py-24">
+      <div className="mx-auto max-w-[1320px]">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <SectionIntro
+            eyebrow="Fresh jobs"
+            title="Public job discovery stays useful before you ever pay."
+            copy="Every active public job needs a reviewed official destination, source details, freshness, and a future deadline before we present it as active."
           />
-        </MotionReveal>
-      </div>
-    </section>
-  );
-}
+          <Link
+            href="/jobs"
+            data-analytics-event="fresh_jobs_view_all_click"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+          >
+            View all jobs
+            <ArrowRight className="h-4 w-4" strokeWidth={2} />
+          </Link>
+        </div>
 
-function TestimonialsSection() {
-  return (
-    <section className="bg-[#fffaf4] px-5 py-24 md:px-9 md:py-32">
-      <div className="mx-auto max-w-[1450px]">
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <MotionReveal>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#00624c]">
-              Testimonials
-            </p>
-            <h2 className="mt-5 text-[clamp(3rem,4.8vw,5.8rem)] font-bold leading-none tracking-[-0.055em] text-[#071512] text-balance">
-              Applicants sound sharper when they stop guessing.
-            </h2>
-          </MotionReveal>
-          <div className="grid gap-5">
-            {testimonials.map((testimonial, index) => (
-              <MotionReveal
-                as="article"
-                key={testimonial.name}
-                delayMs={index * 80}
-                className={`marketing-card-motion rounded-[1.5rem] p-8 ring-1 ring-[#e3dbcf] ${
-                  index === 0 ? "bg-[#ffe3de]" : "bg-white"
-                }`}
+        {jobs.length > 0 ? (
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {jobs.map((job) => (
+              <article
+                key={job.id}
+                className="group flex min-h-full flex-col rounded-[1.5rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#bca875]"
               >
-                <p className="text-2xl font-bold leading-snug tracking-[-0.035em] text-[#071512]">
-                  &quot;{testimonial.quote}&quot;
-                </p>
-                <div className="mt-8 flex items-center gap-4">
-                  <span className="block h-14 w-14 flex-none overflow-hidden rounded-full bg-[#e7f0eb] ring-2 ring-white shadow-sm">
-                    <Image
-                      src={testimonial.image}
-                      alt={`Portrait of ${testimonial.name}`}
-                      width={112}
-                      height={112}
-                      className="h-full w-full object-cover"
-                    />
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#eaf4ef] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#00533f]">
+                    Active
                   </span>
-                  <div>
-                    <p className="font-bold text-[#071512]">{testimonial.name}</p>
-                    <p className="text-sm font-medium text-[#637083]">
-                      {testimonial.role}
-                    </p>
-                  </div>
+                  <span className="rounded-full bg-[#fff4d6] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6f4e00]">
+                    {formatFreshness(job.lastVerifiedAt)}
+                  </span>
                 </div>
-              </MotionReveal>
+                <Link
+                  href={job.detailHref}
+                  data-analytics-event="job_view_click"
+                  data-analytics-source="landing_fresh_jobs"
+                  className="mt-5 block"
+                >
+                  <h3 className="text-2xl font-bold leading-tight tracking-[-0.035em] text-[#071512] transition group-hover:text-[#00533f]">
+                    {job.title}
+                  </h3>
+                </Link>
+                <p className="mt-3 font-bold text-[#173a32]">
+                  {job.companyName} / {job.location ?? job.marketName}
+                </p>
+                <dl className="mt-5 grid gap-3 text-sm">
+                  <div>
+                    <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+                      Source
+                    </dt>
+                    <dd className="mt-1 font-bold text-[#52605b]">
+                      {job.sourceName}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+                      Deadline
+                    </dt>
+                    <dd className="mt-1 font-bold text-[#52605b]">
+                      {formatDate(job.closesAt)}
+                    </dd>
+                  </div>
+                </dl>
+                <div className="mt-auto flex flex-col gap-3 pt-6">
+                  <a
+                    href={job.applyHref}
+                    data-analytics-event="job_apply_click"
+                    data-analytics-source="landing_fresh_jobs"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#00533f] px-5 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#063c31]"
+                  >
+                    Free official apply
+                    <ExternalLink className="h-4 w-4" strokeWidth={2} />
+                  </a>
+                  <Link
+                    href={candidateHref(`/interviews/new?job=${job.slug}`)}
+                    data-analytics-event="interview_start_click"
+                    data-analytics-source="landing_fresh_jobs"
+                    className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#d7a84f] px-5 text-sm font-bold uppercase tracking-[0.12em] text-[#6f4e00] transition hover:bg-[#fff4d6]"
+                  >
+                    Practise for this role
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-10 rounded-[1.5rem] border border-dashed border-[#cbbba6] bg-[#fffaf3] p-8">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#6f4e00]">
+              No active reviewed vacancies to feature today
+            </p>
+            <h3 className="mt-3 text-2xl font-bold tracking-[-0.035em] text-[#071512]">
+              We will not fake inventory to make the landing page look busy.
+            </h3>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-[#52605b]">
+              The job section is server-rendered and will populate when reviewed
+              active Kenyan jobs with future deadlines are published. Until
+              then, search remains available without hiding the official apply
+              boundary.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+const productPaths: ProductPath[] = [
+  {
+    icon: BriefcaseBusiness,
+    title: "Find and save sourced jobs",
+    copy: "Browse public roles with reviewed source information, official apply destinations, locations, deadlines, and private save/track options.",
+    proof: "Job browsing and official apply links stay free.",
+    href: "/jobs",
+    cta: "Search jobs",
+    analytics: "product_jobs_click",
+  },
+  {
+    icon: FileText,
+    title: "Tailor an existing CV/resume",
+    copy: "Use your real experience to create role-specific versions. Jobready suggests edits, gaps, and wording without inventing facts.",
+    proof: "CV upload and public job selection are optional.",
+    href: candidateHref("/cv-resume"),
+    cta: "Tailor my CV",
+    analytics: "tailoring_start_click",
+  },
+  {
+    icon: Sparkles,
+    title: "Practise company/role interviews",
+    copy: "Set up realistic job interviews around a company, role, seniority, job post, or private target and get evidence-backed feedback.",
+    proof: "Practice works with or without a saved job.",
+    href: candidateHref("/interviews/new"),
+    cta: "Practise an interview",
+    analytics: "interview_start_click",
+  },
+];
+
+function ProductPathsSection() {
+  return (
+    <section className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
+      <div className="mx-auto max-w-[1320px]">
+        <SectionIntro
+          eyebrow="Three independent ways"
+          title="Use one product, not one forced funnel."
+          copy="Jobs, CV/resume tailoring, and mock interviews stand on their own. You can connect them when it helps, but Jobready does not require every candidate to follow the same path."
+        />
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {productPaths.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <article
+                key={item.title}
+                className="flex min-h-full flex-col rounded-[1.5rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)]"
+              >
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#eaf4ef] text-[#00533f]">
+                  <Icon className="h-6 w-6" strokeWidth={1.9} />
+                </span>
+                <h3 className="mt-6 text-2xl font-bold leading-tight tracking-[-0.035em] text-[#071512]">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-base leading-7 text-[#52605b]">
+                  {item.copy}
+                </p>
+                <p className="mt-5 rounded-2xl bg-[#f8efe2] p-4 text-sm font-bold leading-6 text-[#173a32]">
+                  {item.proof}
+                </p>
+                <Link
+                  href={item.href}
+                  data-analytics-event={item.analytics}
+                  data-analytics-source="three_products"
+                  className="mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#00533f] px-5 text-sm font-bold uppercase tracking-[0.12em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+                >
+                  {item.cta}
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                </Link>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function JourneySection() {
+  const steps = ["Find", "Tailor", "Practise", "Apply", "Track"];
+
+  return (
+    <section className="bg-[#063c31] px-5 py-16 text-white md:px-9 md:py-24">
+      <div className="mx-auto max-w-[1320px]">
+        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+          <SectionIntro
+            eyebrow="Optional journey"
+            title="Connect the work only when it creates clarity."
+            copy="Find -> Tailor -> Practise -> Apply -> Track is available as a connected flow, not a requirement. Candidates can enter at any step."
+            tone="reversed"
+          />
+          <div className="grid gap-3">
+            {steps.map((step, index) => (
+              <div
+                key={step}
+                className="grid gap-4 rounded-[1.25rem] border border-white/12 bg-white/8 p-4 backdrop-blur md:grid-cols-[72px_1fr_auto] md:items-center"
+              >
+                <span className="text-3xl font-bold tracking-[-0.055em] text-[#d7a84f]">
+                  0{index + 1}
+                </span>
+                <div>
+                  <h3 className="text-xl font-bold tracking-[-0.035em]">
+                    {step}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-white/70">
+                    {step === "Apply"
+                      ? "Open the reviewed official destination yourself. Jobready does not submit for you."
+                      : step === "Track"
+                        ? "Keep private notes and next actions without changing public job data."
+                        : "Use this step by itself, or carry context forward if you choose."}
+                  </p>
+                </div>
+                <Route className="hidden h-5 w-5 text-[#d7a84f] md:block" />
+              </div>
             ))}
           </div>
         </div>
@@ -721,200 +644,449 @@ function TestimonialsSection() {
   );
 }
 
-function VisaInterviewTipsSection() {
-  return (
-    <section id="tips" className="bg-[#f8f4ed] px-5 py-24 md:px-9 md:py-32">
-      <div className="mx-auto max-w-[1450px]">
-        <MotionReveal className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#00624c]">
-              Practice guide
-            </p>
-            <h2 className="mt-5 max-w-2xl text-[clamp(2.8rem,4.8vw,5.6rem)] font-bold leading-none tracking-[-0.05em] text-[#071512] text-balance">
-              Visa Interview Tips
-            </h2>
-          </div>
-          <p className="max-w-3xl text-lg leading-8 text-[#4b596b] lg:justify-self-end">
-            Practical guidance for clearer answers, calmer follow-ups, and a
-            preparation plan that keeps your story consistent.
-          </p>
-        </MotionReveal>
+const preparationExamples: PreparationExample[] = [
+  {
+    company: "Safaricom",
+    role: "Software Engineering / Product Management",
+    reviewedAt: "28 Jul 2026",
+    source: "Careers page and 2026 Annual Report",
+    focus: "Customer impact, M-PESA ecosystem awareness, product metrics, and engineering trade-offs.",
+  },
+  {
+    company: "KCB Bank Kenya",
+    role: "Customer Service / Relationship Management",
+    reviewedAt: "28 Jul 2026",
+    source: "KCB Careers and integrated reporting sources",
+    focus: "Customer trust, banking operations, relationship growth, compliance awareness, and service recovery.",
+  },
+  {
+    company: "Kenya Pipeline Company",
+    role: "Graduate Engineering / Pipeline Engineering",
+    reviewedAt: "28 Jul 2026",
+    source: "KPC Careers, About, Morendat, and project updates",
+    focus: "Safety, infrastructure reliability, technical judgment, and public-sector operating context.",
+  },
+];
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {interviewTips.map(({ title, copy, meta }, index) => (
-            <MotionReveal
-              as="article"
-              key={title}
-              delayMs={index * 70}
-              className="marketing-card-motion group overflow-hidden rounded-[1.5rem] bg-white shadow-[0_18px_50px_rgba(29,43,37,0.07)]"
+function CompanyPrepSection() {
+  return (
+    <section className="bg-[#fcfcfa] px-5 py-16 md:px-9 md:py-24">
+      <div className="mx-auto max-w-[1320px]">
+        <SectionIntro
+          eyebrow="Company and role preparation"
+          title="Reviewed context, never employer-approved unless a partnership exists."
+          copy="Company prep is built from reviewed public sources and internal review records. We do not claim access to leaked questions, private employer rubrics, or official hiring approval."
+        />
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {preparationExamples.map((example) => (
+            <article
+              key={example.company}
+              className="rounded-[1.5rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)]"
             >
-              <div className="relative h-44 overflow-hidden bg-[#e9ded0]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.78),transparent_34%),linear-gradient(135deg,rgba(0,83,63,0.14),rgba(255,79,54,0.12))]" />
-                <div className="absolute left-7 top-7 rounded-full bg-white/76 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#00533f]">
-                  {meta}
-                </div>
-                <div className="absolute bottom-7 left-7 grid h-14 w-14 place-items-center rounded-2xl bg-[#00533f] text-lg font-bold text-white shadow-[0_14px_28px_rgba(0,83,63,0.2)]">
-                  0{index + 1}
-                </div>
-                <div className="absolute bottom-8 right-8 h-16 w-28 rounded-2xl bg-white/62 shadow-[0_14px_28px_rgba(29,43,37,0.08)]" />
-                <div className="absolute right-16 top-12 h-5 w-36 rounded-full bg-white/54" />
-                <div className="absolute right-10 top-[5.5rem] h-5 w-24 rounded-full bg-[#ff4f36]/18" />
-              </div>
-              <div className="p-7">
-                <h3 className="text-2xl font-bold leading-tight tracking-[-0.035em] text-[#071512]">
-                  {title}
-                </h3>
-                <p className="mt-4 text-base leading-7 text-[#4b596b]">{copy}</p>
-                <Link
-                  href={
-                    index === 0
-                      ? "/blog/how-to-answer-home-ties-question"
-                      : index === 1
-                        ? "/guides/us-f1-student-visa"
-                        : "/blog/phrases-that-get-visa-rejected"
-                  }
-                  className="mt-8 inline-flex items-center gap-2 font-bold text-[#00533f] transition duration-300 ease-soft hover:text-[#043b30]"
-                >
-                  Read the article
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-[#e7f0eb] text-[#00533f] transition duration-300 ease-soft group-hover:bg-[#00533f] group-hover:text-white">
-                    <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
-                  </span>
-                </Link>
-              </div>
-            </MotionReveal>
+              <span className="inline-flex rounded-full bg-[#eaf4ef] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#00533f]">
+                Reviewed {example.reviewedAt}
+              </span>
+              <h3 className="mt-5 text-2xl font-bold tracking-[-0.035em] text-[#071512]">
+                {example.company}
+              </h3>
+              <p className="mt-2 font-bold text-[#173a32]">{example.role}</p>
+              <p className="mt-4 text-base leading-7 text-[#52605b]">
+                {example.focus}
+              </p>
+              <dl className="mt-5 rounded-2xl bg-[#f8efe2] p-4 text-sm leading-6">
+                <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+                  Sources
+                </dt>
+                <dd className="mt-1 font-bold text-[#173a32]">
+                  {example.source}
+                </dd>
+              </dl>
+            </article>
           ))}
         </div>
+        <p className="mt-6 rounded-[1.5rem] border border-[#d9cbb8] bg-[#fffaf3] p-5 text-sm font-bold leading-6 text-[#52605b]">
+          Non-affiliation: Jobready is not affiliated with Safaricom, KCB Bank
+          Kenya, Kenya Pipeline Company, or any listed employer unless an
+          explicit partnership is stated on the relevant page.
+        </p>
       </div>
     </section>
   );
 }
 
-function FaqSection() {
+function ProductDemoSection() {
+  const insights = [
+    "Uses controlled fixture data only.",
+    "Separates candidate facts from suggested wording.",
+    "Shows evidence gaps before rewrite suggestions.",
+    "Keeps official application access outside paid preparation.",
+  ];
+
   return (
-    <section className="bg-white px-5 py-24 md:px-9 md:py-32">
-      <div className="mx-auto grid max-w-[1450px] gap-12 lg:grid-cols-[0.65fr_1.35fr]">
-        <h2 className="max-w-md text-[clamp(3rem,4.8vw,5.6rem)] font-bold leading-none tracking-[-0.055em] text-[#071512]">
-          Questions before you practice?
-        </h2>
-        <div className="border-t border-[#d9d1c6]">
-          {faqs.map(([question, answer]) => (
-            <details key={question} className="group border-b border-[#d9d1c6] py-7">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-xl font-bold tracking-[-0.025em] text-[#071512]">
-                {question}
-                <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-[#f7efe4] text-[#00533f] transition duration-300 ease-soft group-open:rotate-180">
-                  <ChevronDown className="h-5 w-5" strokeWidth={1.8} />
-                </span>
-              </summary>
-              <p className="mt-5 max-w-3xl text-lg leading-8 text-[#4b596b]">{answer}</p>
-            </details>
-          ))}
+    <section className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
+      <div className="mx-auto grid max-w-[1320px] gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+        <SectionIntro
+          eyebrow="Product demonstration"
+          title="A real interface state, not a stock-photo promise."
+          copy="This demo uses controlled fixture content to show how a sourced job, CV tailoring notes, and an interview report can sit together without implying real user outcomes."
+        />
+        <div className="rounded-[1.65rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_24px_70px_rgba(21,35,29,0.1)] md:p-6">
+          <div className="rounded-[1.35rem] bg-[#063c31] p-5 text-white">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7a84f]">
+                Controlled report fixture
+              </p>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white/78">
+                No fake score
+              </span>
+            </div>
+            <h3 className="mt-5 text-2xl font-bold leading-tight tracking-[-0.035em]">
+              Customer-impact story needs a clearer metric and decision path.
+            </h3>
+            <p className="mt-4 text-base leading-7 text-white/74">
+              The report explains what the answer proved, what stayed vague,
+              and which follow-up to practise next. It does not invent a
+              promotion, employer, KPI, or result for the candidate.
+            </p>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {insights.map((insight) => (
+              <div
+                key={insight}
+                className="flex gap-3 rounded-[1.4rem] border border-[#d9cbb8] bg-[#fcfcfa] p-4"
+              >
+                <CheckCircle2
+                  className="mt-0.5 h-5 w-5 flex-none text-[#00533f]"
+                  strokeWidth={2}
+                />
+                <p className="text-sm font-bold leading-6 text-[#52605b]">
+                  {insight}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-[1.4rem] bg-[#f8efe2] p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6f4e00]">
+              Report actions
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {["Practise follow-up", "Tailor CV evidence", "Track application"].map(
+                (action) => (
+                  <span
+                    key={action}
+                    className="rounded-full border border-[#d9cbb8] bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#173a32]"
+                  >
+                    {action}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function Footer() {
-  const footerGroups = [
+function CareerResourcesSection() {
+  const resources = [
     {
-      heading: "Product",
-      items: ["Interview room", "Readiness report", "Session packs"].map((label) => ({
-        label,
-      })),
+      icon: ClipboardCheck,
+      title: "STAR method for Kenyan candidates",
+      copy: "Structure behavioral answers around situation, task, action, and result without turning them into scripts.",
     },
     {
-      heading: "Resources",
-      items: [
-        { label: "Free F1 visa interview practice", href: "/guides/us-f1-student-visa" },
-        { label: "US visa interview questions", href: "/us-visa-interview" },
-        { label: "F1 home ties answer guide", href: "/blog/how-to-answer-home-ties-question" },
-      ],
+      icon: Target,
+      title: "Supported role guides",
+      copy: "Prepare software engineering, product, customer service, banking relationship, and engineering examples from reviewed plans.",
     },
     {
-      heading: "Company",
-      items: [
-        { label: "Support" },
-        { label: "Privacy", href: "/privacy" },
-        { label: "Terms", href: "/terms" },
-      ],
+      icon: ShieldCheck,
+      title: "Technical and role-specific practice",
+      copy: "Use role rubrics for technical, product, operations, customer, and safety judgment instead of forcing every answer into STAR.",
     },
   ];
 
   return (
-    <footer className="bg-[#063c31] px-5 text-white md:px-9">
-      <div className="mx-auto max-w-[1450px] py-20">
-        <div className="grid gap-12 border-b border-white/14 pb-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-          <div>
-            <BrandMark className="inline-flex items-center gap-3 text-2xl font-bold tracking-[-0.03em] text-white" />
-            <h2 className="mt-10 max-w-3xl text-[clamp(3rem,5.4vw,6.5rem)] font-bold leading-none tracking-[-0.06em] text-balance">
-              Walk into the interview with answers you trust.
-            </h2>
-          </div>
-          <div className="lg:justify-self-end">
-            <AuthNavigationLink
-              href="/login"
-              className="inline-flex min-h-16 items-center justify-center rounded-full bg-[#ff4f36] px-10 text-lg font-bold text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#ef3d25] active:scale-press"
-              loadingLabel="Loading interview practice"
+    <section className="bg-[#fcfcfa] px-5 py-16 md:px-9 md:py-24">
+      <div className="mx-auto max-w-[1320px]">
+        <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr]">
+          <SectionIntro
+            eyebrow="Career resources"
+            title="Useful guides, not doorway pages."
+            copy="The resource surface starts from reviewed role and interview frameworks. Thin, unsupported, or private combinations stay out of the index."
+          />
+          <div className="grid gap-4">
+            {resources.map((resource) => {
+              const Icon = resource.icon;
+
+              return (
+                <article
+                  key={resource.title}
+                  className="grid gap-4 rounded-[1.7rem] border border-[#d9cbb8] bg-white p-5 md:grid-cols-[56px_1fr]"
+                >
+                  <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#eaf4ef] text-[#00533f]">
+                    <Icon className="h-6 w-6" strokeWidth={1.9} />
+                  </span>
+                  <div>
+                    <h3 className="text-xl font-bold tracking-[-0.035em] text-[#071512]">
+                      {resource.title}
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-[#52605b]">
+                      {resource.copy}
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
+            <Link
+              href={candidateHref("/career-resources")}
+              data-analytics-event="career_resources_click"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#063c31] md:w-fit"
             >
-              Start Free Interview
-            </AuthNavigationLink>
+              Open career resources
+              <BookOpen className="h-4 w-4" strokeWidth={2} />
+            </Link>
           </div>
         </div>
-        <div className="grid gap-10 py-14 text-sm text-white/68 md:grid-cols-3">
-          {footerGroups.map(({ heading, items }) => (
-            <div key={heading}>
-              <p className="mb-5 text-base font-bold text-white">{heading}</p>
-              <div className="space-y-3">
-                {items.map((item) => (
-                  <p key={item.label}>
-                    {item.href ? (
-                      <Link
-                        href={item.href}
-                        className="transition duration-300 ease-soft hover:text-white"
-                      >
-                        {item.label}
-                      </Link>
-                    ) : (
-                      <span>{item.label}</span>
-                    )}
-                  </p>
+      </div>
+    </section>
+  );
+}
+
+function PricingSection({ plans }: { plans: PlanPrice[] }) {
+  return (
+    <section id="pricing" className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
+      <div className="mx-auto max-w-[1320px]">
+        <SectionIntro
+          eyebrow="Transparent pricing"
+          title="Free discovery. Finite paid preparation credits."
+          copy="Job browsing, official apply links, saving, and tracking remain outside paid entitlement. Paid products grant auditable interview or CV tailoring credits."
+        />
+
+        <div className="mt-10 grid gap-5 lg:grid-cols-4">
+          {plans.map((plan) => {
+            const highlighted = plan.highlighted || plan.category === "bundle";
+
+            return (
+              <article
+                key={plan.plan}
+                className={`flex min-h-full flex-col rounded-[1.5rem] border p-6 ${
+                  highlighted
+                    ? "border-[#063c31] bg-[#063c31] text-white shadow-[0_28px_70px_rgba(6,60,49,0.18)]"
+                    : "border-[#d9cbb8] bg-white text-[#071512] shadow-[0_18px_54px_rgba(21,35,29,0.06)]"
+                }`}
+              >
+                <p
+                  className={`text-[11px] font-bold uppercase tracking-[0.16em] ${
+                    highlighted ? "text-[#d7a84f]" : "text-[#6f4e00]"
+                  }`}
+                >
+                  {plan.modeLabel}
+                </p>
+                <h3 className="mt-4 text-2xl font-bold tracking-[-0.035em]">
+                  {plan.name}
+                </h3>
+                <p
+                  className={`mt-4 text-base leading-7 ${
+                    highlighted ? "text-white/74" : "text-[#52605b]"
+                  }`}
+                >
+                  {plan.description}
+                </p>
+                <p className="mt-6 text-3xl font-bold tracking-[-0.055em]">
+                  {plan.display}
+                </p>
+                <p
+                  className={`mt-3 text-sm font-bold leading-6 ${
+                    highlighted ? "text-white/76" : "text-[#52605b]"
+                  }`}
+                >
+                  {entitlementSummary(plan.entitlements)}. Credits expire after{" "}
+                  {plan.planDays} days.
+                </p>
+                <Link
+                  href={candidateHref(`/billing?plan=${plan.plan}`)}
+                  data-analytics-event="purchase_intent_click"
+                  data-analytics-product={plan.plan}
+                  className={`mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold uppercase tracking-[0.12em] transition ${
+                    highlighted
+                      ? "bg-white text-[#063c31] hover:bg-[#f8efe2]"
+                      : "bg-[#00533f] text-white hover:bg-[#063c31]"
+                  }`}
+                >
+                  {plan.checkoutEnabled ? "Choose plan" : "Start free"}
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                </Link>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCtaFooter() {
+  const { brand, legal, social } = publicProductConfig;
+  const socialLinks = [
+    ["LinkedIn", social.linkedinUrl],
+    ["X", social.xHandle ? `https://x.com/${social.xHandle.replace(/^@/, "")}` : ""],
+    ["Facebook", social.facebookUrl],
+    ["Instagram", social.instagramUrl],
+  ].filter((entry): entry is [string, string] => Boolean(entry[1]));
+
+  return (
+    <footer className="bg-[#063c31] px-5 text-white md:px-9">
+      <div className="mx-auto max-w-[1320px] py-16 md:py-24">
+        <div className="grid gap-10 border-b border-white/14 pb-12 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <BrandMark
+              tone="reversed"
+              className="inline-flex items-center"
+              wordmarkClassName="h-9"
+            />
+            <h2 className="mt-8 max-w-4xl text-[clamp(2.45rem,4.4vw,5rem)] font-bold leading-none tracking-[-0.05em] text-balance">
+              Build the next application around facts you can stand behind.
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/72">
+              Start with jobs, a CV/resume, or an interview. None of the three
+              has to wait for the others.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:w-[420px] lg:grid-cols-1">
+            <Link
+              href="/jobs"
+              data-analytics-event="footer_jobs_click"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-bold uppercase tracking-[0.12em] text-[#063c31] transition hover:bg-[#f8efe2]"
+            >
+              Search jobs
+              <ArrowRight className="h-4 w-4" strokeWidth={2} />
+            </Link>
+            <Link
+              href={candidateHref("/dashboard")}
+              data-analytics-event="footer_workspace_click"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/22 px-6 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white/10"
+            >
+              Open workspace
+              <ArrowRight className="h-4 w-4" strokeWidth={2} />
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-10 py-10 text-sm text-white/68 md:grid-cols-4">
+          <div>
+            <p className="font-bold uppercase tracking-[0.14em] text-white">
+              Product
+            </p>
+            <div className="mt-4 grid gap-3">
+              <Link href="/jobs" className="hover:text-white">
+                Jobs
+              </Link>
+              <Link href={candidateHref("/cv-resume")} className="hover:text-white">
+                CV & Resume
+              </Link>
+              <Link
+                href={candidateHref("/interviews/new")}
+                className="hover:text-white"
+              >
+                Interview Practice
+              </Link>
+            </div>
+          </div>
+          <div>
+            <p className="font-bold uppercase tracking-[0.14em] text-white">
+              Preparation
+            </p>
+            <div className="mt-4 grid gap-3">
+              <Link href={candidateHref("/career-resources")} className="hover:text-white">
+                Career Resources
+              </Link>
+              <Link href="/#pricing" className="hover:text-white">
+                Pricing
+              </Link>
+              <Link href={candidateHref("/applications")} className="hover:text-white">
+                Application Tracker
+              </Link>
+            </div>
+          </div>
+          <div>
+            <p className="font-bold uppercase tracking-[0.14em] text-white">
+              Legal
+            </p>
+            <div className="mt-4 grid gap-3">
+              <Link href="/privacy" className="hover:text-white">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-white">
+                Terms
+              </Link>
+              <a
+                href={`mailto:${legal.supportEmail}`}
+                className="break-all hover:text-white"
+              >
+                {legal.supportEmail}
+              </a>
+            </div>
+          </div>
+          <div>
+            <p className="font-bold uppercase tracking-[0.14em] text-white">
+              Company
+            </p>
+            <p className="mt-4 leading-6">
+              {brand.name} is operated by {legal.legalName}. Employer names are
+              used for candidate preparation context only unless a partnership
+              is explicitly stated.
+            </p>
+            {socialLinks.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-3">
+                {socialLinks.map(([label, href]) => (
+                  <a key={label} href={href} className="hover:text-white">
+                    {label}
+                  </a>
                 ))}
               </div>
-            </div>
-          ))}
+            ) : null}
+          </div>
         </div>
+
         <div className="flex flex-col justify-between gap-4 border-t border-white/14 pt-8 text-sm text-white/55 md:flex-row">
-          <p>(c) 2026 VisaInterview.</p>
-          <p>
-            <Link href="/terms" className="hover:text-white">
-              Terms
-            </Link>
-            {" & "}
-            <Link href="/privacy" className="hover:text-white">
-              Privacy
-            </Link>
-          </p>
+          <p>(c) 2026 {brand.name}. All rights reserved.</p>
+          <p>Free application access remains public; preparation is optional.</p>
         </div>
       </div>
     </footer>
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const [jobs, plans] = await Promise.all([getFreshJobs(), getPricingPlans()]);
+  const searchOptions = await getHeroSearchOptions(jobs);
+
   return (
-    <main className="min-h-viewport bg-white text-[#071512]">
-      <HeroSection />
-      <F1PracticeCallout />
-      <VisaTrainingTypesSection />
-      <ProductSection />
-      <ReportSection />
-      <TestimonialsSection />
-      <MotionReveal>
-        <PricingAudienceSwitcher />
-      </MotionReveal>
-      <VisaInterviewTipsSection />
-      <FaqSection />
-      <Footer />
+    <main className="min-h-viewport bg-[#fcfcfa] text-[#071512]">
+      <JsonLd
+        data={generateWebPageSchema({
+          title:
+            "Jobs, CV Tailoring, and Interview Practice for African Careers",
+          description:
+            "Find sourced jobs, tailor truthful CVs and resumes, and practise realistic company and role interviews for Kenya and African career moves.",
+          slug: "/",
+          datePublished: "2026-07-28",
+          dateModified: "2026-07-28",
+          author: publicProductConfig.brand.name,
+          reviewer: publicProductConfig.brand.name,
+        })}
+      />
+      <HeroSection searchOptions={searchOptions} />
+      <FreshJobsSection jobs={jobs} />
+      <ProductPathsSection />
+      <JourneySection />
+      <CompanyPrepSection />
+      <ProductDemoSection />
+      <CareerResourcesSection />
+      <PricingSection plans={plans} />
+      <FinalCtaFooter />
     </main>
   );
 }

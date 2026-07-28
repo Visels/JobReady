@@ -5,7 +5,7 @@ import {
   isLocalHostname,
 } from "@/lib/site-url";
 
-const REFERRAL_COOKIE_NAME = "visa_referrer_id";
+const REFERRAL_COOKIE_NAME = "jobready_referrer_id";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -61,7 +61,7 @@ function legacyLearningGuidesRedirect(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone();
-  url.pathname = "/visa-guides";
+  url.pathname = "/career-resources";
   return NextResponse.redirect(url, 307);
 }
 

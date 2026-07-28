@@ -27,6 +27,11 @@ function personalActionHref(slug: string, intent: string) {
   return `/login?callbackUrl=${encodeURIComponent(`/jobs/${slug}?intent=${intent}`)}`;
 }
 
+function candidateDestinationHref(href: string, authenticated: boolean) {
+  if (authenticated) return href;
+  return `/login?callbackUrl=${encodeURIComponent(href)}`;
+}
+
 function interviewOnboardingHref(slug: string, applicationId?: string | null) {
   const params = new URLSearchParams({ job: slug });
   if (applicationId) params.set("applicationId", applicationId);
@@ -103,9 +108,35 @@ export function JobsMarketplaceHero() {
   );
 }
 
-export function JobsPublicHeader() {
+export function JobsPublicHeader({
+  authenticated = false,
+}: {
+  authenticated?: boolean;
+}) {
+  const navItems = [
+    { label: "Jobs", href: "/jobs", analytics: "jobs" },
+    {
+      label: "Interview Practice",
+      href: candidateDestinationHref("/interviews/new", authenticated),
+      analytics: "interview_practice",
+    },
+    {
+      label: "CV & Resume",
+      href: candidateDestinationHref("/cv-resume", authenticated),
+      analytics: "cv_resume",
+    },
+    {
+      label: "Career Resources",
+      href: candidateDestinationHref("/career-resources", authenticated),
+      analytics: "career_resources",
+    },
+    { label: "Pricing", href: "/#pricing", analytics: "pricing" },
+  ];
+  const authHref = authenticated ? "/dashboard" : "/login";
+  const authLabel = authenticated ? "Go to Workspace" : "Sign In";
+
   return (
-    <header className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#d9cbb8] bg-white/82 px-5 py-4 shadow-[0_18px_52px_rgba(21,35,29,0.06)] backdrop-blur md:flex-row md:items-center md:justify-between">
+    <header className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#d9cbb8] bg-white/86 px-5 py-4 shadow-[0_18px_52px_rgba(21,35,29,0.06)] backdrop-blur lg:flex-row lg:items-center lg:justify-between">
       <Link href="/jobs" aria-label="Jobready jobs home">
         <BrandMark
           mode="full"
@@ -115,16 +146,26 @@ export function JobsPublicHeader() {
       </Link>
       <nav
         aria-label="Jobs navigation"
-        className="flex flex-wrap items-center gap-3 text-sm font-black uppercase tracking-[0.14em]"
+        className="flex flex-wrap items-center gap-2 text-sm font-black text-[#173a32]"
       >
-        <Link href="/jobs" className="text-[#00533f]">
-          Jobs
-        </Link>
+        {navItems.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            data-analytics-event={`jobs_nav_${item.analytics}`}
+            className="rounded-full px-3 py-2 transition hover:bg-[#eaf4ef] hover:text-[#00533f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00533f]"
+          >
+            {item.label}
+          </Link>
+        ))}
         <Link
-          href="/login?callbackUrl=/jobs"
-          className="rounded-full border border-[#00533f] px-4 py-2 text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+          href={authHref}
+          data-analytics-event={
+            authenticated ? "jobs_nav_workspace_click" : "jobs_nav_sign_in_click"
+          }
+          className="rounded-full bg-[#00533f] px-4 py-2 text-white transition hover:bg-[#063c31] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00533f]"
         >
-          Sign in
+          {authLabel}
         </Link>
       </nav>
     </header>
@@ -145,6 +186,8 @@ export function JobsFilterForm({
   return (
     <form
       action={action}
+      data-analytics-event="job_search_submit"
+      data-analytics-product="jobs"
       className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6"
     >
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -242,7 +285,12 @@ export function JobCard({
             Verified {formatDate(job.lastVerifiedAt)}
           </span>
         </div>
-        <Link href={job.detailHref} className="mt-5 block">
+        <Link
+          href={job.detailHref}
+          data-analytics-event="job_view_click"
+          data-analytics-source="job_card"
+          className="mt-5 block"
+        >
           <h2 className="max-w-3xl text-3xl font-black leading-[1.02] tracking-[-0.05em] text-[#071512] transition group-hover:text-[#00533f]">
             {job.title}
           </h2>
@@ -312,6 +360,8 @@ export function JobCard({
           {canApply ? (
             <a
               href={job.applyHref}
+              data-analytics-event="job_apply_click"
+              data-analytics-source="job_card"
               className="rounded-full bg-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-white transition hover:bg-[#063c31]"
             >
               Apply on official site
@@ -321,6 +371,8 @@ export function JobCard({
             <form action={`/api/jobs/${job.slug}/save`} method="post">
               <button
                 type="submit"
+                data-analytics-event="job_save_click"
+                data-analytics-source="job_card"
                 className="w-full rounded-full bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#ffe5a3]"
               >
                 Save job
@@ -329,6 +381,8 @@ export function JobCard({
           ) : (
             <Link
               href={personalActionHref(job.slug, "save")}
+              data-analytics-event="job_save_click"
+              data-analytics-source="job_card"
               className="rounded-full bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#ffe5a3]"
             >
               Save job
@@ -485,6 +539,8 @@ export function JobDetailActionPanelContent({
         {canApply ? (
           <a
             href={applyHref}
+            data-analytics-event="job_apply_click"
+            data-analytics-source="job_detail_panel"
             className="rounded-full bg-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-white transition hover:bg-[#063c31]"
           >
             Apply on official site
@@ -504,6 +560,8 @@ export function JobDetailActionPanelContent({
             <form action={`/api/jobs/${job.slug}/save`} method="post">
               <button
                 type="submit"
+                data-analytics-event="job_save_click"
+                data-analytics-source="job_detail_panel"
                 className="w-full rounded-full border border-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
               >
                 Save job
@@ -513,6 +571,8 @@ export function JobDetailActionPanelContent({
         ) : (
           <Link
             href={personalActionHref(job.slug, "save")}
+            data-analytics-event="job_save_click"
+            data-analytics-source="job_detail_panel"
             className="rounded-full border border-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
           >
             Save job
@@ -528,6 +588,8 @@ export function JobDetailActionPanelContent({
               <input type="hidden" name="jobSlug" value={job.slug} />
               <button
                 type="submit"
+                data-analytics-event="application_tracking_start"
+                data-analytics-source="job_detail_panel"
                 className="w-full rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
               >
                 Track application
@@ -541,6 +603,8 @@ export function JobDetailActionPanelContent({
               ? `/jobs/${job.slug}?intent=tailor&applicationId=${encodeURIComponent(personalState.applicationId)}`
               : personalActionHref(job.slug, "tailor")
           }
+          data-analytics-event="tailoring_start_click"
+          data-analytics-source="job_detail_panel"
           className="rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
         >
           Tailor CV/resume
@@ -551,12 +615,16 @@ export function JobDetailActionPanelContent({
               ? interviewOnboardingHref(job.slug, personalState.applicationId)
               : `/login?callbackUrl=${encodeURIComponent(interviewOnboardingHref(job.slug))}`
           }
+          data-analytics-event="interview_start_click"
+          data-analytics-source="job_detail_panel"
           className="rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
         >
           Practise interview
         </Link>
         <a
           href={job.reportHref}
+          data-analytics-event="job_report_click"
+          data-analytics-source="job_detail_panel"
           className="rounded-full border border-[#d9cbb8] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#52605b] transition hover:border-[#b45a1a] hover:text-[#b45a1a]"
         >
           Report this job

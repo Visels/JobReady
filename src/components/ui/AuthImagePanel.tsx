@@ -16,11 +16,11 @@ export function AuthImagePanel() {
         <section className="max-w-xl rounded-[1.25rem] border border-white/80 bg-[#fffdf9] p-6 text-[#071512] shadow-[0_28px_80px_rgba(7,21,18,0.28)]">
           <div className="mb-5 h-1 w-14 rounded-full bg-[#00533f]" />
           <h1 className="max-w-[13ch] text-[clamp(2rem,3.1vw,2.85rem)] font-bold leading-[1.04] tracking-normal text-balance">
-            Prepare for the real conversation.
+            Prepare around the role, not a script.
           </h1>
           <p className="mt-4 max-w-md text-[1rem] font-semibold leading-7 text-[#354254]">
-            Practice embassy-style interviews, strengthen weak answers, and get
-            clear AI feedback before appointment day.
+            Find sourced jobs, tailor your CV/resume truthfully, and practise
+            realistic company and role interviews in one private workspace.
           </p>
         </section>
       </div>

@@ -63,9 +63,9 @@ export type PublicProductConfig = {
   features: ProductFeatureFlags;
 };
 
-const DEFAULT_CANONICAL_HOSTNAME = "www.visainterview.ai";
+const DEFAULT_CANONICAL_HOSTNAME = "www.jobready.africa";
 const DEFAULT_LEGAL_NAME = "Exelient Technologies";
-const DEFAULT_SUPPORT_EMAIL = "support@visainterview.ai";
+const DEFAULT_SUPPORT_EMAIL = "support@jobready.africa";
 
 const publicEnv: PublicProductEnv = {
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
@@ -141,21 +141,9 @@ export function parseFeatureFlag(
 export function buildPublicProductConfig(
   env: PublicProductEnv = publicEnv,
 ): PublicProductConfig {
-  const appUrl = stringValue(
-    env.NEXT_PUBLIC_APP_URL,
-    `https://${DEFAULT_CANONICAL_HOSTNAME}`,
-  );
-  const appHostname = (() => {
-    try {
-      return new URL(appUrl.includes("://") ? appUrl : `https://${appUrl}`)
-        .hostname;
-    } catch {
-      return DEFAULT_CANONICAL_HOSTNAME;
-    }
-  })();
   const hostname = normalizeHostname(
     env.NEXT_PUBLIC_JOBREADY_CANONICAL_HOST,
-    appHostname || DEFAULT_CANONICAL_HOSTNAME,
+    DEFAULT_CANONICAL_HOSTNAME,
   );
 
   return {
@@ -167,7 +155,7 @@ export function buildPublicProductConfig(
       ),
       legacyName: "VisaInterview",
       assets: {
-        wordmark: "/brand/jobready/wordmark.svg",
+        wordmark: "/brand/jobready/wordmark-uploaded.png",
         wordmarkLight: "/brand/jobready/wordmark-light.svg",
         wordmarkDark: "/brand/jobready/wordmark-dark.svg",
         compactMark: "/brand/jobready/compact-mark.svg",

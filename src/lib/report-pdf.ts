@@ -274,7 +274,7 @@ class PdfDocument {
 
   question(turn: InterviewQuestionTurn, index: number) {
     this.heading(`Question ${index + 1}`);
-    this.paragraph(`Officer: ${turn.question}`);
+    this.paragraph(`Interviewer: ${turn.question}`);
     if (turn.user_answer) this.paragraph(`Your answer: ${turn.user_answer}`);
     if (turn.answer_summary) this.paragraph(`Feedback: ${turn.answer_summary}`);
     if (turn.improved_answer) {
@@ -285,7 +285,7 @@ class PdfDocument {
   private addPage() {
     this.pages.push({ commands: [] });
     this.y = pageHeight - margin;
-    this.text("VisaInterview.ai", {
+    this.text("Jobready", {
       x: margin,
       y: 28,
       font: "F2",
@@ -389,7 +389,7 @@ export function buildReportPdf(input: ReportPdfInput) {
   const isScored = input.report.evidenceStatus === "complete";
 
   doc.addTitle(
-    "Visa Interview Report",
+    "Interview Practice Report",
     `${input.session.destinationCountry} - ${input.session.visaType}`,
   );
   doc.keyValue("Created", formatDate(input.session.createdAt));

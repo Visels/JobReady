@@ -55,6 +55,13 @@ assert.equal(config.features.legacyVisaFlow, true);
 assert.equal(config.features.publicJobs, true);
 assert.equal(config.features.nativeApplications, false);
 
+const defaultConfig = buildPublicProductConfig({
+  NEXT_PUBLIC_APP_URL: "https://www.visainterview.ai",
+});
+
+assert.equal(defaultConfig.canonical.hostname, "www.jobready.africa");
+assert.equal(defaultConfig.legal.supportEmail, "support@jobready.africa");
+
 assert.equal(
   resolveSiteUrl(
     {

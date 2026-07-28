@@ -151,26 +151,34 @@ export function generateArticleSchema({
 }
 
 export function generateSoftwareAppSchema(): Record<string, unknown> {
-  return {
+  const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: siteName(),
     url: getCanonicalUrl("/"),
     description: appDescription(),
-    applicationCategory: "EducationalApplication",
+    applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     offers: {
       "@type": "Offer",
       price: process.env.NEXT_PUBLIC_APP_FREE_PRICE ?? "0",
       priceCurrency: process.env.NEXT_PUBLIC_APP_PRICE_CURRENCY ?? "USD",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: process.env.NEXT_PUBLIC_APP_RATING_VALUE ?? "4.8",
-      ratingCount: process.env.NEXT_PUBLIC_APP_RATING_COUNT ?? "127",
-    },
     publisher: organizationSchema(),
   };
+
+  if (
+    process.env.NEXT_PUBLIC_APP_RATING_VALUE &&
+    process.env.NEXT_PUBLIC_APP_RATING_COUNT
+  ) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: process.env.NEXT_PUBLIC_APP_RATING_VALUE,
+      ratingCount: process.env.NEXT_PUBLIC_APP_RATING_COUNT,
+    };
+  }
+
+  return schema;
 }
 
 export function generateBreadcrumbSchema(

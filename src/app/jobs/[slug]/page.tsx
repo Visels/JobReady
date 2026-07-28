@@ -148,7 +148,7 @@ export default async function JobDetailPage({
       {jobPostingJsonLd ? <JsonLd data={jobPostingJsonLd} /> : null}
 
       <div className="mx-auto max-w-[1180px]">
-        <JobsPublicHeader />
+        <JobsPublicHeader authenticated={Boolean(currentUser)} />
 
         <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm font-bold text-[#697671]">
           <Link href="/jobs" className="text-[#00533f] hover:text-[#063c31]">

@@ -8,9 +8,9 @@ import { MagicLinkForm } from "@/components/ui/MagicLinkForm";
 import { generateSEO } from "@/lib/seo";
 
 export const metadata: Metadata = generateSEO({
-  title: "VisaInterview Magic Link",
+  title: "Jobready Magic Link",
   description:
-    "Private passwordless login for VisaInterview accounts.",
+    "Private passwordless login for Jobready candidate workspaces.",
   slug: "/magic-link",
   noIndex: true,
 });

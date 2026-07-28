@@ -13,6 +13,7 @@ import {
   getPublicJobFilterOptions,
   searchPublicJobs,
 } from "@/lib/jobs";
+import { getCurrentUser } from "@/lib/auth";
 import { generateSEO } from "@/lib/seo";
 
 type JobsPageProps = {
@@ -21,37 +22,70 @@ type JobsPageProps = {
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = generateSEO({
-  title: "Verified Jobs in Kenya and Africa",
-  description:
-    "Browse active verified jobs with official application destinations, source details, closing dates, and public access to apply.",
-  slug: "/jobs",
-  keywords: [
-    "verified jobs Kenya",
-    "jobs in Kenya",
-    "Africa jobs",
-    "official job applications",
-    "job interview preparation Kenya",
-  ],
-  ogImageParams: {
-    title: "Verified Jobs in Kenya and Africa",
-    sub: "Browse public jobs, then prepare only when you choose.",
-    badge: "Jobs",
-  },
-});
+function hasSearchIntent(
+  params: Record<string, string | string[] | undefined>,
+) {
+  return [
+    "q",
+    "company",
+    "role",
+    "location",
+    "workplace",
+    "employment",
+    "seniority",
+    "closing",
+    "page",
+    "pageSize",
+  ].some((key) => {
+    const value = params[key];
+    if (Array.isArray(value)) return value.some((item) => item.trim());
+    return Boolean(value?.trim());
+  });
+}
+
+export async function generateMetadata({
+  searchParams,
+}: JobsPageProps): Promise<Metadata> {
+  const rawSearchParams = await searchParams;
+  const filtered = hasSearchIntent(rawSearchParams);
+
+  return generateSEO({
+    title: filtered
+      ? "Filtered Jobs in Kenya and Africa"
+      : "Verified Jobs in Kenya and Africa",
+    description:
+      "Browse active verified jobs with official application destinations, source details, closing dates, and public access to apply.",
+    slug: "/jobs",
+    noIndex: filtered,
+    keywords: [
+      "verified jobs Kenya",
+      "jobs in Kenya",
+      "Africa jobs",
+      "official job applications",
+      "job interview preparation Kenya",
+    ],
+    ogImageParams: {
+      title: "Verified Jobs in Kenya and Africa",
+      sub: "Browse public jobs, then prepare only when you choose.",
+      badge: "Jobs",
+    },
+  });
+}
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const rawSearchParams = await searchParams;
-  const [result, filterOptions] = await Promise.all([
+  const [result, filterOptions, currentUser] = await Promise.all([
     searchPublicJobs({ searchParams: rawSearchParams }),
     getPublicJobFilterOptions(),
+    getCurrentUser(),
   ]);
+  const authenticated = Boolean(currentUser);
 
   return (
     <main className="min-h-viewport bg-[radial-gradient(circle_at_12%_8%,rgba(215,168,79,0.22),transparent_28%),radial-gradient(circle_at_88%_4%,rgba(0,83,63,0.14),transparent_30%),#f7efe5] px-5 py-6 text-[#071512] md:px-9">
       <JsonLd data={buildPublicJobsBreadcrumbJsonLd()} />
       <div className="mx-auto max-w-[1180px]">
-        <JobsPublicHeader />
+        <JobsPublicHeader authenticated={authenticated} />
         <JobsMarketplaceHero />
         <section className="mt-8">
           <JobsFilterForm filters={result.filters} options={filterOptions} />
@@ -78,7 +112,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
           {result.jobs.length > 0 ? (
             <div className="grid gap-5">
               {result.jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job.id} job={job} authenticated={authenticated} />
               ))}
             </div>
           ) : (

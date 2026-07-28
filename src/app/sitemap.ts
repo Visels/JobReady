@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllBlogPosts } from "@/lib/blog";
-import { GUIDES, GUIDE_SLUGS } from "@/lib/guides";
+import { searchPublicJobs } from "@/lib/jobs";
 import { getCanonicalUrl } from "@/lib/seo";
 
 const staticPages: Array<{
@@ -13,76 +12,58 @@ const staticPages: Array<{
     path: "/",
     priority: 1.0,
     changeFrequency: "weekly",
-    lastModified: "2026-07-17",
+    lastModified: "2026-07-28",
   },
   {
-    path: "/us-visa-interview",
-    priority: 0.9,
-    changeFrequency: "weekly",
-    lastModified: "2026-07-17",
+    path: "/jobs",
+    priority: 0.95,
+    changeFrequency: "daily",
+    lastModified: "2026-07-28",
   },
-  {
-    path: "/guides",
-    priority: 0.9,
-    changeFrequency: "weekly",
-    lastModified: "2026-07-17",
-  },
-  {
-    path: "/blog",
-    priority: 0.8,
-    changeFrequency: "weekly",
-    lastModified: "2026-07-17",
-  },
-  { path: "/terms", priority: 0.4, changeFrequency: "yearly" },
-  { path: "/privacy", priority: 0.4, changeFrequency: "yearly" },
+  { path: "/terms", priority: 0.35, changeFrequency: "yearly" },
+  { path: "/privacy", priority: 0.35, changeFrequency: "yearly" },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+async function activeJobEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const result = await searchPublicJobs({
+      searchParams: { pageSize: "24" },
+    });
+
+    return result.jobs
+      .filter(
+        (job) =>
+          job.availability === "active" ||
+          job.availability === "closing_soon",
+      )
+      .map((job) => ({
+        url: getCanonicalUrl(job.detailHref),
+        lastModified:
+          job.lastVerifiedAt ?? job.publishedAt ?? job.closesAt ?? new Date(),
+        changeFrequency: "daily" as const,
+        priority: 0.8,
+      }));
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Could not load active jobs for sitemap.", error);
+    }
+
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const marketingEntries = staticPages.map((page) => ({
     url: getCanonicalUrl(page.path),
     ...(page.lastModified ? { lastModified: page.lastModified } : {}),
     changeFrequency: page.changeFrequency,
     priority: page.priority,
   }));
-
-  const guideEntries = GUIDE_SLUGS.map((slug) => ({
-    url: getCanonicalUrl(`/guides/${slug}`),
-    lastModified: GUIDES[slug].updatedAt,
-    changeFrequency: "monthly" as const,
-    priority: 0.9,
-  }));
-
-  const staticBlogEntries = getAllBlogPosts().map((post) => ({
-    url: getCanonicalUrl(`/blog/${post.slug}`),
-    lastModified: new Date(
-      post.frontmatter.updatedAt ?? post.frontmatter.publishedAt,
-    ),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
-  }));
-
-  /*
-   * When database-backed blog posts exist, replace or extend staticBlogEntries
-   * with published post records using this Prisma pattern:
-   *
-   * const posts = await prisma.post.findMany({
-   *   where: { status: "published" },
-   *   select: { slug: true, updatedAt: true },
-   * });
-   *
-   * const databaseBlogEntries = posts.map((post) => ({
-   *   url: getCanonicalUrl(`/blog/${post.slug}`),
-   *   lastModified: post.updatedAt,
-   *   changeFrequency: "monthly" as const,
-   *   priority: 0.8,
-   * }));
-   */
+  const jobEntries = await activeJobEntries();
 
   return Array.from(
     new Map(
-      [...marketingEntries, ...guideEntries, ...staticBlogEntries].map(
-        (entry) => [entry.url, entry],
-      ),
+      [...marketingEntries, ...jobEntries].map((entry) => [entry.url, entry]),
     ).values(),
   );
 }

@@ -10,9 +10,9 @@ import { normalizeAuthReturnPath } from "@/lib/auth-redirect";
 import { generateSEO } from "@/lib/seo";
 
 export const metadata: Metadata = generateSEO({
-  title: "Log In to VisaInterview",
+  title: "Sign In to Jobready",
   description:
-    "Log in to your private VisaInterview account to practice visa interview sessions.",
+    "Sign in to your private Jobready workspace for jobs, CV/resume tailoring, interview practice, and application tracking.",
   slug: "/login",
   noIndex: true,
 });
@@ -20,9 +20,11 @@ export const metadata: Metadata = generateSEO({
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ callbackUrl?: string }>;
+  searchParams?: Promise<{ callbackUrl?: string; mode?: string }>;
 }) {
-  const callbackUrl = (await searchParams)?.callbackUrl;
+  const params = await searchParams;
+  const callbackUrl = params?.callbackUrl;
+  const initialMode = params?.mode === "signup" ? "signup" : "signin";
   const user = await getCurrentUser();
 
   if (user) {
@@ -30,8 +32,14 @@ export default async function LoginPage({
   }
 
   return (
-    <AuthCenteredShell footer={<AuthLegalFootnote action="signing in" />}>
-      <AuthForm callbackUrl={callbackUrl} initialMode="signin" />
+    <AuthCenteredShell
+      footer={
+        <AuthLegalFootnote
+          action={initialMode === "signup" ? "creating an account" : "signing in"}
+        />
+      }
+    >
+      <AuthForm callbackUrl={callbackUrl} initialMode={initialMode} />
     </AuthCenteredShell>
   );
 }

@@ -1597,22 +1597,17 @@ export class JobInterviewTextSessionService {
           select: { id: true },
         }),
       ]);
-      const targetParam = encodeURIComponent(session.privateJobTargetVersion.id);
-      const applicationParam = application
-        ? `&applicationId=${encodeURIComponent(application.id)}`
-        : "";
-
       if (application) {
         links.push({
           label: "Tracked application",
-          href: `/practice?target=${targetParam}${applicationParam}`,
+          href: "/applications",
           description: "Return to the private application context.",
         });
       }
       if (tailoringRun) {
         links.push({
           label: "Tailoring context",
-          href: `/practice?target=${targetParam}${applicationParam}&intent=tailor`,
+          href: "/cv-resume",
           description: "Return to the private-target tailoring path.",
         });
       }

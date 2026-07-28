@@ -22,7 +22,7 @@ import { stripeClient } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
-const REFERRAL_COOKIE_NAME = "visa_referrer_id";
+const REFERRAL_COOKIE_NAME = "jobready_referrer_id";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 

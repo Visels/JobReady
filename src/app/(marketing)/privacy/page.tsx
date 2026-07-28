@@ -3,21 +3,25 @@ import {
   PolicyEmailLink,
   PolicyShell,
 } from "@/components/marketing/PolicyShell";
+import { publicProductConfig } from "@/config/public";
 import { generateSEO } from "@/lib/seo";
+
+const { brand, legal } = publicProductConfig;
 
 export const metadata: Metadata = generateSEO({
   title: "Privacy Policy",
   description:
-    "Privacy policy for VisaInterview covering account data, interview practice content, payments, analytics, and user choices.",
+    "Privacy policy for Jobready account data, sourced jobs, CV/resume tailoring, interview practice, application tracking, payments, analytics, and support.",
   slug: "/privacy",
   keywords: [
-    "VisaInterview privacy",
-    "visa interview practice privacy policy",
-    "AI visa interview simulator privacy",
+    "Jobready privacy",
+    "job application privacy Kenya",
+    "CV tailoring privacy",
+    "job interview practice privacy",
   ],
   ogImageParams: {
     title: "Privacy Policy",
-    sub: "How VisaInterview handles account, practice, and billing data.",
+    sub: "How Jobready handles candidate workspace, preparation, and billing data.",
     badge: "Privacy",
   },
 });
@@ -27,8 +31,8 @@ export default function PrivacyPage() {
     <PolicyShell
       title="Privacy Policy"
       badge="Privacy"
-      lastUpdated="June 10, 2026"
-      description="This policy explains the data Exelient Technologies may collect and how it may be used, shared, retained, and protected when you use the VisaInterview service."
+      lastUpdated="July 28, 2026"
+      description={`This policy explains the information ${legal.legalName} may collect and use when operating the ${brand.name} jobs, CV/resume tailoring, interview practice, and application tracking service.`}
       sections={[
         {
           id: "scope",
@@ -37,17 +41,16 @@ export default function PrivacyPage() {
           children: (
             <>
               <p>
-                This Privacy Policy describes how Exelient Technologies, the
-                operator of VisaInterview, may collect, use, disclose,
-                retain, and protect information when you visit the website,
-                create an account, practice interviews, purchase a plan, or
-                contact support.
+                This Privacy Policy describes how {legal.legalName}, the
+                operator of {brand.name}, may collect, use, disclose, retain,
+                and protect information when you visit the website, create an
+                account, browse jobs, tailor documents, practise interviews,
+                track applications, purchase preparation credits, or contact
+                support.
               </p>
               <p>
-                Exelient Technologies can be contacted for privacy questions at
-                {" "}
-                <PolicyEmailLink email="support@visainterview.ai" /> or by
-                mail at Kentucky Avenue, Suite #107, Oklahoma City, OK 73119.
+                You can contact us for privacy questions at{" "}
+                <PolicyEmailLink email={legal.supportEmail} />.
               </p>
             </>
           ),
@@ -60,21 +63,61 @@ export default function PrivacyPage() {
             <>
               <p>
                 We may collect account information such as your name, email
-                address, password or sign-in credentials, authentication
-                activity, and account preferences.
+                address, sign-in credentials, authentication activity, account
+                preferences, and support messages.
               </p>
               <p>
-                We may collect visa preparation information you choose to
-                provide, including destination, visa type, interview date,
-                background details, funding details, school or work plans,
-                travel history, prior refusal context, uploaded or typed
-                practice material, interview answers, transcripts, audio
-                interactions, readiness reports, and AI feedback.
+                We may collect candidate workspace information you choose to
+                provide, including saved jobs, application tracking notes, CV or
+                resume text, parsed document facts, private role targets,
+                interview setup choices, interview answers, transcripts,
+                readiness reports, export records, and feedback history.
               </p>
               <p>
-                We may also collect payment records, plan status, support
-                messages, device and browser details, IP address, approximate
-                location, cookies, analytics events, and usage logs.
+                We may collect payment records, plan status, referral records,
+                device and browser details, IP address, approximate location,
+                cookies, analytics events, usage logs, and security events.
+              </p>
+            </>
+          ),
+        },
+        {
+          id: "jobs",
+          title: "Public Jobs and Private Candidate Data",
+          eyebrow: "Separation",
+          children: (
+            <>
+              <p>
+                Public job records are kept separate from private candidate
+                workspace data. Opening an official application destination,
+                saving a job, or tracking an application does not mean Jobready
+                applied on your behalf.
+              </p>
+              <p>
+                Public job pages may show employer names, source details,
+                review dates, deadlines, and official application links. Your
+                private notes, documents, answers, reports, and application
+                tracking records are not displayed on public job pages.
+              </p>
+            </>
+          ),
+        },
+        {
+          id: "ai",
+          title: "AI and Preparation Processing",
+          eyebrow: "Candidate content",
+          children: (
+            <>
+              <p>
+                CV/resume text, target-role details, interview answers, and
+                related context may be processed by AI systems to generate
+                tailored suggestions, practice questions, feedback, summaries,
+                reports, and exports.
+              </p>
+              <p>
+                Treat generated output as assistance, not a final submission.
+                Review every suggestion before using it and avoid providing
+                information that is not needed for the preparation task.
               </p>
             </>
           ),
@@ -87,35 +130,16 @@ export default function PrivacyPage() {
             <>
               <p>
                 We may use information to create and manage accounts, deliver
-                practice sessions, personalize questions, generate feedback,
-                maintain readiness reports, process purchases, provide support,
-                secure the service, prevent abuse, debug errors, improve
-                product quality, and communicate important updates.
+                job discovery, tailor documents, run interview practice,
+                generate reports, maintain saved jobs and trackers, process
+                purchases, provide support, secure the service, prevent abuse,
+                debug errors, improve product quality, and communicate service
+                updates.
               </p>
               <p>
                 We may use aggregated or de-identified information to understand
                 usage trends, evaluate product performance, and improve the
-                training experience.
-              </p>
-            </>
-          ),
-        },
-        {
-          id: "ai",
-          title: "AI Processing",
-          eyebrow: "Interview practice",
-          children: (
-            <>
-              <p>
-                Interview answers, profile details, and practice context may be
-                processed by AI systems to generate simulated questions,
-                follow-ups, coaching notes, scores, summaries, and reports.
-              </p>
-              <p>
-                Avoid submitting information that is unnecessary for practice.
-                Do not include sensitive documents, identification numbers, or
-                financial records unless the final product explicitly supports
-                and protects that type of submission.
+                candidate experience.
               </p>
             </>
           ),
@@ -129,23 +153,20 @@ export default function PrivacyPage() {
               <p>
                 We may share information with service providers that help run
                 the product, such as hosting providers, database services,
-                authentication tools, payment processors such as Flutterwave or
-                Stripe, analytics providers, email providers, support tools, and
-                AI infrastructure providers.
+                authentication tools, payment processors, analytics providers,
+                email providers, support tools, storage providers, and AI
+                infrastructure providers.
               </p>
               <p>
-                When you make a purchase, the selected payment provider may
-                process personal data according to its own privacy terms.
-              </p>
-              <p>
-                We may also disclose information if required by law, to protect
+                We may disclose information if required by law, to protect
                 rights and safety, to investigate misuse, or in connection with
                 a merger, acquisition, financing, or sale of assets.
               </p>
               <p>
-                We do not sell personal information in the ordinary sense.
-                We do not provide your interview practice content to data
-                brokers.
+                We do not sell candidate preparation content to data brokers.
+                We do not share your private CV/resume, interview answers, or
+                application tracker with employers unless a future product
+                feature asks for your explicit consent.
               </p>
             </>
           ),
@@ -160,7 +181,7 @@ export default function PrivacyPage() {
                 We may use cookies, local storage, pixels, analytics tools, and
                 similar technologies to keep users signed in, remember
                 preferences, measure traffic, understand feature usage, detect
-                errors, and improve performance.
+                errors, attribute referrals, and improve performance.
               </p>
               <p>
                 You can usually adjust cookie preferences through your browser
@@ -178,67 +199,47 @@ export default function PrivacyPage() {
             <>
               <p>
                 We retain information for as long as needed to provide the
-                service, maintain records, resolve disputes, meet legal
-                obligations, prevent abuse, and improve product quality.
+                service, keep records, meet legal or accounting obligations,
+                resolve disputes, enforce agreements, secure the product, and
+                maintain auditability for credits, purchases, reports, and
+                application tracking actions.
               </p>
               <p>
-                Account, interview, and session information is kept until you
-                delete your account, unless we need to retain certain records
-                for legal, security, fraud-prevention, tax, accounting, or
-                dispute-resolution purposes.
-              </p>
-            </>
-          ),
-        },
-        {
-          id: "security",
-          title: "Security",
-          eyebrow: "Protection",
-          children: (
-            <>
-              <p>
-                We use reasonable administrative, technical, and organizational
-                safeguards designed to protect information against unauthorized
-                access, loss, misuse, alteration, or disclosure.
-              </p>
-              <p>
-                No online service can guarantee perfect security. You are
-                responsible for keeping your account credentials confidential
-                and notifying us if you believe your account has been
-                compromised.
+                Candidate documents and derived exports should be deleted when
+                no longer needed or when deletion is requested and no retention
+                exception applies.
               </p>
             </>
           ),
         },
         {
           id: "choices",
-          title: "Your Choices and Requests",
+          title: "Your Choices",
           eyebrow: "Control",
           children: (
             <>
               <p>
-                Depending on where you live, you may have rights to access,
-                correct, delete, export, restrict, or object to certain
-                processing of your personal information.
+                You may access, update, export, or delete certain information
+                through the product where supported. You may also contact us to
+                ask about account access, correction, deletion, or privacy
+                concerns.
               </p>
               <p>
-                To make a request, contact us at{" "}
-                <PolicyEmailLink email="support@visainterview.ai" />. We may
-                need to verify your identity before responding.
+                Some records may need to be retained for security, audit,
+                payment, dispute, fraud-prevention, or legal reasons.
               </p>
             </>
           ),
         },
         {
           id: "children",
-          title: "Children's Privacy",
-          eyebrow: "Age limits",
+          title: "Children",
+          eyebrow: "Eligibility",
           children: (
             <p>
-              VisaInterview is not intended for children under 16. If we
-              learn that we collected personal information from a child under
-              16 without appropriate consent, we will take reasonable steps to
-              delete it.
+              {brand.name} is not intended for children under 16. If we learn
+              that a child under 16 has provided personal information without
+              appropriate consent, we may delete it.
             </p>
           ),
         },
@@ -248,25 +249,20 @@ export default function PrivacyPage() {
           eyebrow: "Updates",
           children: (
             <p>
-              We may update this Privacy Policy as the service changes. When we
-              make material changes, we will aim to provide reasonable notice
-              through the website, account area, email, or another appropriate
-              channel.
+              We may update this Privacy Policy as the product, legal
+              requirements, or operating practices change. The updated date will
+              show when the policy last changed.
             </p>
           ),
         },
         {
           id: "contact",
           title: "Contact",
-          eyebrow: "Questions",
+          eyebrow: "Support",
           children: (
             <p>
-              Privacy questions and requests can be sent to{" "}
-              <PolicyEmailLink email="support@visainterview.ai" /> or mailed
-              to Exelient Technologies, operator of VisaInterview, Kentucky
-              Avenue, Suite #107, Oklahoma City, OK 73119. General support
-              questions can also be sent to{" "}
-              <PolicyEmailLink email="help@visainterview.ai" />.
+              Privacy questions can be sent to{" "}
+              <PolicyEmailLink email={legal.supportEmail} />.
             </p>
           ),
         },

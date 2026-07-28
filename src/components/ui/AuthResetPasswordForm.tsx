@@ -49,8 +49,8 @@ export function AuthResetPasswordForm() {
 
       if (error) throw error;
 
-      setNotice("Your password has been updated. Taking you to practice.");
-      router.push("/practice");
+      setNotice("Your password has been updated. Taking you to your workspace.");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       setError("Could not update your password. Please request a new reset link.");
@@ -65,7 +65,7 @@ export function AuthResetPasswordForm() {
           Create a new password
         </h1>
         <p className="mt-2 text-[0.95rem] font-medium leading-6 text-[#5c6878]">
-          Choose a secure password for your VisaInterview account.
+          Choose a secure password for your Jobready workspace.
         </p>
       </div>
 
