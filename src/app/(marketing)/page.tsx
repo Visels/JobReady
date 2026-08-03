@@ -267,27 +267,6 @@ function SectionIntro({
   );
 }
 
-function TextAction({
-  href,
-  children,
-  analytics,
-}: {
-  href: string;
-  children: React.ReactNode;
-  analytics: string;
-}) {
-  return (
-    <Link
-      href={href}
-      data-analytics-event={analytics}
-      className="inline-flex items-center gap-2 rounded-full px-2 py-2 text-sm font-bold text-[#00533f] underline decoration-[#d7a84f] decoration-2 underline-offset-8 transition hover:text-[#063c31] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
-    >
-      {children}
-      <ArrowRight className="h-4 w-4" strokeWidth={2} />
-    </Link>
-  );
-}
-
 function HeroInterviewPreview() {
   return (
     <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:scale-[1.12] lg:origin-center">
@@ -344,7 +323,7 @@ function HeroSearchForm({ options }: { options: HeroSearchOptions }) {
                 strokeWidth={2}
               />
               <input
-                name="role"
+                name="q"
                 list="hero-job-title-options"
                 placeholder="Product Manager"
                 autoComplete="off"
@@ -1152,7 +1131,8 @@ function FinalCtaFooter() {
 }
 
 export default async function Home() {
-  const [jobs, plans] = await Promise.all([getFreshJobs(), getPricingPlans()]);
+  const jobs = await getFreshJobs();
+  const plans = await getPricingPlans();
   const searchOptions = await getHeroSearchOptions(jobs);
 
   return (

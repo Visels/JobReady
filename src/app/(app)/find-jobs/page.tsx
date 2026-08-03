@@ -30,10 +30,8 @@ export default async function FindJobsPage({
   searchParams,
 }: FindJobsPageProps) {
   const rawSearchParams = await searchParams;
-  const [result, filterOptions] = await Promise.all([
-    searchPublicJobs({ searchParams: rawSearchParams }),
-    getPublicJobFilterOptions(),
-  ]);
+  const result = await searchPublicJobs({ searchParams: rawSearchParams });
+  const filterOptions = await getPublicJobFilterOptions();
 
   return (
     <WorkspacePageFrame

@@ -73,11 +73,9 @@ export async function generateMetadata({
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const rawSearchParams = await searchParams;
-  const [result, filterOptions, currentUser] = await Promise.all([
-    searchPublicJobs({ searchParams: rawSearchParams }),
-    getPublicJobFilterOptions(),
-    getCurrentUser(),
-  ]);
+  const result = await searchPublicJobs({ searchParams: rawSearchParams });
+  const filterOptions = await getPublicJobFilterOptions();
+  const currentUser = await getCurrentUser();
   const authenticated = Boolean(currentUser);
 
   return (

@@ -15,7 +15,7 @@ import { CANONICAL_SITE_URL, getSiteUrl } from "@/lib/site-url";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const fieldShellClass =
-  "mt-2 flex h-12 items-center rounded-lg border border-[#ccd6d2] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#00533f] focus-within:ring-4 focus-within:ring-[#00533f]/10";
+  "mt-2 flex h-14 items-center rounded-[0.7rem] border border-[#ccd6d2] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#087236] focus-within:ring-4 focus-within:ring-[#087236]/10";
 
 const inputClass =
   "min-w-0 flex-1 bg-transparent text-[0.95rem] font-medium text-[#071512] outline-none placeholder:text-[#8a96a5]";
@@ -239,52 +239,20 @@ export function AuthForm({
 
   return (
     <div className="reveal-up w-full">
-      <div
-        className="grid grid-cols-2 border-b border-[#dfe5e2]"
-        role="tablist"
-        aria-label="Authentication mode"
-      >
-        {(["signin", "signup"] as const).map((tabMode) => {
-          const isActive = mode === tabMode && (!showForgotPassword || tabMode === "signin");
-          return (
-            <button
-              key={tabMode}
-              type="button"
-              onClick={() => selectMode(tabMode)}
-              disabled={loading}
-              className={`relative h-12 text-sm font-bold transition duration-300 ease-soft focus:outline-none focus-visible:ring-4 focus-visible:ring-[#00533f]/15 disabled:cursor-not-allowed disabled:opacity-60 ${
-                isActive
-                  ? "text-[#00533f]"
-                  : "text-[#667385] hover:text-[#172333]"
-              }`}
-              role="tab"
-              aria-selected={isActive}
-            >
-              {tabMode === "signin" ? "Sign in" : "Create account"}
-              <span
-                className={`absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-[#00533f] transition duration-300 ease-soft ${
-                  isActive ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="text-center">
-        <h1 className="mt-[clamp(1.5rem,4vh,2.25rem)] text-[clamp(2rem,5vh,2.45rem)] font-bold leading-tight tracking-normal text-[#071512]">
+      <div>
+        <h1 className="text-[clamp(2.2rem,4.4vh,3.1rem)] font-bold leading-[1.05] tracking-[-0.045em] text-[#10201b]">
           {showForgotPassword
             ? "Reset your password"
             : isSignup
               ? "Create your account"
               : "Welcome back"}
         </h1>
-        <p className="mt-2 text-[0.95rem] font-medium leading-6 text-[#5c6878]">
+        <p className="mt-3 max-w-[34ch] text-[1rem] font-medium leading-7 text-[#4f5b57]">
           {showForgotPassword
             ? "Enter your email and we will send a secure reset link."
             : isSignup
-              ? "Start with a private Jobready workspace for jobs, CV/resume tailoring, and interviews."
-              : "Sign in to continue to your Jobready workspace."}
+              ? "Create your private workspace for better interview preparation."
+              : "Log in to continue your journey to better interviews."}
         </p>
       </div>
 
@@ -346,25 +314,7 @@ export function AuthForm({
         </form>
       ) : (
         <>
-          <button
-            type="button"
-            onClick={signInWithGoogle}
-            disabled={loading}
-            className="mt-[clamp(1.75rem,4.4vh,2.5rem)] inline-flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#c7d1cd] bg-white px-5 text-[0.95rem] font-bold text-[#172333] transition duration-300 ease-soft hover:border-[#9fb3ab] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
-
-          <div className="my-[clamp(1.25rem,3.2vh,2rem)] flex items-center gap-5">
-            <div className="h-px flex-1 bg-[#d9dee5]" />
-            <span className="text-sm font-medium text-[#5c6878]">
-              Or continue with
-            </span>
-            <div className="h-px flex-1 bg-[#d9dee5]" />
-          </div>
-
-          <form onSubmit={submit} className="space-y-[clamp(0.875rem,2.2vh,1.125rem)]">
+          <form onSubmit={submit} className="mt-9 space-y-[clamp(0.875rem,2.2vh,1.125rem)]">
             {isSignup ? (
               <div>
                 <label htmlFor="auth-name" className="block text-sm font-bold text-[#172333]">
@@ -460,7 +410,7 @@ export function AuthForm({
             </div>
 
             {!isSignup ? (
-              <div className="flex items-center gap-3 pt-1">
+              <div className="sr-only">
                 <input
                   id="remember-me"
                   type="checkbox"
@@ -576,20 +526,50 @@ export function AuthForm({
                 ? "Please wait"
                 : isSignup
                   ? "Create account"
-                  : "Sign in with Email"}
+                  : "Log in"}
             </button>
           </form>
 
           {!isSignup ? (
-            <div className="mt-4 text-center">
+            <>
+              <div className="my-7 flex items-center gap-5">
+                <div className="h-px flex-1 bg-[#d9dee5]" />
+                <span className="text-sm font-medium text-[#5c6878]">
+                  or continue with
+                </span>
+                <div className="h-px flex-1 bg-[#d9dee5]" />
+              </div>
+              <button
+                type="button"
+                onClick={signInWithGoogle}
+                disabled={loading}
+                className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-[0.7rem] border border-[#c7d1cd] bg-white px-5 text-[0.95rem] font-bold text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <GoogleIcon />
+                Google
+              </button>
+              <div className="mt-4 text-center">
               <Link
                 href={`/magic-link?callbackUrl=${encodeURIComponent(returnPath)}`}
-                className="text-sm font-bold text-[#00533f] transition duration-300 ease-soft hover:text-[#043b30] hover:underline"
+                className="text-xs font-semibold text-[#52615b] transition duration-300 ease-soft hover:text-[#087236] hover:underline"
               >
                 Email me a magic link instead
               </Link>
-            </div>
+              </div>
+            </>
           ) : null}
+
+          <p className="mt-8 text-center text-[0.95rem] font-medium text-[#34413c]">
+            {isSignup ? "Already have an account?" : "Don’t have an account?"}{" "}
+            <button
+              type="button"
+              onClick={() => selectMode(isSignup ? "signin" : "signup")}
+              disabled={loading}
+              className="font-bold text-[#087236] transition hover:text-[#04572a] hover:underline disabled:opacity-60"
+            >
+              {isSignup ? "Log in" : "Sign up"}
+            </button>
+          </p>
         </>
       )}
     </div>

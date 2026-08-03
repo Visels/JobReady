@@ -47,29 +47,73 @@ const jobs = [
 ] as const;
 
 async function main() {
-  const [company, market, source, roleFamily] = await Promise.all([
+  const [company, market, roleFamily] = await Promise.all([
     prisma.company.findUnique({ where: { slug: "safaricom" } }),
     prisma.market.findUnique({ where: { isoCode: "KE" } }),
-    prisma.jobSource.findUnique({ where: { id: "task24-source-safaricom-careers" } }),
     prisma.roleFamily.findUnique({ where: { slug: "product-management" } }),
   ]);
 
-  if (!company || !market || !source || !roleFamily) {
+  if (!company || !market || !roleFamily) {
     throw new Error("Required Safaricom launch taxonomy is missing. Seed the Kenyan launch catalog first.");
   }
 
-  const service = new VerifiedJobPublicationService({
-    prisma,
-    now: () => new Date("2026-07-29T12:00:00.000Z"),
-    destinationVerifier: new StaticApplicationDestinationVerifier({
-      status: "verified",
-      finalUrl: "https://egjd.fa.us6.oraclecloud.com/",
-      host: "egjd.fa.us6.oraclecloud.com",
-      redirects: [],
-      flags: [],
-      evidence: { verifier: "staff-reviewed-official-oracle-careers" },
-    }),
+  const source = await prisma.jobSource.upsert({
+    where: { id: "task24-source-safaricom-careers" },
+    update: {
+      type: "official_career_page",
+      name: "Safaricom Careers",
+      url: "https://www.safaricom.co.ke/careers/",
+      isAuthorized: true,
+    },
+    create: {
+      id: "task24-source-safaricom-careers",
+      type: "official_career_page",
+      name: "Safaricom Careers",
+      url: "https://www.safaricom.co.ke/careers/",
+      isAuthorized: true,
+    },
   });
+
+  await prisma.contentSource.upsert({
+    where: { id: "task24-source-safaricom-careers" },
+    update: {
+      type: "official_career_page",
+      title: "Safaricom Careers",
+      publisher: "Safaricom PLC",
+      url: "https://www.safaricom.co.ke/careers/",
+      retrievedAt,
+      isOfficial: true,
+      confidence: "high",
+      researchNotes:
+        "Official careers page reviewed for Safaricom job publication samples.",
+    },
+    create: {
+      id: "task24-source-safaricom-careers",
+      type: "official_career_page",
+      title: "Safaricom Careers",
+      publisher: "Safaricom PLC",
+      url: "https://www.safaricom.co.ke/careers/",
+      retrievedAt,
+      isOfficial: true,
+      confidence: "high",
+      researchNotes:
+        "Official careers page reviewed for Safaricom job publication samples.",
+    },
+  });
+
+  const serviceForJob = (jobUrl: string) =>
+    new VerifiedJobPublicationService({
+      prisma,
+      now: () => new Date("2026-07-29T12:00:00.000Z"),
+      destinationVerifier: new StaticApplicationDestinationVerifier({
+        status: "verified",
+        finalUrl: jobUrl,
+        host: "egjd.fa.us6.oraclecloud.com",
+        redirects: [],
+        flags: [],
+        evidence: { verifier: "staff-reviewed-official-oracle-careers" },
+      }),
+    });
 
   for (const job of jobs) {
     const existing = await prisma.jobPostingVersion.findFirst({
@@ -78,6 +122,7 @@ async function main() {
     });
     if (existing?.posting.status === "published") continue;
 
+    const service = serviceForJob(job.url);
     const draft = await service.createDraftJob({
       actor: { isAuthorizedStaff: true },
       companyId: company.id,

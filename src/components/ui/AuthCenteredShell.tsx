@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { AuthImagePanel } from "@/components/ui/AuthImagePanel";
+import { BrandMark } from "@/components/ui/BrandMark";
 
 export function AuthCenteredShell({
   children,
@@ -9,18 +10,21 @@ export function AuthCenteredShell({
   footer?: React.ReactNode;
 }) {
   return (
-    <main className="relative flex min-h-viewport bg-[#fffdf9] px-5 py-5 text-[#071512] md:px-8">
-      <Link
-        href="/"
-        className="absolute left-5 top-5 inline-flex items-center gap-2 text-sm font-bold text-[#071512] transition duration-300 ease-soft hover:text-[#00533f] md:left-8"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={1.9} />
-        Home
-      </Link>
-      <div className="mx-auto flex w-full max-w-[480px] items-center justify-center py-16">
-        <section className="w-full rounded-[1.25rem] border border-[#ebe5dc] bg-white px-6 py-7 shadow-[0_24px_70px_rgba(17,32,27,0.08)] md:px-8 md:py-8">
-          {children}
-          {footer}
+    <main className="flex min-h-viewport items-center bg-[#f7f4ef] p-3 text-[#10201b] sm:p-6 lg:h-dvh lg:p-8">
+      <div className="mx-auto grid min-h-[calc(100dvh-1.5rem)] w-full max-w-[1480px] overflow-hidden rounded-[1.35rem] bg-white shadow-[0_24px_80px_rgba(59,45,30,0.12)] sm:min-h-[calc(100dvh-3rem)] lg:min-h-0 lg:h-[min(930px,calc(100dvh-4rem))] lg:grid-cols-[39%_61%]">
+        <section className="flex min-w-0 flex-col px-6 py-7 sm:px-10 sm:py-9 lg:px-[clamp(2.5rem,4.2vw,5rem)] lg:py-[clamp(2.25rem,4vh,4rem)]">
+          <Link href="/" aria-label="Jobready home" className="w-fit">
+            <BrandMark className="inline-flex items-center gap-2.5 text-[1.65rem] font-bold tracking-[-0.04em] text-[#10201b]" />
+          </Link>
+          <div className="flex flex-1 items-center py-8">
+            <div className="mx-auto w-full max-w-[450px]">
+              {children}
+              {footer}
+            </div>
+          </div>
+        </section>
+        <section className="relative hidden min-w-0 overflow-hidden bg-[#eaf1e8] lg:block">
+          <AuthImagePanel />
         </section>
       </div>
     </main>
