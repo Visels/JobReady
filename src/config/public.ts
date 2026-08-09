@@ -63,9 +63,9 @@ export type PublicProductConfig = {
   features: ProductFeatureFlags;
 };
 
-const DEFAULT_CANONICAL_HOSTNAME = "www.jobready.africa";
+const DEFAULT_CANONICAL_HOSTNAME = "www.jiandae.co.ke";
 const DEFAULT_LEGAL_NAME = "Exelient Technologies";
-const DEFAULT_SUPPORT_EMAIL = "support@jobready.africa";
+const DEFAULT_SUPPORT_EMAIL = "support@jiandae.co.ke";
 
 const publicEnv: PublicProductEnv = {
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
@@ -148,19 +148,19 @@ export function buildPublicProductConfig(
 
   return {
     brand: {
-      name: stringValue(env.NEXT_PUBLIC_JOBREADY_BRAND_NAME, "Jobready"),
+      name: stringValue(env.NEXT_PUBLIC_JOBREADY_BRAND_NAME, "Jiandae"),
       wordmarkText: stringValue(
         env.NEXT_PUBLIC_JOBREADY_WORDMARK_TEXT,
-        "jobready",
+        "jiandae",
       ),
       legacyName: "VisaInterview",
       assets: {
-        wordmark: "/brand/jobready/wordmark-uploaded.png",
-        wordmarkLight: "/brand/jobready/wordmark-light.svg",
-        wordmarkDark: "/brand/jobready/wordmark-dark.svg",
-        compactMark: "/brand/jobready/compact-mark.svg",
-        favicon: "/brand/jobready/favicon.svg",
-        socialOg: "/brand/jobready/social-og.svg",
+        wordmark: "/brand/jiandae/wordmark.png",
+        wordmarkLight: "/brand/jiandae/wordmark.png",
+        wordmarkDark: "/brand/jiandae/wordmark-reversed.png",
+        compactMark: "/brand/jiandae/compact-mark.png",
+        favicon: "/brand/jiandae/favicon.png",
+        socialOg: "/brand/jiandae/social-og.png",
       },
     },
     canonical: {

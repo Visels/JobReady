@@ -54,7 +54,7 @@ const config = buildPublicProductConfig({
   NEXT_PUBLIC_FEATURE_NATIVE_APPLICATIONS: "off",
 });
 
-assert.equal(config.brand.wordmarkText, "jobready");
+assert.equal(config.brand.wordmarkText, "jiandae");
 assert.equal(config.canonical.hostname, "www.jobready.test");
 assert.equal(config.canonical.apexHostname, "jobready.test");
 assert.equal(config.canonical.url, "https://www.jobready.test");
@@ -67,8 +67,8 @@ const defaultConfig = buildPublicProductConfig({
   NEXT_PUBLIC_APP_URL: "https://www.visainterview.ai",
 });
 
-assert.equal(defaultConfig.canonical.hostname, "www.jobready.africa");
-assert.equal(defaultConfig.legal.supportEmail, "support@jobready.africa");
+assert.equal(defaultConfig.canonical.hostname, "www.jiandae.co.ke");
+assert.equal(defaultConfig.legal.supportEmail, "support@jiandae.co.ke");
 
 assert.equal(
   resolveSiteUrl(

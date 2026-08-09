@@ -38,8 +38,8 @@ export function BrandMark({
         <img
           src={wordmarkSrc}
           alt={brand.name}
-          width={194}
-          height={50}
+          width={711}
+          height={203}
           className={`h-9 w-auto flex-none ${wordmarkClassName}`}
         />
       ) : null}
