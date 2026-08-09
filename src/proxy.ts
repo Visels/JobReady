@@ -3,6 +3,7 @@ import { updateSupabaseSession } from "@/lib/supabase/proxy";
 import {
   CANONICAL_HOSTNAME,
   isLocalHostname,
+  isPreviewDeploymentHostname,
 } from "@/lib/site-url";
 
 const REFERRAL_COOKIE_NAME = "jobready_referrer_id";
@@ -30,7 +31,7 @@ function requestHostname(request: NextRequest) {
 function canonicalRedirect(request: NextRequest) {
   const hostname = requestHostname(request);
 
-  if (isLocalHostname(hostname)) {
+  if (isLocalHostname(hostname) || isPreviewDeploymentHostname(hostname)) {
     return null;
   }
 

@@ -4,7 +4,10 @@ import {
   parseFeatureFlag,
 } from "../src/config/public";
 import { validateRequiredProductionConfig } from "../src/config/server";
-import { resolveSiteUrl } from "../src/lib/site-url";
+import {
+  isPreviewDeploymentHostname,
+  resolveSiteUrl,
+} from "../src/lib/site-url";
 
 function relativeLuminance(hex: string) {
   const channels = hex
@@ -37,6 +40,11 @@ function contrastRatio(foreground: string, background: string) {
 assert.equal(parseFeatureFlag("true", false), true);
 assert.equal(parseFeatureFlag("0", true), false);
 assert.equal(parseFeatureFlag("unexpected", true), true);
+assert.equal(
+  isPreviewDeploymentHostname("jobready-git-main-team.vercel.app"),
+  true,
+);
+assert.equal(isPreviewDeploymentHostname("www.jobready.africa"), false);
 
 const config = buildPublicProductConfig({
   NEXT_PUBLIC_APP_URL: "https://preview.example.com",
