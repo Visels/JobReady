@@ -4,10 +4,7 @@ import {
   parseFeatureFlag,
 } from "../src/config/public";
 import { validateRequiredProductionConfig } from "../src/config/server";
-import {
-  isPreviewDeploymentHostname,
-  resolveSiteUrl,
-} from "../src/lib/site-url";
+import { resolveSiteUrl } from "../src/lib/site-url";
 
 function relativeLuminance(hex: string) {
   const channels = hex
@@ -40,11 +37,6 @@ function contrastRatio(foreground: string, background: string) {
 assert.equal(parseFeatureFlag("true", false), true);
 assert.equal(parseFeatureFlag("0", true), false);
 assert.equal(parseFeatureFlag("unexpected", true), true);
-assert.equal(
-  isPreviewDeploymentHostname("jobready-git-main-team.vercel.app"),
-  true,
-);
-assert.equal(isPreviewDeploymentHostname("www.jobready.africa"), false);
 
 const config = buildPublicProductConfig({
   NEXT_PUBLIC_APP_URL: "https://preview.example.com",
@@ -67,8 +59,8 @@ const defaultConfig = buildPublicProductConfig({
   NEXT_PUBLIC_APP_URL: "https://www.visainterview.ai",
 });
 
-assert.equal(defaultConfig.canonical.hostname, "www.jiandae.co.ke");
-assert.equal(defaultConfig.legal.supportEmail, "support@jiandae.co.ke");
+assert.equal(defaultConfig.canonical.hostname, "jiandae.africa");
+assert.equal(defaultConfig.legal.supportEmail, "support@jiandae.africa");
 
 assert.equal(
   resolveSiteUrl(
@@ -98,7 +90,7 @@ assert.equal(
     },
     "production",
   ),
-  "https://www.jobready.test",
+  "https://staging.example.com",
 );
 
 assert.throws(

@@ -9,7 +9,6 @@ export const APEX_HOSTNAME = publicProductConfig.canonical.apexHostname;
 export const CANONICAL_SITE_URL = publicProductConfig.canonical.url;
 
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
-const PREVIEW_DEPLOYMENT_SUFFIXES = [".vercel.app"];
 
 function normalizeHostname(hostname: string) {
   return hostname.replace(/^\[|\]$/g, "").toLowerCase();
@@ -19,14 +18,6 @@ export function isLocalHostname(hostname: string) {
   const normalized = normalizeHostname(hostname);
 
   return LOCAL_HOSTNAMES.has(normalized) || normalized.endsWith(".localhost");
-}
-
-export function isPreviewDeploymentHostname(hostname: string) {
-  const normalized = normalizeHostname(hostname);
-
-  return PREVIEW_DEPLOYMENT_SUFFIXES.some((suffix) =>
-    normalized.endsWith(suffix),
-  );
 }
 
 function parseSiteUrl(value: string | undefined, fallback: string) {
@@ -49,13 +40,12 @@ export function resolveSiteUrl(
   const url = parseSiteUrl(env?.NEXT_PUBLIC_APP_URL, config.canonical.url);
   const isLocal = isLocalHostname(url.hostname);
 
-  if (isLocal) {
-    if (nodeEnv === "production") {
-      return config.canonical.url;
-    }
-  } else {
+  if (isLocal && nodeEnv === "production") {
+    return config.canonical.url;
+  }
+
+  if (!isLocal) {
     url.protocol = "https:";
-    url.hostname = config.canonical.hostname;
     url.port = "";
   }
 

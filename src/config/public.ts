@@ -63,9 +63,9 @@ export type PublicProductConfig = {
   features: ProductFeatureFlags;
 };
 
-const DEFAULT_CANONICAL_HOSTNAME = "www.jiandae.co.ke";
+const DEFAULT_CANONICAL_HOSTNAME = "jiandae.africa";
 const DEFAULT_LEGAL_NAME = "Exelient Technologies";
-const DEFAULT_SUPPORT_EMAIL = "support@jiandae.co.ke";
+const DEFAULT_SUPPORT_EMAIL = "support@jiandae.africa";
 
 const publicEnv: PublicProductEnv = {
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
