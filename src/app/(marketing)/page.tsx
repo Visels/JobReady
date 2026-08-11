@@ -96,17 +96,18 @@ const companyLogoLabels: Record<string, string> = {
   "aws.webp": "Amazon Web Services",
   "branch.png": "Branch",
   "britam.png": "Britam",
-  "coca-cola.jpg": "Coca-Cola",
+  "coca-cola.png": "Coca-Cola",
   "cooperative.jpg": "Co-operative Bank",
-  "deloitte.jpg": "Deloitte",
+  "deloitte.png": "Deloitte",
   "eabl.png": "East African Breweries",
   "equity.png": "Equity Bank",
   "flutterwave.png": "Flutterwave",
   "google.png": "Google",
+  "kcb_logo (1).png": "KCB Bank",
   "kcb_logo.png": "KCB Bank",
   "kengen.webp": "KenGen",
   "kpa.png": "Kenya Ports Authority",
-  "kplc.jpeg": "Kenya Power",
+  "kplc.png": "Kenya Power",
   "kpmg.png": "KPMG",
   "microsoft.webp": "Microsoft",
   "mpesa.webp": "M-PESA",
@@ -123,17 +124,18 @@ const companyLogoImageClasses: Record<string, string> = {
   "aws.webp": "scale-[0.95]",
   "branch.png": "scale-[1.35]",
   "britam.png": "scale-100",
-  "coca-cola.jpg": "scale-[1.35]",
+  "coca-cola.png": "scale-[1.35]",
   "cooperative.jpg": "scale-[0.95]",
-  "deloitte.jpg": "scale-[1.55]",
+  "deloitte.png": "scale-[1.55]",
   "eabl.png": "scale-[1.65]",
   "equity.png": "scale-[1.05]",
   "flutterwave.png": "scale-[1.3]",
   "google.png": "scale-100",
+  "kcb_logo (1).png": "scale-[1.1]",
   "kcb_logo.png": "scale-[1.1]",
   "kengen.webp": "scale-100",
-  "kpa.png": "scale-[0.95]",
-  "kplc.jpeg": "scale-100",
+  "kpa.png": "scale-100",
+  "kplc.png": "scale-[1.08]",
   "kpmg.png": "scale-[1.65]",
   "microsoft.webp": "scale-[2.8]",
   "mpesa.webp": "scale-[1.1]",
@@ -147,10 +149,12 @@ const companyLogoImageClasses: Record<string, string> = {
 
 const companyLogoSlotClasses: Record<string, string> = {
   "britam.png": "w-[11.5rem] md:w-[13.5rem]",
-  "deloitte.jpg": "w-[11.5rem] md:w-[13.5rem]",
+  "deloitte.png": "w-[11.5rem] md:w-[13.5rem]",
   "flutterwave.png": "w-[12rem] md:w-[14rem]",
   "pesa-pal.png": "w-[11.5rem] md:w-[13.5rem]",
 };
+
+const hiddenCompanyLogoFilenames = new Set(["kcb_logo.png"]);
 
 async function getCompanyLogos(): Promise<CompanyLogo[]> {
   try {
@@ -161,7 +165,9 @@ async function getCompanyLogos(): Promise<CompanyLogo[]> {
     return entries
       .filter(
         (entry) =>
-          entry.isFile() && /\.(?:png|jpe?g|webp|svg)$/i.test(entry.name),
+          entry.isFile() &&
+          /\.(?:png|jpe?g|webp|svg)$/i.test(entry.name) &&
+          !hiddenCompanyLogoFilenames.has(entry.name.toLowerCase()),
       )
       .map((entry) => ({
         filename: entry.name,
@@ -480,7 +486,7 @@ function OpportunitySearchSection({
   return (
     <section
       id="opportunities"
-      className="scroll-mt-20 bg-[#fbf8f2] px-5 pb-20 pt-12 md:px-8 md:pb-24 md:pt-16"
+      className="scroll-mt-20 bg-[#fbf8f2] px-5 pb-20 pt-7 md:px-8 md:pb-24 md:pt-9"
     >
       <div className="mx-auto max-w-[1400px]">
         <div className="mb-8 max-w-3xl md:mb-10">
@@ -697,7 +703,7 @@ async function SocialProofSection() {
   if (logos.length === 0) return null;
 
   return (
-    <section className="bg-[#fbf8f2] px-5 pb-14 md:px-7 md:pb-16 lg:px-8 lg:pb-20">
+    <section className="bg-[#fbf8f2] px-5 pb-7 pt-10 md:px-7 md:pb-9 md:pt-12 lg:px-8 lg:pb-10 lg:pt-14">
       <div className="mx-auto max-w-[1400px] overflow-hidden rounded-[1.35rem] border border-[#e7ebe7] bg-[#f1f1ea] px-3 py-5 shadow-[0_12px_32px_rgba(41,57,47,0.04)] md:px-4 md:py-6">
         <h2 className="text-center text-xs font-bold uppercase tracking-[0.16em] text-[#79827c]">
           Prepare for opportunities at
