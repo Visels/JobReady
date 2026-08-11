@@ -1,3 +1,5 @@
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -10,7 +12,6 @@ import {
   CirclePlay,
   ClipboardCheck,
   FileText,
-  Flame,
   MapPin,
   Route,
   Search,
@@ -82,6 +83,86 @@ type LandingSearchOptions = {
   roles: PublicJobOption[];
 };
 
+type CompanyLogo = {
+  filename: string;
+  imageClassName: string;
+  label: string;
+  src: string;
+};
+
+const companyLogoLabels: Record<string, string> = {
+  "airtel.png": "Airtel",
+  "aws.webp": "Amazon Web Services",
+  "branch.png": "Branch",
+  "britam.png": "Britam",
+  "coca-cola.jpg": "Coca-Cola",
+  "cooperative.jpg": "Co-operative Bank",
+  "deloitte.jpg": "Deloitte",
+  "eabl.png": "East African Breweries",
+  "equity.png": "Equity Bank",
+  "flutterwave.png": "Flutterwave",
+  "google.png": "Google",
+  "kcb_logo.png": "KCB Bank",
+  "kengen.webp": "KenGen",
+  "kpa.png": "Kenya Ports Authority",
+  "kplc.jpeg": "Kenya Power",
+  "kpmg.png": "KPMG",
+  "microsoft.webp": "Microsoft",
+  "mpesa.webp": "M-PESA",
+  "ncba-logo.png": "NCBA",
+  "pesa-pal.png": "Pesapal",
+  "pwc logo.png": "PwC",
+  "safaricom.png": "Safaricom",
+  "total-logo.png": "TotalEnergies",
+  "unilever.png": "Unilever",
+};
+
+const companyLogoImageClasses: Record<string, string> = {
+  "airtel.png": "scale-[1.3]",
+  "branch.png": "scale-[1.3]",
+  "eabl.png": "scale-[1.35]",
+  "kcb_logo.png": "scale-[1.4]",
+  "kpa.png": "scale-[1.35]",
+  "kplc.jpeg": "scale-[1.3]",
+  "kpmg.png": "scale-[1.35]",
+  "pwc logo.png": "scale-[1.3]",
+  "safaricom.png": "scale-[1.35]",
+  "total-logo.png": "scale-[1.3]",
+};
+
+async function getCompanyLogos(): Promise<CompanyLogo[]> {
+  try {
+    const entries = await readdir(join(process.cwd(), "public", "companies"), {
+      withFileTypes: true,
+    });
+
+    return entries
+      .filter(
+        (entry) =>
+          entry.isFile() && /\.(?:png|jpe?g|webp|svg)$/i.test(entry.name),
+      )
+      .map((entry) => ({
+        filename: entry.name,
+        imageClassName:
+          companyLogoImageClasses[entry.name.toLowerCase()] ?? "scale-100",
+        label:
+          companyLogoLabels[entry.name.toLowerCase()] ??
+          entry.name
+            .replace(/\.[^.]+$/, "")
+            .replace(/[-_]+/g, " ")
+            .replace(/\b\w/g, (character) => character.toUpperCase()),
+        src: `/companies/${encodeURIComponent(entry.name)}`,
+      }))
+      .sort((left, right) => left.label.localeCompare(right.label));
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Could not load company logos for the marquee.", error);
+    }
+
+    return [];
+  }
+}
+
 const fallbackLocationOptions: PublicJobOption[] = [
   { value: "Nairobi, Kenya", label: "Nairobi, Kenya" },
   { value: "Remote within Kenya", label: "Remote within Kenya" },
@@ -123,25 +204,40 @@ function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
 }
 
 async function getLandingJobs() {
-  try {
-    const [activeResult, highlights] = await Promise.all([
-      searchPublicJobs({ searchParams: { pageSize: "4" } }),
-      getPublicJobHighlights({ take: 4 }),
-    ]);
-    const jobs = new Map<string, PublicJobSummary>();
+  const [activeResult, highlightsResult] = await Promise.allSettled([
+    searchPublicJobs({ searchParams: { pageSize: "4" } }),
+    getPublicJobHighlights({ take: 4 }),
+  ]);
+  const activeJobs =
+    activeResult.status === "fulfilled" ? activeResult.value.jobs : [];
+  const highlights =
+    highlightsResult.status === "fulfilled" ? highlightsResult.value : [];
+  const jobs = new Map<string, PublicJobSummary>();
 
-    for (const job of [...activeResult.jobs, ...highlights]) {
-      if (!jobs.has(job.id)) jobs.set(job.id, job);
-    }
-
-    return [...jobs.values()].slice(0, 4);
-  } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("Could not load job highlights for landing page.", error);
-    }
-
-    return [];
+  for (const job of [...activeJobs, ...highlights]) {
+    if (!jobs.has(job.id)) jobs.set(job.id, job);
   }
+
+  if (activeResult.status === "rejected" && process.env.NODE_ENV !== "production") {
+    console.warn("Could not load active jobs for the landing page.", activeResult.reason);
+  }
+  if (
+    highlightsResult.status === "rejected" &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    console.warn(
+      "Could not load recent job highlights for the landing page.",
+      highlightsResult.reason,
+    );
+  }
+
+  if (jobs.size === 0) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("No job highlights were available for the landing page.");
+    }
+  }
+
+  return [...jobs.values()].slice(0, 4);
 }
 
 async function getPricingPlans() {
@@ -372,19 +468,7 @@ function OpportunitySearchSection({
         </div>
 
         <div className="overflow-hidden rounded-[2rem] border border-[#edf0ed] bg-white shadow-[0_26px_80px_rgba(20,53,43,0.08)]">
-          <div className="grid gap-7 border-b border-[#e8ece9] px-6 py-8 md:px-9 lg:grid-cols-[minmax(240px,0.6fr)_minmax(0,2fr)] lg:items-center lg:gap-10 lg:py-10">
-            <div>
-              <div className="flex items-center gap-3">
-                <Flame className="h-7 w-7 fill-[#ff9e2a] text-[#f27021]" strokeWidth={1.8} />
-                <h3 className="text-[1.45rem] font-bold tracking-[-0.035em] text-[#0b2019] md:text-[1.7rem]">
-                  Hot job opportunities
-                </h3>
-              </div>
-              <p className="mt-4 max-w-[24rem] text-base leading-7 text-[#5f6965]">
-                Explore reviewed roles from companies hiring across Africa.
-              </p>
-            </div>
-
+          <div className="border-b border-[#e8ece9] px-6 py-8 md:px-9 lg:py-10">
             <form
               action="/jobs"
               data-analytics-event="landing_job_search_submit"
@@ -582,45 +666,40 @@ function HeroSocialProof() {
   );
 }
 
-function SocialProofSection() {
-  const companies = [
-    "Safaricom",
-    "Equity",
-    "KCB",
-    "NCBA",
-    "Co-operative Bank",
-    "Branch",
-    "Airtel",
-    "MTN",
-    "TotalEnergies",
-    "KenGen",
-    "KPLC",
-    "Kenya Ports Authority",
-    "Kenya Airways",
-    "Deloitte",
-    "PwC",
-    "KPMG",
-    "Coca-Cola",
-    "EABL",
-    "Unilever",
-    "British American Tobacco",
-    "Jubilee Insurance",
-    "Britam",
-  ];
-  const marqueeCompanies = [...companies, ...companies];
+async function SocialProofSection() {
+  const logos = await getCompanyLogos();
+
+  if (logos.length === 0) return null;
 
   return (
     <section className="bg-[#fbf8f2] px-5 pb-14 md:px-7 md:pb-16 lg:px-8 lg:pb-20">
-      <div className="mx-auto max-w-[1400px] overflow-hidden rounded-[1.35rem] border border-[#edf0e9] bg-[#f1f1ea] py-7 shadow-[0_12px_32px_rgba(41,57,47,0.04)]">
-        <p className="text-center text-xs font-bold uppercase tracking-[0.16em] text-[#79827c]">
-          Prepare for opportunities at
-        </p>
-        <div className="mt-5 overflow-hidden">
-          <div className="launch-marquee-track flex w-max items-center gap-10 pr-10 text-[1.55rem] font-bold tracking-[-0.05em] text-[#717773] lg:gap-14 lg:text-[2rem]">
-            {marqueeCompanies.map((company, index) => (
-              <span key={`${company}-${index}`} className="shrink-0 whitespace-nowrap">
-                {company}
-              </span>
+      <h2 className="sr-only">Companies Jiandae helps candidates prepare for</h2>
+      <div className="mx-auto max-w-[1400px] overflow-hidden rounded-[1.35rem] border border-[#e7ebe7] bg-[#f1f1ea] px-3 py-5 shadow-[0_12px_32px_rgba(41,57,47,0.04)] md:px-4 md:py-6">
+        <div className="overflow-hidden">
+          <div className="launch-marquee-track flex w-max items-center">
+            {[0, 1].map((copyIndex) => (
+              <div
+                key={copyIndex}
+                aria-hidden={copyIndex === 1}
+                className="flex shrink-0 items-center gap-4 pr-4 md:gap-5 md:pr-5"
+              >
+                {logos.map((logo) => (
+                  <div
+                    key={`${copyIndex}-${logo.filename}`}
+                    className="flex h-[4.75rem] w-[9.5rem] shrink-0 items-center justify-center rounded-xl border border-[#e3e8e4] bg-white/90 px-5 shadow-[0_5px_16px_rgba(20,53,43,0.035)] md:h-[5.25rem] md:w-[11rem] md:px-6"
+                  >
+                    <span className="relative block h-11 w-full">
+                      <Image
+                        src={logo.src}
+                        alt={copyIndex === 0 ? `${logo.label} logo` : ""}
+                        fill
+                        sizes="176px"
+                        className={`object-contain ${logo.imageClassName}`}
+                      />
+                    </span>
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
         </div>
