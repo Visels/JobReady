@@ -15,7 +15,7 @@ import { CANONICAL_SITE_URL, getSiteUrl } from "@/lib/site-url";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const fieldShellClass =
-  "mt-2 flex h-14 items-center rounded-[0.7rem] border border-[#ccd6d2] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#087236] focus-within:ring-4 focus-within:ring-[#087236]/10";
+  "mt-2 flex h-[3.7rem] items-center rounded-[0.72rem] border border-[#ccd6d2] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#087236] focus-within:ring-4 focus-within:ring-[#087236]/10";
 
 const inputClass =
   "min-w-0 flex-1 bg-transparent text-[0.95rem] font-medium text-[#071512] outline-none placeholder:text-[#8a96a5]";
@@ -247,7 +247,7 @@ export function AuthForm({
               ? "Create your account"
               : "Welcome back"}
         </h1>
-        <p className="mt-3 max-w-[34ch] text-[1rem] font-medium leading-7 text-[#4f5b57]">
+        <p className="mt-4 max-w-[32ch] text-[1rem] font-medium leading-7 text-[#5d6a7b]">
           {showForgotPassword
             ? "Enter your email and we will send a secure reset link."
             : isSignup
@@ -314,7 +314,7 @@ export function AuthForm({
         </form>
       ) : (
         <>
-          <form onSubmit={submit} className="mt-9 space-y-[clamp(0.875rem,2.2vh,1.125rem)]">
+          <form onSubmit={submit} className="mt-10 space-y-[clamp(0.875rem,2.2vh,1.125rem)]">
             {isSignup ? (
               <div>
                 <label htmlFor="auth-name" className="block text-sm font-bold text-[#172333]">
@@ -526,7 +526,7 @@ export function AuthForm({
                 ? "Please wait"
                 : isSignup
                   ? "Create account"
-                  : "Log in"}
+                  : "Sign in"}
             </button>
           </form>
 
@@ -567,7 +567,7 @@ export function AuthForm({
               disabled={loading}
               className="font-bold text-[#087236] transition hover:text-[#04572a] hover:underline disabled:opacity-60"
             >
-              {isSignup ? "Log in" : "Sign up"}
+              {isSignup ? "Sign in" : "Sign up"}
             </button>
           </p>
         </>
