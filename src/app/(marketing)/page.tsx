@@ -87,6 +87,7 @@ type CompanyLogo = {
   filename: string;
   imageClassName: string;
   label: string;
+  slotClassName: string;
   src: string;
 };
 
@@ -118,16 +119,37 @@ const companyLogoLabels: Record<string, string> = {
 };
 
 const companyLogoImageClasses: Record<string, string> = {
-  "airtel.png": "scale-[1.3]",
-  "branch.png": "scale-[1.3]",
-  "eabl.png": "scale-[1.35]",
-  "kcb_logo.png": "scale-[1.4]",
-  "kpa.png": "scale-[1.35]",
-  "kplc.jpeg": "scale-[1.3]",
-  "kpmg.png": "scale-[1.35]",
-  "pwc logo.png": "scale-[1.3]",
-  "safaricom.png": "scale-[1.35]",
-  "total-logo.png": "scale-[1.3]",
+  "airtel.png": "scale-[2]",
+  "aws.webp": "scale-[0.95]",
+  "branch.png": "scale-[1.35]",
+  "britam.png": "scale-100",
+  "coca-cola.jpg": "scale-[1.35]",
+  "cooperative.jpg": "scale-[0.95]",
+  "deloitte.jpg": "scale-[1.55]",
+  "eabl.png": "scale-[1.65]",
+  "equity.png": "scale-[1.05]",
+  "flutterwave.png": "scale-[1.3]",
+  "google.png": "scale-100",
+  "kcb_logo.png": "scale-[1.1]",
+  "kengen.webp": "scale-100",
+  "kpa.png": "scale-[0.95]",
+  "kplc.jpeg": "scale-100",
+  "kpmg.png": "scale-[1.65]",
+  "microsoft.webp": "scale-[2.8]",
+  "mpesa.webp": "scale-[1.1]",
+  "ncba-logo.png": "scale-[1.4]",
+  "pesa-pal.png": "scale-[1.15]",
+  "pwc logo.png": "scale-[1.5]",
+  "safaricom.png": "scale-[2.8]",
+  "total-logo.png": "scale-[1.15]",
+  "unilever.png": "scale-100",
+};
+
+const companyLogoSlotClasses: Record<string, string> = {
+  "britam.png": "w-[11.5rem] md:w-[13.5rem]",
+  "deloitte.jpg": "w-[11.5rem] md:w-[13.5rem]",
+  "flutterwave.png": "w-[12rem] md:w-[14rem]",
+  "pesa-pal.png": "w-[11.5rem] md:w-[13.5rem]",
 };
 
 async function getCompanyLogos(): Promise<CompanyLogo[]> {
@@ -151,6 +173,9 @@ async function getCompanyLogos(): Promise<CompanyLogo[]> {
             .replace(/\.[^.]+$/, "")
             .replace(/[-_]+/g, " ")
             .replace(/\b\w/g, (character) => character.toUpperCase()),
+        slotClassName:
+          companyLogoSlotClasses[entry.name.toLowerCase()] ??
+          "w-[10.5rem] md:w-[12rem]",
         src: `/companies/${encodeURIComponent(entry.name)}`,
       }))
       .sort((left, right) => left.label.localeCompare(right.label));
@@ -688,7 +713,7 @@ async function SocialProofSection() {
                 {logos.map((logo) => (
                   <div
                     key={`${copyIndex}-${logo.filename}`}
-                    className="flex h-16 w-[10.5rem] shrink-0 items-center justify-center px-4 md:h-[4.5rem] md:w-[12rem] md:px-5"
+                    className={`flex h-16 shrink-0 items-center justify-center px-4 md:h-[4.5rem] md:px-5 ${logo.slotClassName}`}
                   >
                     <span className="relative block h-12 w-full md:h-14">
                       <Image
@@ -696,7 +721,7 @@ async function SocialProofSection() {
                         alt={copyIndex === 0 ? `${logo.label} logo` : ""}
                         fill
                         sizes="176px"
-                        className={`object-contain ${logo.imageClassName}`}
+                        className={`pointer-events-none object-contain ${logo.imageClassName}`}
                       />
                     </span>
                   </div>
