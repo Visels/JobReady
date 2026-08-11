@@ -23,10 +23,9 @@ const navItems = [
     analytics: "features",
   },
   {
-    label: "Roles",
+    label: "Jobs",
     href: "/jobs",
-    analytics: "roles",
-    hasChevron: true,
+    analytics: "jobs",
   },
   { label: "Pricing", href: "/#pricing", analytics: "pricing" },
   {
@@ -35,6 +34,29 @@ const navItems = [
     analytics: "resources",
     hasChevron: true,
     private: true,
+  },
+] as const;
+
+const resourceNavItems = [
+  {
+    label: "Before you apply",
+    href: "/find-jobs",
+    analytics: "resources_before_apply",
+  },
+  {
+    label: "CV and resume truthfulness",
+    href: "/cv-resume",
+    analytics: "resources_cv_resume",
+  },
+  {
+    label: "Interview practice loop",
+    href: "/interviews/new",
+    analytics: "resources_interview_loop",
+  },
+  {
+    label: "Application tracker habits",
+    href: "/applications",
+    analytics: "resources_tracker_habits",
   },
 ] as const;
 
@@ -130,6 +152,48 @@ export function MarketingNav({
             const href = isPrivateNavItem(item)
               ? candidateHref(item.href, isAuthenticated)
               : item.href;
+            const hasResourceMenu = item.label === "Resources";
+
+            if (hasResourceMenu) {
+              return (
+                <div key={item.label} className="group relative">
+                  <Link
+                    href={href}
+                    data-analytics-event={`nav_${item.analytics}`}
+                    className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                      isLanding
+                        ? "hover:text-[#f7bd22] focus-visible:outline-white"
+                        : "hover:text-[#00533f] focus-visible:outline-[#00533f]"
+                    }`}
+                  >
+                    {item.label}
+                    <ChevronDown className="h-4 w-4" strokeWidth={2.2} />
+                  </Link>
+                  <div
+                    className={`invisible absolute left-1/2 top-full w-72 -translate-x-1/2 translate-y-3 rounded-2xl border p-2 opacity-0 shadow-[0_20px_54px_rgba(0,18,14,0.22)] transition duration-200 group-hover:visible group-hover:translate-y-2 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-2 group-focus-within:opacity-100 ${
+                      isLanding
+                        ? "border-white/12 bg-[#07372d]/98"
+                        : "border-[#e4d8c8] bg-white"
+                    }`}
+                  >
+                    {resourceNavItems.map((resource) => (
+                      <Link
+                        key={resource.label}
+                        href={candidateHref(resource.href, isAuthenticated)}
+                        data-analytics-event={`nav_${resource.analytics}`}
+                        className={`block rounded-xl px-4 py-3 text-sm font-bold transition ${
+                          isLanding
+                            ? "text-white/86 hover:bg-white/8 hover:text-[#f7bd22]"
+                            : "text-[#173a32] hover:bg-[#f8efe2] hover:text-[#00533f]"
+                        }`}
+                      >
+                        {resource.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <Link
@@ -143,9 +207,6 @@ export function MarketingNav({
                 }`}
               >
                 {item.label}
-                {"hasChevron" in item && item.hasChevron ? (
-                  <ChevronDown className="h-4 w-4" strokeWidth={2.2} />
-                ) : null}
               </Link>
             );
           })}
@@ -226,19 +287,39 @@ export function MarketingNav({
               : item.href;
 
             return (
-              <Link
-                key={item.label}
-                href={href}
-                data-analytics-event={`mobile_nav_${item.analytics}`}
-                onClick={() => setMenuOpen(false)}
-                className={`rounded-xl border px-4 py-3 text-[0.95rem] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                  isLanding
-                    ? "border-white/15 bg-white/5 text-white hover:border-[#f7bd22] hover:bg-white/10 hover:text-[#f7bd22] focus-visible:outline-white"
-                    : "border-[#eadfce] bg-white text-[#071512] hover:border-[#00533f] hover:bg-[#fff7ee] hover:text-[#00533f] focus-visible:outline-[#00533f]"
-                }`}
-              >
-                {item.label}
-              </Link>
+              <div key={item.label} className="grid gap-1">
+                <Link
+                  href={href}
+                  data-analytics-event={`mobile_nav_${item.analytics}`}
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-xl border px-4 py-3 text-[0.95rem] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                    isLanding
+                      ? "border-white/15 bg-white/5 text-white hover:border-[#f7bd22] hover:bg-white/10 hover:text-[#f7bd22] focus-visible:outline-white"
+                      : "border-[#eadfce] bg-white text-[#071512] hover:border-[#00533f] hover:bg-[#fff7ee] hover:text-[#00533f] focus-visible:outline-[#00533f]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+                {item.label === "Resources" ? (
+                  <div className="grid gap-1 pl-4">
+                    {resourceNavItems.map((resource) => (
+                      <Link
+                        key={resource.label}
+                        href={candidateHref(resource.href, isAuthenticated)}
+                        data-analytics-event={`mobile_nav_${resource.analytics}`}
+                        onClick={() => setMenuOpen(false)}
+                        className={`rounded-lg px-4 py-2.5 text-[0.88rem] font-semibold transition ${
+                          isLanding
+                            ? "text-white/72 hover:bg-white/8 hover:text-[#f7bd22]"
+                            : "text-[#52605b] hover:bg-[#fff7ee] hover:text-[#00533f]"
+                        }`}
+                      >
+                        {resource.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             );
           })}
           {isAuthenticated ? (

@@ -32,6 +32,16 @@ type SEOInput = {
 
 const SITE_NAME = publicProductConfig.brand.name;
 
+function brandedDescription(description: string) {
+  if (description.startsWith(`${SITE_NAME} - `)) return description;
+  return `${SITE_NAME} - ${description}`;
+}
+
+function brandedTitle(title: string) {
+  if (title.startsWith(`${SITE_NAME} - `) || title === SITE_NAME) return title;
+  return `${SITE_NAME} - ${title}`;
+}
+
 function buildOgImageUrl({
   ogImage,
   ogImageParams,
@@ -67,7 +77,8 @@ export function generateSEO({
 }: SEOInput): Metadata {
   const canonical = buildCanonicalUrl(slug);
   const ogImageUrl = buildOgImageUrl({ ogImage, ogImageParams });
-  const fullTitle = `${title} | ${SITE_NAME}`;
+  const fullTitle = brandedTitle(title);
+  const fullDescription = brandedDescription(description);
 
   const robots: Metadata["robots"] = noIndex
     ? {
@@ -98,7 +109,7 @@ export function generateSEO({
     ? {
         type: "article",
         title: fullTitle,
-        description,
+        description: fullDescription,
         url: canonical,
         siteName: SITE_NAME,
         publishedTime: article.publishedAt,
@@ -117,7 +128,7 @@ export function generateSEO({
     : {
         type: "website",
         title: fullTitle,
-        description,
+        description: fullDescription,
         url: canonical,
         siteName: SITE_NAME,
         images: [
@@ -132,8 +143,10 @@ export function generateSEO({
 
   return {
     metadataBase: new URL(resolveSiteUrl()),
-    title,
-    description,
+    title: {
+      absolute: fullTitle,
+    },
+    description: fullDescription,
     keywords,
     alternates: {
       canonical,
@@ -142,7 +155,7 @@ export function generateSEO({
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
-      description,
+      description: fullDescription,
       images: [ogImageUrl],
     },
     robots,

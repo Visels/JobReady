@@ -371,7 +371,7 @@ function HeroSection() {
             Practise realistic interviews, get expert feedback, and walk into your{" "}
             <span className="text-[#f7bd22]">next interview</span> with confidence.
           </p>
-          <div className="mt-5 flex items-center gap-2.5 text-sm font-medium text-white/85">
+          <div className="mt-5 flex items-center gap-3 text-[1rem] font-semibold leading-6 text-white/88 md:text-[1.08rem]">
             <CheckCircle2 className="h-5 w-5 flex-none text-[#7bdc69]" strokeWidth={2.5} />
             Built for job seekers in Kenya and across Africa.
           </div>
@@ -432,8 +432,8 @@ function HeroSocialProof() {
             <Star key={index} className="h-4 w-4 fill-current" strokeWidth={1.5} />
           ))}
         </p>
-        <p className="mt-1 max-w-[18rem] text-[0.95rem] font-medium leading-5 text-white/80">
-          Join thousands of professionals improving their interview skills
+        <p className="mt-1 max-w-[20rem] text-[1rem] font-semibold leading-5 text-white/84">
+          70% of users report more confidence after 3 sessions
         </p>
       </div>
     </div>

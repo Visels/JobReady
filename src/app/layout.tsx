@@ -17,14 +17,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteDescription =
+  "Jiandae - Prepare for job interviews with realistic company and role practice for African careers, Kenyan candidates, and regional hiring teams.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
     default: "Jiandae - Interview Preparation for African Careers",
     template: "%s | Jiandae",
   },
-  description:
-    "Prepare for job interviews with realistic company and role practice for African careers, Kenyan candidates, and regional hiring teams.",
+  description: siteDescription,
   applicationName: publicProductConfig.brand.name,
   keywords: [
     "interview preparation Africa",
@@ -42,8 +44,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: publicProductConfig.brand.name,
     title: "Jiandae - Interview Preparation for African Careers",
-    description:
-      "Realistic interview preparation for candidates applying to African companies, Kenyan employers, and regional roles.",
+    description: siteDescription,
     images: [
       {
         url: publicProductConfig.brand.assets.socialOg,
@@ -56,8 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Jiandae - Interview Preparation for African Careers",
-    description:
-      "Realistic interview preparation for candidates applying to African companies, Kenyan employers, and regional roles.",
+    description: siteDescription,
     images: [publicProductConfig.brand.assets.socialOg],
   },
   robots: {

@@ -162,7 +162,7 @@ export function buildPublicProductConfig(
         wordmarkLight: "/brand/jiandae/wordmark.png",
         wordmarkDark: "/brand/jiandae/wordmark-reversed.png",
         compactMark: "/brand/jiandae/compact-mark.png",
-        favicon: "/brand/jiandae/favicon.png",
+        favicon: "/brand/jiandae/favicon.svg",
         socialOg: "/brand/jiandae/social-og.png",
       },
     },
