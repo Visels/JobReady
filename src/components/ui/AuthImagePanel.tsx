@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { BarChart3, Target, Trophy } from "lucide-react";
 import { BrandMark } from "@/components/ui/BrandMark";
 
@@ -23,17 +22,6 @@ const features = [
 export function AuthImagePanel() {
   return (
     <div className="relative isolate h-full min-h-[620px] overflow-hidden bg-[#004b3b] text-white">
-      <Image
-        src="/marketing/consulting.png"
-        alt="Two professionals preparing for an interview together"
-        fill
-        priority
-        sizes="62vw"
-        className="absolute bottom-0 right-0 left-auto top-auto z-0 !h-[82%] !w-[56%] object-cover object-center"
-      />
-      <div className="pointer-events-none absolute bottom-0 right-0 z-[1] h-[82%] w-[56%] bg-gradient-to-r from-[#004b3b]/75 via-transparent to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[28%] bg-gradient-to-t from-[#003c2d]/65 to-transparent" />
-
       <div className="relative z-10 flex h-full flex-col px-[clamp(1.5rem,5vw,4.75rem)] py-[clamp(1.5rem,3.2vh,2.5rem)]">
         <BrandMark
           tone="reversed"
