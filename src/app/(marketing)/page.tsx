@@ -6,10 +6,12 @@ import {
   BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
+  ChevronRight,
   CirclePlay,
   ClipboardCheck,
-  ExternalLink,
   FileText,
+  Flame,
+  MapPin,
   Route,
   Search,
   ShieldCheck,
@@ -22,7 +24,13 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { publicProductConfig } from "@/config/public";
 import type { PublicJobOption, PublicJobSummary } from "@/lib/jobs";
-import { getPublicJobFilterOptions, searchPublicJobs } from "@/lib/jobs";
+import {
+  getPublicJobFilterOptions,
+  getPublicJobHighlights,
+  publicJobEnumLabel,
+  publicJobStatusLabel,
+  searchPublicJobs,
+} from "@/lib/jobs";
 import type { PlanPrice } from "@/lib/pricing";
 import { pricingCatalogForCountry } from "@/lib/pricing";
 import { generateSEO } from "@/lib/seo";
@@ -69,24 +77,22 @@ type PreparationExample = {
   focus: string;
 };
 
-type HeroSearchOptions = {
-  companies: PublicJobOption[];
-  jobTitles: string[];
+type LandingSearchOptions = {
+  locations: PublicJobOption[];
+  roles: PublicJobOption[];
 };
 
-const fallbackCompanyOptions: PublicJobOption[] = [
-  { value: "safaricom", label: "Safaricom" },
-  { value: "kcb-bank-kenya", label: "KCB Bank Kenya" },
-  { value: "kenya-pipeline-company", label: "Kenya Pipeline Company" },
+const fallbackLocationOptions: PublicJobOption[] = [
+  { value: "Nairobi, Kenya", label: "Nairobi, Kenya" },
+  { value: "Remote within Kenya", label: "Remote within Kenya" },
+  { value: "Lagos, Nigeria", label: "Lagos, Nigeria" },
 ];
 
-const fallbackJobTitles = [
-  "Product Manager",
-  "Software Engineer",
-  "Customer Service Officer",
-  "Relationship Manager",
-  "Graduate Trainee Engineer",
-  "Pipeline Engineer",
+const fallbackRoleOptions: PublicJobOption[] = [
+  { value: "software-engineering", label: "Software engineering" },
+  { value: "product-management", label: "Product management" },
+  { value: "customer-service", label: "Customer service" },
+  { value: "sales", label: "Sales" },
 ];
 
 function candidateHref(path: string) {
@@ -104,19 +110,6 @@ function formatDate(value: Date | null) {
   }).format(value);
 }
 
-function formatFreshness(value: Date | null) {
-  if (!value) return "Review date not provided";
-
-  const days = Math.max(
-    0,
-    Math.floor((Date.now() - value.getTime()) / 86_400_000),
-  );
-
-  if (days === 0) return "Reviewed today";
-  if (days === 1) return "Reviewed yesterday";
-  return `Reviewed ${days} days ago`;
-}
-
 function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
   if (entitlements.length === 0) return "No paid credits";
 
@@ -129,16 +122,22 @@ function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
     .join(" + ");
 }
 
-async function getFreshJobs() {
+async function getLandingJobs() {
   try {
-    const result = await searchPublicJobs({
-      searchParams: { pageSize: "3" },
-    });
+    const [activeResult, highlights] = await Promise.all([
+      searchPublicJobs({ searchParams: { pageSize: "4" } }),
+      getPublicJobHighlights({ take: 4 }),
+    ]);
+    const jobs = new Map<string, PublicJobSummary>();
 
-    return result.jobs;
+    for (const job of [...activeResult.jobs, ...highlights]) {
+      if (!jobs.has(job.id)) jobs.set(job.id, job);
+    }
+
+    return [...jobs.values()].slice(0, 4);
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn("Could not load fresh jobs for landing page.", error);
+      console.warn("Could not load job highlights for landing page.", error);
     }
 
     return [];
@@ -185,44 +184,35 @@ function mergeOptions(
   );
 }
 
-function uniqueTextOptions(values: string[]) {
-  const options = new Map<string, string>();
-
-  for (const value of values) {
-    const normalized = value.replace(/\s+/g, " ").trim();
-    if (!normalized) continue;
-    const key = normalized.toLowerCase();
-    if (!options.has(key)) options.set(key, normalized);
-  }
-
-  return [...options.values()].sort((left, right) =>
-    left.localeCompare(right),
-  );
-}
-
-async function getHeroSearchOptions(
+async function getLandingSearchOptions(
   jobs: PublicJobSummary[],
-): Promise<HeroSearchOptions> {
+): Promise<LandingSearchOptions> {
+  const jobLocations = jobs.flatMap((job) =>
+    job.location ? [{ value: job.location, label: job.location }] : [],
+  );
+  const jobRoles = jobs.map((job) => ({
+    value: job.roleSlug,
+    label: job.roleName,
+  }));
+
   try {
     const options = await getPublicJobFilterOptions();
 
     return {
-      companies: mergeOptions(options.companies, fallbackCompanyOptions),
-      jobTitles: uniqueTextOptions([
-        ...jobs.map((job) => job.title),
-        ...jobs.map((job) => job.roleName),
-        ...options.roles.map((role) => role.label),
-        ...fallbackJobTitles,
-      ]),
+      locations: mergeOptions(
+        [...options.locations, ...jobLocations],
+        fallbackLocationOptions,
+      ),
+      roles: mergeOptions([...options.roles, ...jobRoles], fallbackRoleOptions),
     };
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn("Could not load hero search options.", error);
+      console.warn("Could not load landing job search options.", error);
     }
 
     return {
-      companies: fallbackCompanyOptions,
-      jobTitles: fallbackJobTitles,
+      locations: mergeOptions(jobLocations, fallbackLocationOptions),
+      roles: mergeOptions(jobRoles, fallbackRoleOptions),
     };
   }
 }
@@ -282,77 +272,229 @@ function HeroInterviewPreview() {
   );
 }
 
-function HeroSearchForm({ options }: { options: HeroSearchOptions }) {
+function companyInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 3)
+    .toUpperCase();
+}
+
+function LandingJobCard({ job }: { job: PublicJobSummary }) {
+  const isOpen =
+    job.availability === "active" || job.availability === "closing_soon";
+
   return (
-    <section className="bg-[#fcfcfa] px-5 py-14 md:px-7 md:py-16 lg:px-8">
-      <div className="mx-auto max-w-[1120px]">
-        <div className="mb-7 max-w-2xl">
+    <article className="group flex min-h-[18rem] flex-col border-l border-[#e5e9e5] px-6 py-7 first:border-l-0 lg:px-7">
+      <div className="flex items-start justify-between gap-3">
+        <span className="grid h-12 min-w-12 place-items-center rounded-xl bg-[#edf5f0] px-3 text-sm font-black tracking-[-0.03em] text-[#006148]">
+          {companyInitials(job.companyName)}
+        </span>
+        <span
+          className={`rounded-md px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-[0.1em] ${
+            isOpen
+              ? "bg-[#edf7f1] text-[#006148]"
+              : "bg-[#f2f1ed] text-[#777b77]"
+          }`}
+        >
+          {publicJobStatusLabel(job.availability)}
+        </span>
+      </div>
+
+      <p className="mt-7 text-sm font-bold text-[#006148]">{job.companyName}</p>
+      <Link
+        href={job.detailHref}
+        data-analytics-event="job_view_click"
+        data-analytics-source="landing_job_showcase"
+        className="mt-3 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+      >
+        <h3 className="text-[1.35rem] font-bold leading-[1.15] tracking-[-0.035em] text-[#0b1d18] transition-colors group-hover:text-[#006148]">
+          {job.title}
+        </h3>
+      </Link>
+
+      <p className="mt-5 flex items-center gap-2 text-sm font-medium text-[#65706b]">
+        <MapPin className="h-4 w-4 flex-none text-[#006148]" strokeWidth={2} />
+        {job.location ?? job.marketName}
+      </p>
+
+      <div className="mt-auto flex items-end justify-between gap-3 pt-7">
+        <div>
+          <span className="inline-flex rounded-md bg-[#edf5f0] px-3 py-2 text-sm font-bold text-[#006148]">
+            {publicJobEnumLabel(job.employmentType)}
+          </span>
+          {!isOpen ? (
+            <p className="mt-2 text-xs font-semibold text-[#8a6255]">
+              Closed {formatDate(job.closesAt)}
+            </p>
+          ) : null}
+        </div>
+        <ChevronRight
+          aria-hidden="true"
+          className="h-5 w-5 text-[#006148] transition-transform group-hover:translate-x-1"
+          strokeWidth={2}
+        />
+      </div>
+    </article>
+  );
+}
+
+function OpportunitySearchSection({
+  jobs,
+  options,
+}: {
+  jobs: PublicJobSummary[];
+  options: LandingSearchOptions;
+}) {
+  const jobsGridClass =
+    jobs.length >= 4
+      ? "sm:grid-cols-2 xl:grid-cols-4"
+      : jobs.length === 3
+        ? "sm:grid-cols-2 xl:grid-cols-3"
+        : jobs.length === 2
+          ? "sm:grid-cols-2"
+          : "grid-cols-1";
+
+  return (
+    <section
+      id="opportunities"
+      className="scroll-mt-20 bg-[#fbf8f2] px-5 pb-20 pt-12 md:px-8 md:pb-24 md:pt-16"
+    >
+      <div className="mx-auto max-w-[1400px]">
+        <div className="mb-8 max-w-3xl md:mb-10">
           <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#00624c]">
             Find your opportunity
           </p>
-          <h2 className="mt-2 text-[clamp(1.7rem,2.6vw,2.5rem)] font-bold tracking-[-0.04em] text-[#071512]">
+          <h2 className="mt-3 text-[clamp(2rem,3.5vw,3.4rem)] font-bold leading-none tracking-[-0.05em] text-[#071512]">
             Search roles worth preparing for.
           </h2>
         </div>
-        <form
-          action="/jobs"
-          data-analytics-event="hero_job_search_submit"
-          data-analytics-product="jobs"
-          className="rounded-[1.35rem] border border-[#d9cbb8] bg-white p-2.5 shadow-[0_18px_48px_rgba(29,43,37,0.08)]"
-        >
-          <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
-            <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
-              Company
-              <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
-                <Search className="h-4 w-4 text-[#00533f]" strokeWidth={2} />
-                <input
-                  name="company"
-                  list="hero-company-options"
-                  placeholder="Safaricom"
-                  autoComplete="organization"
-                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
-                />
-              </span>
-            </label>
-            <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
-              Job title
-              <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
-                <BriefcaseBusiness
-                  className="h-4 w-4 text-[#00533f]"
-                  strokeWidth={2}
+
+        <div className="overflow-hidden rounded-[2rem] border border-[#edf0ed] bg-white shadow-[0_26px_80px_rgba(20,53,43,0.08)]">
+          <div className="grid gap-7 border-b border-[#e8ece9] px-6 py-8 md:px-9 lg:grid-cols-[minmax(240px,0.6fr)_minmax(0,2fr)] lg:items-center lg:gap-10 lg:py-10">
+            <div>
+              <div className="flex items-center gap-3">
+                <Flame className="h-7 w-7 fill-[#ff9e2a] text-[#f27021]" strokeWidth={1.8} />
+                <h3 className="text-[1.45rem] font-bold tracking-[-0.035em] text-[#0b2019] md:text-[1.7rem]">
+                  Hot job opportunities
+                </h3>
+              </div>
+              <p className="mt-4 max-w-[24rem] text-base leading-7 text-[#5f6965]">
+                Explore reviewed roles from companies hiring across Africa.
+              </p>
+            </div>
+
+            <form
+              action="/jobs"
+              data-analytics-event="landing_job_search_submit"
+              data-analytics-product="jobs"
+              className="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(240px,1.5fr)_minmax(180px,0.9fr)_minmax(180px,0.9fr)_auto]"
+            >
+              <label className="relative">
+                <span className="sr-only">Job title, keyword, or company</span>
+                <Search
+                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#65706b]"
+                  strokeWidth={1.9}
                 />
                 <input
                   name="q"
-                  list="hero-job-title-options"
-                  placeholder="Product Manager"
+                  placeholder="Search job title, keyword or company"
                   autoComplete="off"
-                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
+                  className="h-14 w-full rounded-xl border border-[#d6ddda] bg-white pl-12 pr-4 text-sm font-semibold text-[#15231f] outline-none transition placeholder:text-[#7c8581] focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
                 />
-              </span>
-            </label>
-            <button
-              type="submit"
-              className="min-h-12 rounded-xl bg-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-[0_2px_8px_rgba(0,83,63,0.22)] transition hover:-translate-y-px hover:bg-[#043b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98]"
-            >
-              Search jobs
-            </button>
-          </div>
-          <datalist id="hero-company-options">
-            {options.companies.map((company) => (
-              <option key={company.value} value={company.label} />
-            ))}
-          </datalist>
-          <datalist id="hero-job-title-options">
-            {options.jobTitles.map((title) => (
-              <option key={title} value={title} />
-            ))}
-          </datalist>
-        </form>
+              </label>
 
-        <p className="mt-6 max-w-2xl text-sm font-medium leading-6 text-[#5f6c66]">
-          Browsing jobs and opening official application links is public.
-          Preparation is optional and private to your workspace.
-        </p>
+              <label className="relative">
+                <span className="sr-only">Location</span>
+                <MapPin
+                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#65706b]"
+                  strokeWidth={1.9}
+                />
+                <select
+                  name="location"
+                  defaultValue=""
+                  className="h-14 w-full appearance-none rounded-xl border border-[#d6ddda] bg-white pl-12 pr-9 text-sm font-semibold text-[#4f5a56] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+                >
+                  <option value="">All locations</option>
+                  {options.locations.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="relative">
+                <span className="sr-only">Job category</span>
+                <BriefcaseBusiness
+                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#65706b]"
+                  strokeWidth={1.9}
+                />
+                <select
+                  name="role"
+                  defaultValue=""
+                  className="h-14 w-full appearance-none rounded-xl border border-[#d6ddda] bg-white pl-12 pr-9 text-sm font-semibold text-[#4f5a56] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+                >
+                  <option value="">All categories</option>
+                  {options.roles.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                type="submit"
+                className="min-h-14 rounded-xl bg-[#014f3c] px-7 text-sm font-bold text-white shadow-[0_10px_24px_rgba(1,79,60,0.18)] transition hover:-translate-y-px hover:bg-[#023d30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] md:col-span-2 lg:col-span-1"
+              >
+                Search jobs
+              </button>
+            </form>
+          </div>
+
+          <div className="grid lg:grid-cols-[280px_minmax(0,1fr)]">
+            <aside className="border-b border-[#e8ece9] bg-[#fbfdfb] px-7 py-9 lg:border-b-0 lg:border-r lg:px-9 lg:py-11">
+              <span className="grid h-14 w-14 place-items-center rounded-full bg-[#edf5f0] text-[#006148]">
+                <BriefcaseBusiness className="h-6 w-6" strokeWidth={1.9} />
+              </span>
+              <h3 className="mt-6 text-[1.55rem] font-bold tracking-[-0.04em] text-[#0b2019]">
+                Explore top roles
+              </h3>
+              <p className="mt-3 max-w-[13rem] text-base leading-7 text-[#63706a]">
+                New reviewed opportunities are added regularly.
+              </p>
+              <Link
+                href="/jobs"
+                data-analytics-event="landing_jobs_view_all_click"
+                className="mt-7 inline-flex items-center gap-3 text-sm font-bold text-[#006148] transition hover:gap-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+              >
+                View all jobs
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              </Link>
+            </aside>
+
+            {jobs.length > 0 ? (
+              <div className={`grid ${jobsGridClass}`}>
+                {jobs.map((job) => (
+                  <LandingJobCard key={job.id} job={job} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid min-h-[18rem] place-items-center px-8 py-12 text-center">
+                <div>
+                  <p className="font-bold text-[#173a32]">
+                    No reviewed opportunities are available yet.
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#65706b]">
+                    Check back soon or search all available roles.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -482,115 +624,6 @@ function SocialProofSection() {
             ))}
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function FreshJobsSection({ jobs }: { jobs: PublicJobSummary[] }) {
-  return (
-    <section className="bg-[#fcfcfa] px-5 py-16 md:px-9 md:py-24">
-      <div className="mx-auto max-w-[1320px]">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <SectionIntro
-            eyebrow="Fresh jobs"
-            title="Public job discovery stays useful before you ever pay."
-            copy="Every active public job needs a reviewed official destination, source details, freshness, and a future deadline before we present it as active."
-          />
-          <Link
-            href="/jobs"
-            data-analytics-event="fresh_jobs_view_all_click"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
-          >
-            View all jobs
-            <ArrowRight className="h-4 w-4" strokeWidth={2} />
-          </Link>
-        </div>
-
-        {jobs.length > 0 ? (
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {jobs.map((job) => (
-              <article
-                key={job.id}
-                className="group flex min-h-full flex-col rounded-[1.5rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#bca875]"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#eaf4ef] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#00533f]">
-                    Active
-                  </span>
-                  <span className="rounded-full bg-[#fff4d6] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6f4e00]">
-                    {formatFreshness(job.lastVerifiedAt)}
-                  </span>
-                </div>
-                <Link
-                  href={job.detailHref}
-                  data-analytics-event="job_view_click"
-                  data-analytics-source="landing_fresh_jobs"
-                  className="mt-5 block"
-                >
-                  <h3 className="text-2xl font-bold leading-tight tracking-[-0.035em] text-[#071512] transition group-hover:text-[#00533f]">
-                    {job.title}
-                  </h3>
-                </Link>
-                <p className="mt-3 font-bold text-[#173a32]">
-                  {job.companyName} / {job.location ?? job.marketName}
-                </p>
-                <dl className="mt-5 grid gap-3 text-sm">
-                  <div>
-                    <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
-                      Source
-                    </dt>
-                    <dd className="mt-1 font-bold text-[#52605b]">
-                      {job.sourceName}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
-                      Deadline
-                    </dt>
-                    <dd className="mt-1 font-bold text-[#52605b]">
-                      {formatDate(job.closesAt)}
-                    </dd>
-                  </div>
-                </dl>
-                <div className="mt-auto flex flex-col gap-3 pt-6">
-                  <a
-                    href={job.applyHref}
-                    data-analytics-event="job_apply_click"
-                    data-analytics-source="landing_fresh_jobs"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#00533f] px-5 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#063c31]"
-                  >
-                    Free official apply
-                    <ExternalLink className="h-4 w-4" strokeWidth={2} />
-                  </a>
-                  <Link
-                    href={candidateHref(`/interviews/new?job=${job.slug}`)}
-                    data-analytics-event="interview_start_click"
-                    data-analytics-source="landing_fresh_jobs"
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#d7a84f] px-5 text-sm font-bold uppercase tracking-[0.12em] text-[#6f4e00] transition hover:bg-[#fff4d6]"
-                  >
-                    Practise for this role
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-10 rounded-[1.5rem] border border-dashed border-[#cbbba6] bg-[#fffaf3] p-8">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#6f4e00]">
-              No active reviewed vacancies to feature today
-            </p>
-            <h3 className="mt-3 text-2xl font-bold tracking-[-0.035em] text-[#071512]">
-              We will not fake inventory to make the landing page look busy.
-            </h3>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[#52605b]">
-              The job section is server-rendered and will populate when reviewed
-              active Kenyan jobs with future deadlines are published. Until
-              then, search remains available without hiding the official apply
-              boundary.
-            </p>
-          </div>
-        )}
       </div>
     </section>
   );
@@ -1129,9 +1162,9 @@ function FinalCtaFooter() {
 }
 
 export default async function Home() {
-  const jobs = await getFreshJobs();
+  const jobs = await getLandingJobs();
   const plans = await getPricingPlans();
-  const searchOptions = await getHeroSearchOptions(jobs);
+  const searchOptions = await getLandingSearchOptions(jobs);
 
   return (
     <main className="min-h-viewport bg-[#fcfcfa] text-[#071512]">
@@ -1150,8 +1183,7 @@ export default async function Home() {
       />
       <HeroSection />
       <SocialProofSection />
-      <HeroSearchForm options={searchOptions} />
-      <FreshJobsSection jobs={jobs} />
+      <OpportunitySearchSection jobs={jobs} options={searchOptions} />
       <ProductPathsSection />
       <JourneySection />
       <CompanyPrepSection />

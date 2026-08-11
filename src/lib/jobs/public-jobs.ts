@@ -52,6 +52,7 @@ export type PublicJobSummary = {
   descriptionExcerpt: string;
   companyName: string;
   roleName: string;
+  roleSlug: string;
   roleFamilyName: string;
   marketName: string;
   marketIsoCode: string;
@@ -408,6 +409,21 @@ function activeJobWhere(
   return where;
 }
 
+function publicJobFilterOptionsWhere(): Prisma.JobPostingWhereInput {
+  return {
+    status: { in: PUBLIC_VISIBLE_STATUSES },
+    currentVersionId: { not: null },
+    closesAt: { not: null },
+    company: { publicationStatus: "published" },
+    currentVersion: {
+      is: {
+        applicationUrlHost: { not: null },
+        applicationUrlVerificationStatus: "verified",
+      },
+    },
+  };
+}
+
 function visibleJobWhere(slug: string): Prisma.JobPostingWhereInput {
   return {
     slug,
@@ -580,6 +596,7 @@ function mapSummary(
     descriptionExcerpt: excerpt(version.description),
     companyName: record.company.displayName,
     roleName: record.jobRole?.name ?? record.roleFamily.name,
+    roleSlug: record.jobRole?.slug ?? record.roleFamily.slug,
     roleFamilyName: record.roleFamily.name,
     marketName: record.market.name,
     marketIsoCode: record.market.isoCode,
@@ -728,15 +745,77 @@ export async function searchPublicJobs(input: {
   };
 }
 
+export async function getPublicJobHighlights(input: {
+  prisma?: PrismaClient;
+  now?: Date;
+  take?: number;
+} = {}): Promise<PublicJobSummary[]> {
+  const db = input.prisma ?? defaultPrisma;
+  const now = input.now ?? new Date();
+  const take = Math.min(Math.max(input.take ?? 4, 1), 8);
+  const records = await db.jobPosting.findMany({
+    where: {
+      status: { in: PUBLIC_VISIBLE_STATUSES },
+      currentVersionId: { not: null },
+      closesAt: { not: null },
+      company: { publicationStatus: "published" },
+      currentVersion: {
+        is: {
+          applicationUrlHost: { not: null },
+          applicationUrlVerificationStatus: "verified",
+        },
+      },
+    },
+    include: {
+      company: true,
+      market: true,
+      roleFamily: true,
+      jobRole: true,
+      jobSource: true,
+      currentVersion: {
+        include: {
+          seniorityLevel: true,
+          jobSource: true,
+          skills: {
+            include: { skill: true },
+            take: 8,
+          },
+        },
+      },
+    },
+    orderBy: [
+      { publishedAt: "desc" },
+      { lastVerifiedAt: "desc" },
+      { closesAt: "desc" },
+    ],
+    take: Math.max(take * 3, 12),
+  });
+
+  const availabilityOrder: Record<PublicJobAvailability, number> = {
+    closing_soon: 0,
+    active: 1,
+    closed: 2,
+    expired: 3,
+    unavailable: 4,
+  };
+
+  return records
+    .map((job) => mapSummary(job, now))
+    .sort(
+      (left, right) =>
+        availabilityOrder[left.availability] -
+        availabilityOrder[right.availability],
+    )
+    .slice(0, take);
+}
+
 export async function getPublicJobFilterOptions(input: {
   prisma?: PrismaClient;
   now?: Date;
 } = {}): Promise<PublicJobFilterOptions> {
   const db = input.prisma ?? defaultPrisma;
-  const now = input.now ?? new Date();
-  const filters = sanitizePublicJobSearchParams();
   const records = await db.jobPosting.findMany({
-    where: activeJobWhere(filters, now),
+    where: publicJobFilterOptionsWhere(),
     include: {
       company: true,
       market: true,
