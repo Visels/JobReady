@@ -673,9 +673,11 @@ async function SocialProofSection() {
 
   return (
     <section className="bg-[#fbf8f2] px-5 pb-14 md:px-7 md:pb-16 lg:px-8 lg:pb-20">
-      <h2 className="sr-only">Companies Jiandae helps candidates prepare for</h2>
       <div className="mx-auto max-w-[1400px] overflow-hidden rounded-[1.35rem] border border-[#e7ebe7] bg-[#f1f1ea] px-3 py-5 shadow-[0_12px_32px_rgba(41,57,47,0.04)] md:px-4 md:py-6">
-        <div className="overflow-hidden">
+        <h2 className="text-center text-xs font-bold uppercase tracking-[0.16em] text-[#79827c]">
+          Prepare for opportunities at
+        </h2>
+        <div className="mt-5 overflow-hidden">
           <div className="launch-marquee-track flex w-max items-center">
             {[0, 1].map((copyIndex) => (
               <div
@@ -686,9 +688,9 @@ async function SocialProofSection() {
                 {logos.map((logo) => (
                   <div
                     key={`${copyIndex}-${logo.filename}`}
-                    className="flex h-[4.75rem] w-[9.5rem] shrink-0 items-center justify-center rounded-xl border border-[#e3e8e4] bg-white/90 px-5 shadow-[0_5px_16px_rgba(20,53,43,0.035)] md:h-[5.25rem] md:w-[11rem] md:px-6"
+                    className="flex h-16 w-[10.5rem] shrink-0 items-center justify-center px-4 md:h-[4.5rem] md:w-[12rem] md:px-5"
                   >
-                    <span className="relative block h-11 w-full">
+                    <span className="relative block h-12 w-full md:h-14">
                       <Image
                         src={logo.src}
                         alt={copyIndex === 0 ? `${logo.label} logo` : ""}
