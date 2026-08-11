@@ -245,23 +245,20 @@ function SectionIntro({
   return (
     <div id={id} className="max-w-4xl">
       <p
-        className={`text-sm font-bold uppercase tracking-[0.18em] ${
-          reversed ? "text-[#d7a84f]" : "text-[#6f4e00]"
-        }`}
+        className={`text-sm font-bold uppercase tracking-[0.18em] ${reversed ? "text-[#d7a84f]" : "text-[#6f4e00]"
+          }`}
       >
         {eyebrow}
       </p>
       <h2
-        className={`mt-5 text-[clamp(2.25rem,3.9vw,4.4rem)] font-bold leading-none tracking-[-0.05em] text-balance ${
-          reversed ? "text-white" : "text-[#071512]"
-        }`}
+        className={`mt-5 text-[clamp(2.25rem,3.9vw,4.4rem)] font-bold leading-none tracking-[-0.05em] text-balance ${reversed ? "text-white" : "text-[#071512]"
+          }`}
       >
         {title}
       </h2>
       <p
-        className={`mt-6 max-w-3xl text-base leading-7 md:text-lg md:leading-8 ${
-          reversed ? "text-white/72" : "text-[#52605b]"
-        }`}
+        className={`mt-6 max-w-3xl text-base leading-7 md:text-lg md:leading-8 ${reversed ? "text-white/72" : "text-[#52605b]"
+          }`}
       >
         {copy}
       </p>
@@ -271,7 +268,7 @@ function SectionIntro({
 
 function HeroInterviewPreview() {
   return (
-    <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:translate-x-4 lg:scale-[1.08] lg:origin-center">
+    <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:translate-x-2 lg:translate-y-14 lg:scale-[1.18] lg:origin-center">
       <Image
         src="/marketing/banner.png"
         alt="Two professionals practising an interview with a laptop in front of a dotted map of Africa"
@@ -297,65 +294,65 @@ function HeroSearchForm({ options }: { options: HeroSearchOptions }) {
             Search roles worth preparing for.
           </h2>
         </div>
-      <form
-        action="/jobs"
-        data-analytics-event="hero_job_search_submit"
-        data-analytics-product="jobs"
-        className="rounded-[1.35rem] border border-[#d9cbb8] bg-white p-2.5 shadow-[0_18px_48px_rgba(29,43,37,0.08)]"
-      >
-        <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
-          <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
-            Company
-            <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
-              <Search className="h-4 w-4 text-[#00533f]" strokeWidth={2} />
-              <input
-                name="company"
-                list="hero-company-options"
-                placeholder="Safaricom"
-                autoComplete="organization"
-                className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
-              />
-            </span>
-          </label>
-          <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
-            Job title
-            <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
-              <BriefcaseBusiness
-                className="h-4 w-4 text-[#00533f]"
-                strokeWidth={2}
-              />
-              <input
-                name="q"
-                list="hero-job-title-options"
-                placeholder="Product Manager"
-                autoComplete="off"
-                className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
-              />
-            </span>
-          </label>
-          <button
-            type="submit"
-            className="min-h-12 rounded-xl bg-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-[0_2px_8px_rgba(0,83,63,0.22)] transition hover:-translate-y-px hover:bg-[#043b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98]"
-          >
-            Search jobs
-          </button>
-        </div>
-        <datalist id="hero-company-options">
-          {options.companies.map((company) => (
-            <option key={company.value} value={company.label} />
-          ))}
-        </datalist>
-        <datalist id="hero-job-title-options">
-          {options.jobTitles.map((title) => (
-            <option key={title} value={title} />
-          ))}
-        </datalist>
-      </form>
+        <form
+          action="/jobs"
+          data-analytics-event="hero_job_search_submit"
+          data-analytics-product="jobs"
+          className="rounded-[1.35rem] border border-[#d9cbb8] bg-white p-2.5 shadow-[0_18px_48px_rgba(29,43,37,0.08)]"
+        >
+          <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
+            <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
+              Company
+              <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
+                <Search className="h-4 w-4 text-[#00533f]" strokeWidth={2} />
+                <input
+                  name="company"
+                  list="hero-company-options"
+                  placeholder="Safaricom"
+                  autoComplete="organization"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
+                />
+              </span>
+            </label>
+            <label className="grid gap-2 px-3 py-2 text-sm font-bold text-[#173a32]">
+              Job title
+              <span className="flex h-12 items-center gap-3 rounded-xl bg-[#f8efe2] px-4">
+                <BriefcaseBusiness
+                  className="h-4 w-4 text-[#00533f]"
+                  strokeWidth={2}
+                />
+                <input
+                  name="q"
+                  list="hero-job-title-options"
+                  placeholder="Product Manager"
+                  autoComplete="off"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#071512] outline-none placeholder:text-[#8a8075]"
+                />
+              </span>
+            </label>
+            <button
+              type="submit"
+              className="min-h-12 rounded-xl bg-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-[0_2px_8px_rgba(0,83,63,0.22)] transition hover:-translate-y-px hover:bg-[#043b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] active:scale-[0.98]"
+            >
+              Search jobs
+            </button>
+          </div>
+          <datalist id="hero-company-options">
+            {options.companies.map((company) => (
+              <option key={company.value} value={company.label} />
+            ))}
+          </datalist>
+          <datalist id="hero-job-title-options">
+            {options.jobTitles.map((title) => (
+              <option key={title} value={title} />
+            ))}
+          </datalist>
+        </form>
 
-      <p className="mt-6 max-w-2xl text-sm font-medium leading-6 text-[#5f6c66]">
-        Browsing jobs and opening official application links is public.
-        Preparation is optional and private to your workspace.
-      </p>
+        <p className="mt-6 max-w-2xl text-sm font-medium leading-6 text-[#5f6c66]">
+          Browsing jobs and opening official application links is public.
+          Preparation is optional and private to your workspace.
+        </p>
       </div>
     </section>
   );
@@ -365,10 +362,10 @@ function HeroSection() {
   return (
     <section className="relative isolate overflow-hidden bg-[#02271f] px-5 pb-10 pt-8 text-white md:px-8 md:pb-14 md:pt-10 lg:min-h-[calc(100dvh-5.25rem)] lg:px-12 lg:pb-8 lg:pt-6">
       <div className="mx-auto grid min-h-full max-w-[1440px] gap-10 lg:grid-cols-[minmax(420px,0.9fr)_minmax(560px,1.1fr)] lg:items-center lg:gap-2 xl:gap-6">
-        <div className="reveal-up relative z-10 lg:pb-5">
-          <h1 className="max-w-[12ch] text-[clamp(2.8rem,5vw,4.8rem)] font-bold leading-[0.99] tracking-[-0.058em] text-white text-balance">
-            <span className="block">Better preparation.</span>
-            <span className="block text-[#f7bd22]">Better opportunities.</span>
+        <div className="reveal-up relative z-10 lg:translate-y-24 lg:pb-5">
+          <h1 className="max-w-none text-[clamp(2.8rem,5vw,4.8rem)] font-bold leading-[0.99] tracking-[-0.058em] text-white text-balance">
+            <span className="block whitespace-nowrap">Better preparation.</span>
+            <span className="block whitespace-nowrap text-[#f7bd22]">Better opportunities.</span>
           </h1>
           <p className="mt-6 max-w-[32rem] text-[1.05rem] font-medium leading-8 text-white/85 md:text-[1.18rem]">
             Practise realistic interviews, get expert feedback, and walk into your{" "}
@@ -407,17 +404,17 @@ function HeroSection() {
 }
 
 const heroApplicants = [
-    "hero-applicant-1.jpg",
-    "hero-applicant-2.jpg",
-    "hero-applicant-3.jpg",
-    "hero-applicant-4.jpg",
-    "testimonial-daniel.jpg",
+  "hero-applicant-1.jpg",
+  "hero-applicant-2.jpg",
+  "hero-applicant-3.jpg",
+  "hero-applicant-4.jpg",
+  "testimonial-daniel.jpg",
 ];
 
 function HeroSocialProof() {
   return (
     <div className="mt-10 flex flex-wrap items-center gap-4">
-      <div className="flex -space-x-3" aria-label="Jiandae candidates">
+      <div className="flex -space-x-3.5" aria-label="Jiandae candidates">
         {heroApplicants.map((applicant, index) => (
           <Image
             key={applicant}
@@ -425,17 +422,17 @@ function HeroSocialProof() {
             alt={`Jiandae candidate ${index + 1}`}
             width={50}
             height={50}
-            className="h-10 w-10 rounded-full border-2 border-[#02271f] object-cover"
+            className="h-12 w-12 rounded-full border-2 border-[#02271f] object-cover"
           />
         ))}
       </div>
       <div>
         <p className="flex items-center gap-0.5 text-[#f7bd22]" aria-label="Five star rating">
           {Array.from({ length: 5 }, (_, index) => (
-            <Star key={index} className="h-3.5 w-3.5 fill-current" strokeWidth={1.5} />
+            <Star key={index} className="h-4 w-4 fill-current" strokeWidth={1.5} />
           ))}
         </p>
-        <p className="mt-1 max-w-[17rem] text-sm font-medium leading-5 text-white/80">
+        <p className="mt-1 max-w-[18rem] text-[0.95rem] font-medium leading-5 text-white/80">
           Join thousands of professionals improving their interview skills
         </p>
       </div>
@@ -948,16 +945,14 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
             return (
               <article
                 key={plan.plan}
-                className={`flex min-h-full flex-col rounded-[1.5rem] border p-6 ${
-                  highlighted
+                className={`flex min-h-full flex-col rounded-[1.5rem] border p-6 ${highlighted
                     ? "border-[#063c31] bg-[#063c31] text-white shadow-[0_28px_70px_rgba(6,60,49,0.18)]"
                     : "border-[#d9cbb8] bg-white text-[#071512] shadow-[0_18px_54px_rgba(21,35,29,0.06)]"
-                }`}
+                  }`}
               >
                 <p
-                  className={`text-[11px] font-bold uppercase tracking-[0.16em] ${
-                    highlighted ? "text-[#d7a84f]" : "text-[#6f4e00]"
-                  }`}
+                  className={`text-[11px] font-bold uppercase tracking-[0.16em] ${highlighted ? "text-[#d7a84f]" : "text-[#6f4e00]"
+                    }`}
                 >
                   {plan.modeLabel}
                 </p>
@@ -965,9 +960,8 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
                   {plan.name}
                 </h3>
                 <p
-                  className={`mt-4 text-base leading-7 ${
-                    highlighted ? "text-white/74" : "text-[#52605b]"
-                  }`}
+                  className={`mt-4 text-base leading-7 ${highlighted ? "text-white/74" : "text-[#52605b]"
+                    }`}
                 >
                   {plan.description}
                 </p>
@@ -975,9 +969,8 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
                   {plan.display}
                 </p>
                 <p
-                  className={`mt-3 text-sm font-bold leading-6 ${
-                    highlighted ? "text-white/76" : "text-[#52605b]"
-                  }`}
+                  className={`mt-3 text-sm font-bold leading-6 ${highlighted ? "text-white/76" : "text-[#52605b]"
+                    }`}
                 >
                   {entitlementSummary(plan.entitlements)}. Credits expire after{" "}
                   {plan.planDays} days.
@@ -986,11 +979,10 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
                   href={candidateHref(`/billing?plan=${plan.plan}`)}
                   data-analytics-event="purchase_intent_click"
                   data-analytics-product={plan.plan}
-                  className={`mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold uppercase tracking-[0.12em] transition ${
-                    highlighted
+                  className={`mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold uppercase tracking-[0.12em] transition ${highlighted
                       ? "bg-white text-[#063c31] hover:bg-[#f8efe2]"
                       : "bg-[#00533f] text-white hover:bg-[#063c31]"
-                  }`}
+                    }`}
                 >
                   {plan.checkoutEnabled ? "Choose plan" : "Start free"}
                   <ArrowRight className="h-4 w-4" strokeWidth={2} />
