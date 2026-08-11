@@ -6,6 +6,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
+  CirclePlay,
   ClipboardCheck,
   ExternalLink,
   FileText,
@@ -270,14 +271,14 @@ function SectionIntro({
 
 function HeroInterviewPreview() {
   return (
-    <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:scale-[1.12] lg:origin-center">
+    <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:translate-x-4 lg:scale-[1.08] lg:origin-center">
       <Image
-        src="/marketing/jiandae-interview-hero.png"
-        alt="Jiandae mock interview room showing an interviewer, candidate, interview question, score, and controls"
+        src="/marketing/banner.png"
+        alt="Two professionals practising an interview with a laptop in front of a dotted map of Africa"
         width={1536}
         height={1024}
         sizes="(min-width: 1024px) 58vw, 100vw"
-        className="h-auto w-full object-contain"
+        className="h-auto w-full object-contain mix-blend-screen"
         priority
       />
     </aside>
@@ -362,32 +363,36 @@ function HeroSearchForm({ options }: { options: HeroSearchOptions }) {
 
 function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-[#fbf8f2] px-5 pb-12 pt-8 text-[#071512] md:px-7 md:pb-16 md:pt-12 lg:px-8 lg:pb-20 lg:pt-14">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_4%_14%,rgba(215,168,79,0.07),transparent_24%),radial-gradient(circle_at_78%_20%,rgba(0,83,63,0.04),transparent_30%)]" />
-      <div className="mx-auto grid max-w-[1536px] gap-14 lg:grid-cols-[minmax(360px,0.72fr)_minmax(660px,1.28fr)] lg:items-center lg:gap-10 xl:gap-16">
-        <div className="reveal-up lg:pb-3">
-          <h1 className="max-w-[9ch] text-[clamp(3rem,4.7vw,5.25rem)] font-bold leading-[0.98] tracking-[-0.058em] text-[#071512] text-balance">
-            Ace your next job <span className="text-[#007a55]">interview.</span>
+    <section className="relative isolate overflow-hidden bg-[#02271f] px-5 pb-10 pt-8 text-white md:px-8 md:pb-14 md:pt-10 lg:min-h-[calc(100dvh-5.25rem)] lg:px-12 lg:pb-8 lg:pt-6">
+      <div className="mx-auto grid min-h-full max-w-[1440px] gap-10 lg:grid-cols-[minmax(420px,0.9fr)_minmax(560px,1.1fr)] lg:items-center lg:gap-2 xl:gap-6">
+        <div className="reveal-up relative z-10 lg:pb-5">
+          <h1 className="max-w-[12ch] text-[clamp(2.8rem,5vw,4.8rem)] font-bold leading-[0.99] tracking-[-0.058em] text-white text-balance">
+            <span className="block">Better preparation.</span>
+            <span className="block text-[#f7bd22]">Better opportunities.</span>
           </h1>
-          <p className="mt-6 max-w-[45ch] text-[1.08rem] font-medium leading-8 text-[#35433f] md:text-[1.18rem]">
-            Realistic mock interviews. Expert feedback. Better answers for the opportunities you want.
+          <p className="mt-6 max-w-[32rem] text-[1.05rem] font-medium leading-8 text-white/85 md:text-[1.18rem]">
+            Practise realistic interviews, get expert feedback, and walk into your{" "}
+            <span className="text-[#f7bd22]">next interview</span> with confidence.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-5 flex items-center gap-2.5 text-sm font-medium text-white/85">
+            <CheckCircle2 className="h-5 w-5 flex-none text-[#7bdc69]" strokeWidth={2.5} />
+            Built for job seekers in Kenya and across Africa.
+          </div>
+          <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href={candidateHref("/interviews/new")}
               data-analytics-event="hero_interview_start_click"
-              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#007a55] px-6 text-[0.98rem] font-bold text-white shadow-[0_8px_18px_rgba(0,122,85,0.2)] transition hover:-translate-y-px hover:bg-[#005e42] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#007a55]"
+              className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#f7bd22] px-7 text-[0.98rem] font-bold text-[#173127] shadow-[0_8px_18px_rgba(247,189,34,0.2)] transition hover:-translate-y-px hover:bg-[#ffd15a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f7bd22] active:scale-[0.98]"
             >
-              Start Mock Interview
-              <ArrowRight className="h-4 w-4" strokeWidth={2.4} />
+              Start practising free
             </Link>
             <Link
-              href="/jobs"
+              href="#how-it-works"
               data-analytics-event="hero_explore_roles_click"
-              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg border border-[#006b4f] bg-white/55 px-6 text-[0.98rem] font-bold text-[#00533f] transition hover:bg-[#eaf2eb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/60 bg-transparent px-6 text-[0.98rem] font-bold text-white transition hover:border-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white active:scale-[0.98]"
             >
-              <BriefcaseBusiness className="h-4 w-4" strokeWidth={2.2} />
-              Explore Roles
+              <CirclePlay className="h-5 w-5" strokeWidth={1.9} />
+              See how it works
             </Link>
           </div>
           <HeroSocialProof />
@@ -420,18 +425,18 @@ function HeroSocialProof() {
             alt={`Jiandae candidate ${index + 1}`}
             width={50}
             height={50}
-            className="h-11 w-11 rounded-full border-2 border-[#fbf8f2] object-cover"
+            className="h-10 w-10 rounded-full border-2 border-[#02271f] object-cover"
           />
         ))}
       </div>
       <div>
-        <p className="flex items-center gap-0.5 text-[#d7a84f]" aria-label="Five star rating">
+        <p className="flex items-center gap-0.5 text-[#f7bd22]" aria-label="Five star rating">
           {Array.from({ length: 5 }, (_, index) => (
             <Star key={index} className="h-3.5 w-3.5 fill-current" strokeWidth={1.5} />
           ))}
         </p>
-        <p className="mt-1 text-sm font-semibold text-[#26342f]">
-          Job seekers across Kenya & Africa
+        <p className="mt-1 max-w-[17rem] text-sm font-medium leading-5 text-white/80">
+          Join thousands of professionals improving their interview skills
         </p>
       </div>
     </div>
