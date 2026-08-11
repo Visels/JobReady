@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "CV and Resume Workspace",
   description:
-    "Private Jobready CV and resume workspace for base documents and tailored versions.",
+    "Private Jiandae CV and resume workspace for base documents and tailored versions.",
   slug: "/cv-resume",
   noIndex: true,
 });

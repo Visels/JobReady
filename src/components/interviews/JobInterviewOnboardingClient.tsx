@@ -613,7 +613,7 @@ export function JobInterviewOnboardingClient({
           Market, role, seniority
         </h2>
         <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#52605b]">
-          You choose familiar job language. Jobready maps it to reviewed
+          You choose familiar job language. Jiandae maps it to reviewed
           interview plans internally, without asking you to configure rubrics.
         </p>
 
@@ -930,7 +930,7 @@ export function JobInterviewOnboardingClient({
                   Exactly what will be used
                 </p>
                 <p className="mt-2">
-                  Jobready will use up to 10 structured facts from this version:
+                  Jiandae will use up to 10 structured facts from this version:
                   fact labels, skill names, confirmation status, evidence type,
                   and short source excerpts. It will not use raw file text,
                   private storage objects, other documents, or upload metadata.

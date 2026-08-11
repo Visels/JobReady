@@ -11,17 +11,17 @@ const { brand, legal } = publicProductConfig;
 export const metadata: Metadata = generateSEO({
   title: "Terms and Conditions",
   description:
-    "Terms and conditions for using Jobready's sourced jobs, CV/resume tailoring, interview practice, application tracking, and paid preparation credits.",
+    "Terms and conditions for using Jiandae's sourced jobs, CV/resume tailoring, interview practice, application tracking, and paid preparation credits.",
   slug: "/terms",
   keywords: [
-    "Jobready terms",
+    "Jiandae terms",
     "job preparation terms",
     "CV tailoring terms",
     "job interview practice terms",
   ],
   ogImageParams: {
     title: "Terms and Conditions",
-    sub: "Clear boundaries for Jobready candidates.",
+    sub: "Clear boundaries for Jiandae candidates.",
     badge: "Terms",
   },
 });
@@ -83,18 +83,18 @@ export default function TermsPage() {
               <p>
                 Public job pages may include employer names, role details,
                 source links, review dates, freshness labels, closing dates, and
-                official application destinations. Jobready does not guarantee
+                official application destinations. Jiandae does not guarantee
                 that a job remains available, that an employer will respond, or
                 that any application will succeed.
               </p>
               <p>
-                Unless an explicit partnership is stated, Jobready is not
+                Unless an explicit partnership is stated, Jiandae is not
                 affiliated with, endorsed by, or approved by the employers named
                 in public job listings or preparation content.
               </p>
               <p>
                 You are responsible for reviewing the official destination and
-                completing any real application yourself. Jobready does not
+                completing any real application yourself. Jiandae does not
                 submit applications on your behalf.
               </p>
             </>

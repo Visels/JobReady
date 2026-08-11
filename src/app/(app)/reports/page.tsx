@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Reports and Progress",
-  description: "Private Jobready interview reports and progress history.",
+  description: "Private Jiandae interview reports and progress history.",
   slug: "/reports",
   noIndex: true,
 });

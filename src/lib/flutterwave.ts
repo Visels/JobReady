@@ -145,7 +145,7 @@ export function createFlutterwaveInlineConfig(input: CreateFlutterwavePaymentInp
       name: input.customer.name,
     },
     customizations: {
-      title: "Jobready",
+      title: "Jiandae",
       description: input.description,
       logo: new URL("/og-default.png", `${getSiteUrl()}/`).toString(),
     },
@@ -166,7 +166,7 @@ export async function createFlutterwavePayment(input: CreateFlutterwavePaymentIn
         name: input.customer.name,
       },
       customizations: {
-        title: "Jobready",
+        title: "Jiandae",
         description: input.description,
         logo: new URL("/og-default.png", `${getSiteUrl()}/`).toString(),
       },

@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Credits and Billing",
-  description: "Private Jobready credits and billing page.",
+  description: "Private Jiandae credits and billing page.",
   slug: "/billing",
   noIndex: true,
 });
@@ -164,7 +164,7 @@ export default async function BillingPage() {
       <WorkspaceCard>
         <WorkspaceSectionTitle
           eyebrow="Sandbox products"
-          title="Choose finite Jobready preparation credits."
+          title="Choose finite Jiandae preparation credits."
         />
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-3">
           {checkoutPlans.map((item) => (

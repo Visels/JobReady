@@ -30,22 +30,23 @@ import { generateWebPageSchema } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
-  title: "Jobs, CV Tailoring, and Interview Practice for African Careers",
+  title: "Interview Preparation for African Companies and Careers",
   description:
-    "Find sourced jobs, tailor truthful CVs and resumes, and practise realistic company and role interviews for Kenya and African career moves.",
+    "Prepare for job interviews at African companies with realistic mock interviews, role-specific feedback, and Kenyan employer context.",
   slug: "/",
   keywords: [
-    "jobs in Kenya",
-    "CV tailoring Kenya",
-    "resume tailoring Africa",
     "job interview practice Kenya",
+    "African companies job interviews",
+    "interview preparation Africa",
+    "Kenyan company interview questions",
     "Safaricom interview questions",
+    "KCB interview questions",
     "STAR method Kenya",
   ],
   ogImageParams: {
-    title: "Find the role. Prepare for it. Show up ready.",
-    sub: "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
-    badge: "Jobready",
+    title: "Prepare for interviews at African companies.",
+    sub: "Realistic mock interviews, role-specific feedback, and hiring-context practice for Kenya and Africa.",
+    badge: "Jiandae",
   },
 });
 
@@ -271,8 +272,8 @@ function HeroInterviewPreview() {
   return (
     <aside className="relative mx-auto w-full max-w-[900px] lg:max-w-none lg:scale-[1.12] lg:origin-center">
       <Image
-        src="/marketing/jobready-interview-hero.png"
-        alt="Jobready mock interview room showing an interviewer, candidate, interview question, score, and controls"
+        src="/marketing/jiandae-interview-hero.png"
+        alt="Jiandae mock interview room showing an interviewer, candidate, interview question, score, and controls"
         width={1536}
         height={1024}
         sizes="(min-width: 1024px) 58vw, 100vw"
@@ -411,12 +412,12 @@ const heroApplicants = [
 function HeroSocialProof() {
   return (
     <div className="mt-10 flex flex-wrap items-center gap-4">
-      <div className="flex -space-x-3" aria-label="Jobready candidates">
+      <div className="flex -space-x-3" aria-label="Jiandae candidates">
         {heroApplicants.map((applicant, index) => (
           <Image
             key={applicant}
             src={`/marketing/avatars/${applicant}`}
-            alt={`Jobready candidate ${index + 1}`}
+            alt={`Jiandae candidate ${index + 1}`}
             width={50}
             height={50}
             className="h-11 w-11 rounded-full border-2 border-[#fbf8f2] object-cover"
@@ -606,7 +607,7 @@ const productPaths: ProductPath[] = [
   {
     icon: FileText,
     title: "Tailor an existing CV/resume",
-    copy: "Use your real experience to create role-specific versions. Jobready suggests edits, gaps, and wording without inventing facts.",
+    copy: "Use your real experience to create role-specific versions. Jiandae suggests edits, gaps, and wording without inventing facts.",
     proof: "CV upload and public job selection are optional.",
     href: candidateHref("/cv-resume"),
     cta: "Tailor my CV",
@@ -630,7 +631,7 @@ function ProductPathsSection() {
         <SectionIntro
           eyebrow="Three independent ways"
           title="Use one product, not one forced funnel."
-          copy="Jobs, CV/resume tailoring, and mock interviews stand on their own. You can connect them when it helps, but Jobready does not require every candidate to follow the same path."
+          copy="Jobs, CV/resume tailoring, and mock interviews stand on their own. You can connect them when it helps, but Jiandae does not require every candidate to follow the same path."
         />
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {productPaths.map((item) => {
@@ -699,7 +700,7 @@ function JourneySection() {
                   </h3>
                   <p className="mt-1 text-sm leading-6 text-white/70">
                     {step === "Apply"
-                      ? "Open the reviewed official destination yourself. Jobready does not submit for you."
+                      ? "Open the reviewed official destination yourself. Jiandae does not submit for you."
                       : step === "Track"
                         ? "Keep private notes and next actions without changing public job data."
                         : "Use this step by itself, or carry context forward if you choose."}
@@ -776,7 +777,7 @@ function CompanyPrepSection() {
           ))}
         </div>
         <p className="mt-6 rounded-[1.5rem] border border-[#d9cbb8] bg-[#fffaf3] p-5 text-sm font-bold leading-6 text-[#52605b]">
-          Non-affiliation: Jobready is not affiliated with Safaricom, KCB Bank
+          Non-affiliation: Jiandae is not affiliated with Safaricom, KCB Bank
           Kenya, Kenya Pipeline Company, or any listed employer unless an
           explicit partnership is stated on the relevant page.
         </p>
@@ -1140,9 +1141,9 @@ export default async function Home() {
       <JsonLd
         data={generateWebPageSchema({
           title:
-            "Jobs, CV Tailoring, and Interview Practice for African Careers",
+            "Interview Preparation for African Companies and Careers",
           description:
-            "Find sourced jobs, tailor truthful CVs and resumes, and practise realistic company and role interviews for Kenya and African career moves.",
+            "Prepare for job interviews at African companies with realistic mock interviews, role-specific feedback, and Kenyan employer context.",
           slug: "/",
           datePublished: "2026-07-28",
           dateModified: "2026-07-28",

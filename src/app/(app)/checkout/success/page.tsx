@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Private Checkout Success",
   description:
-    "Private checkout confirmation route for authenticated Jobready users.",
+    "Private checkout confirmation route for authenticated Jiandae users.",
   slug: "/checkout/success",
   noIndex: true,
 });

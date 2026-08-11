@@ -54,7 +54,7 @@ export function AuthScreenShell({
                 Home
               </Link>
               <div className="lg:hidden">
-                <Link href="/" aria-label="Jobready home">
+                <Link href="/" aria-label="Jiandae home">
                   <BrandMark className="inline-flex items-center gap-2.5 text-[1.35rem] font-bold tracking-normal text-[#071512]" />
                 </Link>
               </div>

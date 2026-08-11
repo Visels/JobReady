@@ -41,13 +41,13 @@ export function buildWelcomeEmail(input: WelcomeEmailTemplateInput) {
   const interviewUrl = escapeHtml(input.interviewUrl);
   const supportEmail = escapeHtml(input.supportEmail);
   const logoUrl = escapeHtml(
-    assetUrl(input.appUrl, "/brand/jobready/wordmark-light.svg"),
+    assetUrl(input.appUrl, "/brand/jiandae/wordmark.png"),
   );
 
-  const subject = "Welcome to Jobready";
+  const subject = "Welcome to Jiandae";
   const text = `Hi ${firstName(input.name)},
 
-Welcome to Jobready. Your private workspace helps you find sourced jobs, tailor CV/resume versions truthfully, practise realistic job interviews, and track applications.
+Welcome to Jiandae. Your private workspace helps you find sourced jobs, tailor CV/resume versions truthfully, practise realistic job interviews, and track applications.
 
 Here is what you can do:
 
@@ -63,7 +63,7 @@ Practise an interview: ${input.interviewUrl}
 
 If you need help, reply to this email or contact ${input.supportEmail}.
 
-Jobready`;
+Jiandae`;
 
   const html = `<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -88,7 +88,7 @@ Jobready`;
 </head>
 <body style="margin:0;padding:0;background-color:#fcfcfa;">
   <div style="display:none;font-size:1px;color:#fcfcfa;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
-    Welcome to Jobready. Find roles, prepare truthful applications, and practise interviews.
+    Welcome to Jiandae. Find roles, prepare truthful applications, and practise interviews.
   </div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fcfcfa">
     <tr>
@@ -97,7 +97,7 @@ Jobready`;
           <tr>
             <td class="section-pad" align="left" style="padding:34px 48px 18px;">
               <a href="${appUrl}" target="_blank">
-                <img src="${logoUrl}" width="172" alt="jobready" style="width:172px;max-width:100%;">
+                <img src="${logoUrl}" width="172" alt="jiandae" style="width:172px;max-width:100%;">
               </a>
             </td>
           </tr>
@@ -110,7 +110,7 @@ Jobready`;
                 Welcome, <span style="color:#00533a;">${greetingName}</span>
               </h1>
               <p style="margin:18px 0 0;color:#53605a;font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:29px;">
-                Jobready helps you move from sourced jobs to truthful CV/resume tailoring, realistic interview practice, and private application tracking.
+                Jiandae helps you move from sourced jobs to truthful CV/resume tailoring, realistic interview practice, and private application tracking.
               </p>
             </td>
           </tr>
@@ -176,7 +176,7 @@ Jobready`;
                 Official application access stays public.
               </p>
               <p style="margin:10px 0 0;color:#c9ddd5;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;text-align:center;">
-                Preparation credits are for optional mock interviews and CV/resume tailoring. Jobready does not submit applications for you.
+                Preparation credits are for optional mock interviews and CV/resume tailoring. Jiandae does not submit applications for you.
               </p>
             </td>
           </tr>
@@ -186,7 +186,7 @@ Jobready`;
                 Need help? Reply to this email or contact <a href="mailto:${supportEmail}" style="color:#00533a;font-weight:800;text-decoration:underline;">${supportEmail}</a>.
               </p>
               <p style="margin:0;color:#748079;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;text-align:center;">
-                You received this email because you created a Jobready account.
+                You received this email because you created a Jiandae account.
               </p>
             </td>
           </tr>

@@ -40,16 +40,16 @@ assert.equal(parseFeatureFlag("unexpected", true), true);
 
 const config = buildPublicProductConfig({
   NEXT_PUBLIC_APP_URL: "https://preview.example.com",
-  NEXT_PUBLIC_JOBREADY_CANONICAL_HOST: "www.jobready.test",
+  NEXT_PUBLIC_JIANDAE_CANONICAL_HOST: "www.jiandae.test",
   NEXT_PUBLIC_FEATURE_LEGACY_VISA_FLOW: "true",
   NEXT_PUBLIC_FEATURE_PUBLIC_JOBS: "enabled",
   NEXT_PUBLIC_FEATURE_NATIVE_APPLICATIONS: "off",
 });
 
 assert.equal(config.brand.wordmarkText, "jiandae");
-assert.equal(config.canonical.hostname, "www.jobready.test");
-assert.equal(config.canonical.apexHostname, "jobready.test");
-assert.equal(config.canonical.url, "https://www.jobready.test");
+assert.equal(config.canonical.hostname, "www.jiandae.test");
+assert.equal(config.canonical.apexHostname, "jiandae.test");
+assert.equal(config.canonical.url, "https://www.jiandae.test");
 assert.equal(config.market.defaultCountryCode, "KE");
 assert.equal(config.features.legacyVisaFlow, true);
 assert.equal(config.features.publicJobs, true);
@@ -66,7 +66,7 @@ assert.equal(
   resolveSiteUrl(
     {
       NEXT_PUBLIC_APP_URL: "http://localhost:3000",
-      NEXT_PUBLIC_JOBREADY_CANONICAL_HOST: "www.jobready.test",
+      NEXT_PUBLIC_JIANDAE_CANONICAL_HOST: "www.jiandae.test",
     },
     "development",
   ),
@@ -76,17 +76,17 @@ assert.equal(
   resolveSiteUrl(
     {
       NEXT_PUBLIC_APP_URL: "http://localhost:3000",
-      NEXT_PUBLIC_JOBREADY_CANONICAL_HOST: "www.jobready.test",
+      NEXT_PUBLIC_JIANDAE_CANONICAL_HOST: "www.jiandae.test",
     },
     "production",
   ),
-  "https://www.jobready.test",
+  "https://www.jiandae.test",
 );
 assert.equal(
   resolveSiteUrl(
     {
       NEXT_PUBLIC_APP_URL: "https://staging.example.com",
-      NEXT_PUBLIC_JOBREADY_CANONICAL_HOST: "www.jobready.test",
+      NEXT_PUBLIC_JIANDAE_CANONICAL_HOST: "www.jiandae.test",
     },
     "production",
   ),
@@ -95,12 +95,12 @@ assert.equal(
 
 assert.throws(
   () => validateRequiredProductionConfig({ NODE_ENV: "production" }),
-  /Missing required production Jobready configuration/,
+  /Missing required production Jiandae configuration/,
 );
 validateRequiredProductionConfig({
   NODE_ENV: "production",
-  NEXT_PUBLIC_APP_URL: "https://www.jobready.test",
-  NEXT_PUBLIC_JOBREADY_CANONICAL_HOST: "www.jobready.test",
+  NEXT_PUBLIC_APP_URL: "https://www.jiandae.test",
+  NEXT_PUBLIC_JIANDAE_CANONICAL_HOST: "www.jiandae.test",
 });
 
 assert.ok(contrastRatio("#1B2430", "#FCFCFA") >= 4.5);

@@ -20,19 +20,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Jobready - Jobs, CV Tailoring, and Interview Practice in Africa",
-    template: "%s | Jobready",
+    default: "Jiandae - Interview Preparation for African Careers",
+    template: "%s | Jiandae",
   },
   description:
-    "Find sourced jobs, tailor truthful CVs and resumes, and practise realistic company and role interviews for African careers.",
+    "Prepare for job interviews with realistic company and role practice for African careers, Kenyan candidates, and regional hiring teams.",
   applicationName: publicProductConfig.brand.name,
   keywords: [
-    "jobs in Kenya",
-    "Africa jobs",
-    "CV tailoring Kenya",
-    "resume tailoring Africa",
+    "interview preparation Africa",
     "job interview practice Kenya",
-    "STAR interview practice",
+    "African companies job interviews",
+    "Kenyan interview questions",
+    "company interview preparation",
+    "STAR interview practice Africa",
   ],
   icons: {
     icon: publicProductConfig.brand.assets.favicon,
@@ -41,23 +41,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: publicProductConfig.brand.name,
-    title: "Jobready - Jobs, CV Tailoring, and Interview Practice in Africa",
+    title: "Jiandae - Interview Preparation for African Careers",
     description:
-      "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
+      "Realistic interview preparation for candidates applying to African companies, Kenyan employers, and regional roles.",
     images: [
       {
         url: publicProductConfig.brand.assets.socialOg,
         width: 1200,
         height: 630,
-        alt: "Jobready social preview",
+        alt: "Jiandae social preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Jobready - Jobs, CV Tailoring, and Interview Practice in Africa",
+    title: "Jiandae - Interview Preparation for African Careers",
     description:
-      "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
+      "Realistic interview preparation for candidates applying to African companies, Kenyan employers, and regional roles.",
     images: [publicProductConfig.brand.assets.socialOg],
   },
   robots: {

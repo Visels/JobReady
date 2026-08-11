@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Find Verified Jobs",
   description:
-    "Private Jobready job discovery workspace for finding verified roles in Kenya and Africa.",
+    "Private Jiandae job discovery workspace for finding verified roles in Kenya and Africa.",
   slug: "/find-jobs",
   noIndex: true,
 });

@@ -318,7 +318,7 @@ export function buildAccessibleDocx(input: TailoredDocumentContent) {
     {
       name: "docProps/app.xml",
       body: bytes(
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Jobready</Application></Properties>',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Jiandae</Application></Properties>',
       ),
     },
   ]);
@@ -368,7 +368,7 @@ ET`;
 stream
 ${stream}
 endstream`,
-    `<< /Title (${escapedTitle}) /Producer (Jobready deterministic exporter) >>`,
+    `<< /Title (${escapedTitle}) /Producer (Jiandae deterministic exporter) >>`,
     "<< /Type /StructTreeRoot /K [] >>",
   ];
 }

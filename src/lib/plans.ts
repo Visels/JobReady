@@ -64,7 +64,7 @@ const PLAN_DEFINITIONS = {
   "starter-diagnostic": {
     slug: "starter-diagnostic",
     name: "Free diagnostic",
-    productName: "Jobready Free Text Diagnostic",
+    productName: "Jiandae Free Text Diagnostic",
     description:
       "A short starter diagnostic for candidates who want to test the interview flow before buying preparation credits.",
     category: "starter",
@@ -80,7 +80,7 @@ const PLAN_DEFINITIONS = {
   "interview-standard": {
     slug: "interview-standard",
     name: "Standard interview",
-    productName: "Jobready Standard Mock Interview",
+    productName: "Jiandae Standard Mock Interview",
     description:
       "One focused text or voice mock interview for a specific role, company, stage, or general job target.",
     category: "interview",
@@ -96,7 +96,7 @@ const PLAN_DEFINITIONS = {
   "interview-extended": {
     slug: "interview-extended",
     name: "Extended interview",
-    productName: "Jobready Extended or Mixed Mock Interview",
+    productName: "Jiandae Extended or Mixed Mock Interview",
     description:
       "One longer or mixed-mode interview for candidates preparing for deeper panels, cases, or technical rounds.",
     category: "interview",
@@ -113,7 +113,7 @@ const PLAN_DEFINITIONS = {
   "interview-pack-3": {
     slug: "interview-pack-3",
     name: "Three-interview pack",
-    productName: "Jobready Three Mock Interview Pack",
+    productName: "Jiandae Three Mock Interview Pack",
     description:
       "Three interview credits for candidates practising across multiple roles, stages, or retry loops.",
     category: "interview",
@@ -129,7 +129,7 @@ const PLAN_DEFINITIONS = {
   "tailoring-single": {
     slug: "tailoring-single",
     name: "CV tailoring",
-    productName: "Jobready Single CV or Resume Tailoring",
+    productName: "Jiandae Single CV or Resume Tailoring",
     description:
       "One truthful CV or resume tailoring action linked to a public job, private target, or company-role brief.",
     category: "tailoring",
@@ -144,7 +144,7 @@ const PLAN_DEFINITIONS = {
   "job-readiness-bundle": {
     slug: "job-readiness-bundle",
     name: "Readiness bundle",
-    productName: "Jobready CV and Interview Bundle",
+    productName: "Jiandae CV and Interview Bundle",
     description:
       "One tailored document plus two interview credits for candidates preparing around a real target role.",
     category: "bundle",
@@ -164,7 +164,7 @@ const PLAN_DEFINITIONS = {
   "candidate-monthly-fair-use": {
     slug: "candidate-monthly-fair-use",
     name: "Monthly candidate",
-    productName: "Jobready Monthly Candidate Fair-Use Plan",
+    productName: "Jiandae Monthly Candidate Fair-Use Plan",
     description:
       "A finite monthly allowance for active candidates: interview practice and CV tailoring without an unlimited-cost promise.",
     category: "subscription",
@@ -183,7 +183,7 @@ const PLAN_DEFINITIONS = {
   weekly: {
     slug: "weekly",
     name: "Legacy 7-day access",
-    productName: "VisaInterview 7-Day Access",
+    productName: "Jiandae 7-Day Access",
     description: "Legacy visa access plan retained only for historical purchase records.",
     category: "legacy",
     durationDays: WEEKLY_ACCESS_DURATION_DAYS,
@@ -207,7 +207,7 @@ const PLAN_DEFINITIONS = {
   monthly: {
     slug: "monthly",
     name: "Legacy 30-day access",
-    productName: "VisaInterview 30-Day Access",
+    productName: "Jiandae 30-Day Access",
     description: "Legacy visa access plan retained only for historical purchase records.",
     category: "legacy",
     durationDays: MONTHLY_ACCESS_DURATION_DAYS,

@@ -157,7 +157,7 @@ export function assertAdminPermission(
   if (!actor) {
     throw new AdminAuthorizationError(
       "unauthorized",
-      "Sign in with an authorized Jobready admin account.",
+      "Sign in with an authorized Jiandae admin account.",
     );
   }
 

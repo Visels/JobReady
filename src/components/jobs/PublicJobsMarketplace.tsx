@@ -137,7 +137,7 @@ export function JobsPublicHeader({
 
   return (
     <header className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#d9cbb8] bg-white/86 px-5 py-4 shadow-[0_18px_52px_rgba(21,35,29,0.06)] backdrop-blur lg:flex-row lg:items-center lg:justify-between">
-      <Link href="/jobs" aria-label="Jobready jobs home">
+      <Link href="/jobs" aria-label="Jiandae jobs home">
         <BrandMark
           mode="full"
           className="inline-flex items-center"
@@ -483,7 +483,7 @@ export function NonAffiliationNotice({ job }: { job: PublicJobSummary }) {
         Non-affiliation notice
       </p>
       <p className="mt-2">
-        Jobready is not affiliated with {job.companyName} unless explicitly
+        Jiandae is not affiliated with {job.companyName} unless explicitly
         stated. We review public information to help candidates prepare, but
         applications are completed only on the official destination shown here.
       </p>

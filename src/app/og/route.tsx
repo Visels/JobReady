@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   );
   const subtitle = paramOrDefault(
     searchParams.get("sub"),
-    "Fresh sourced jobs, truthful CV tailoring, and realistic mock interviews built for African careers.",
+    "Realistic interview preparation for candidates applying to African companies, Kenyan employers, and regional roles.",
   );
   const badge = searchParams.get("badge")?.trim();
 
@@ -92,7 +92,7 @@ export async function GET(request: Request) {
                 letterSpacing: -1,
               }}
             >
-              <span>jobready</span>
+              <span>jiandae</span>
             </div>
             {badge ? (
               <div
@@ -146,9 +146,9 @@ export async function GET(request: Request) {
             }}
           >
             {[
-              ["Jobs", "official apply links stay free"],
-              ["CV", "truthful tailoring without invention"],
-              ["Mock", "company and role practice"],
+              ["Roles", "prepare around real opportunities"],
+              ["Practice", "company and role interview drills"],
+              ["Feedback", "clearer answers for hiring panels"],
             ].map(([value, label]) => (
               <div
                 key={label}

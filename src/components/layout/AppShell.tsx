@@ -797,8 +797,8 @@ function FocusRail() {
       <aside className="fixed inset-y-0 left-0 z-30 flex w-12 flex-col items-center justify-between bg-primary px-2 py-5 text-white shadow-[8px_0_30px_color-mix(in_srgb,var(--color-primary)_16%,transparent)]">
         <Link
           href="/dashboard"
-          aria-label="Return to Jobready home"
-          title="Return to Jobready home"
+          aria-label="Return to Jiandae home"
+          title="Return to Jiandae home"
           className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-[9px] font-black tracking-[-0.02em] transition duration-300 ease-soft hover:bg-white/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none"
         >
           JR

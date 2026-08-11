@@ -15,7 +15,7 @@ export default function NotFound() {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#52605b] md:text-lg md:leading-8">
             Search active jobs, open your workspace, or return home to choose
-            the right Jobready path.
+            the right Jiandae path.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link

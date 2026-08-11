@@ -15,7 +15,7 @@ type ToastContent = {
 const toastContent: Record<CheckoutStatus, ToastContent> = {
   success: {
     title: "Payment received",
-    copy: "Your Jobready preparation credits are active and ready.",
+    copy: "Your Jiandae preparation credits are active and ready.",
     icon: CheckCircle2,
     tone: "border-[#b8dbc9] bg-[#f5fbf7] text-[#00533f]",
   },

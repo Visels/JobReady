@@ -65,7 +65,7 @@ export function AuthResetPasswordForm() {
           Create a new password
         </h1>
         <p className="mt-2 text-[0.95rem] font-medium leading-6 text-[#5c6878]">
-          Choose a secure password for your Jobready workspace.
+          Choose a secure password for your Jiandae workspace.
         </p>
       </div>
 

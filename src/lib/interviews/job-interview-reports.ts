@@ -26,7 +26,7 @@ export const JOB_INTERVIEW_REPORT_SCHEMA_VERSION =
   "job-interview-report.task19.v1";
 
 const NON_AFFILIATION_DISCLAIMER =
-  "Jobready is an independent interview-practice tool and is not affiliated with employers, recruiters, job boards, hiring panels, or government agencies.";
+  "Jiandae is an independent interview-practice tool and is not affiliated with employers, recruiters, job boards, hiring panels, or government agencies.";
 
 const NO_HIRING_PREDICTION_DISCLAIMER =
   "This report is coaching feedback based only on the captured practice transcript. It is not a hiring decision, job offer, endorsement, or prediction of any employer outcome.";

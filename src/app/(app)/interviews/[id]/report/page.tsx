@@ -27,7 +27,7 @@ export async function generateMetadata({
   return generateSEO({
     title: "Private Job Interview Report",
     description:
-      "Private evidence-backed job interview practice report for an authenticated Jobready candidate.",
+      "Private evidence-backed job interview practice report for an authenticated Jiandae candidate.",
     slug: `/interviews/${id}/report`,
     noIndex: true,
   });

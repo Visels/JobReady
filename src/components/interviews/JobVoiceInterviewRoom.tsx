@@ -799,7 +799,7 @@ export function JobVoiceInterviewRoom({
               Retention
             </p>
             <p className="mt-3 text-sm leading-6 text-[#52605b]">
-              Raw audio is not stored. Jobready saves ordered transcript text,
+              Raw audio is not stored. Jiandae saves ordered transcript text,
               duration, provider usage, and realtime control events only.
             </p>
             <div className="mt-5 grid gap-3">

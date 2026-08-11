@@ -10,9 +10,9 @@ import { normalizeAuthReturnPath } from "@/lib/auth-redirect";
 import { generateSEO } from "@/lib/seo";
 
 export const metadata: Metadata = generateSEO({
-  title: "Sign In to Jobready",
+  title: "Sign In to Jiandae",
   description:
-    "Sign in to your private Jobready workspace for jobs, CV/resume tailoring, interview practice, and application tracking.",
+    "Sign in to your private Jiandae workspace for jobs, CV/resume tailoring, interview practice, and application tracking.",
   slug: "/login",
   noIndex: true,
 });

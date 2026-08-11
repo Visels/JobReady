@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Voice Job Interview Room",
   description:
-    "Private realtime voice job interview room for an authenticated Jobready candidate.",
+    "Private realtime voice job interview room for an authenticated Jiandae candidate.",
   slug: "/interviews/voice",
   noIndex: true,
 });

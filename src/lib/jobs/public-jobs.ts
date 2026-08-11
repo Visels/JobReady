@@ -550,7 +550,7 @@ function sourceName(
 }
 
 function publicReportHref(input: { slug: string; title: string }) {
-  const subject = `Report Jobready job: ${input.title}`;
+  const subject = `Report Jiandae job: ${input.title}`;
   const body = [
     `Job: ${getCanonicalUrl(`/jobs/${input.slug}`)}`,
     "",

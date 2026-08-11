@@ -297,7 +297,7 @@ class PdfDocument {
   private addPage() {
     this.pages.push({ commands: [] });
     this.y = pageHeight - margin;
-    this.text("Jobready", {
+    this.text("Jiandae", {
       x: margin,
       y: 28,
       font: "F2",

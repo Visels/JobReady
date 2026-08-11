@@ -49,7 +49,7 @@ export async function generateMetadata({
   if (!job) {
     return generateSEO({
       title: "Job Not Available",
-      description: "This public Jobready job is unavailable.",
+      description: "This public Jiandae job is unavailable.",
       slug: `/jobs/${slug}`,
       noIndex: true,
     });

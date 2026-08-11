@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Private Referral Program",
   description:
-    "Invite friends to Jobready, share a referral link, and track paid referral rewards.",
+    "Invite friends to Jiandae, share a referral link, and track paid referral rewards.",
   slug: "/refer-friends",
   noIndex: true,
 });

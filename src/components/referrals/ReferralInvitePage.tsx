@@ -143,10 +143,10 @@ export function ReferralInvitePage({
     }
 
     const subject = encodeURIComponent(
-      `${firstName(displayName)} invited you to Jobready`,
+      `${firstName(displayName)} invited you to Jiandae`,
     );
     const body = encodeURIComponent(
-      `I thought Jobready could help you find roles, tailor your CV/resume, and practise job interviews.\n\nUse my referral link:\n${referralLink}`,
+      `I thought Jiandae could help you find roles, tailor your CV/resume, and practise job interviews.\n\nUse my referral link:\n${referralLink}`,
     );
 
     window.open(

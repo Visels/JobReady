@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Saved Jobs",
-  description: "Private Jobready saved jobs workspace.",
+  description: "Private Jiandae saved jobs workspace.",
   slug: "/saved-jobs",
   noIndex: true,
 });

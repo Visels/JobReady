@@ -190,7 +190,7 @@ export async function POST(
       status: 200,
       headers: {
         "Content-Type": "application/sdp",
-        "X-Jobready-Voice-Limit-Seconds": String(
+        "X-Jiandae-Voice-Limit-Seconds": String(
           prepared.durationLimitSeconds,
         ),
       },

@@ -11,17 +11,17 @@ const { brand, legal } = publicProductConfig;
 export const metadata: Metadata = generateSEO({
   title: "Privacy Policy",
   description:
-    "Privacy policy for Jobready account data, sourced jobs, CV/resume tailoring, interview practice, application tracking, payments, analytics, and support.",
+    "Privacy policy for Jiandae account data, sourced jobs, CV/resume tailoring, interview practice, application tracking, payments, analytics, and support.",
   slug: "/privacy",
   keywords: [
-    "Jobready privacy",
+    "Jiandae privacy",
     "job application privacy Kenya",
     "CV tailoring privacy",
     "job interview practice privacy",
   ],
   ogImageParams: {
     title: "Privacy Policy",
-    sub: "How Jobready handles candidate workspace, preparation, and billing data.",
+    sub: "How Jiandae handles candidate workspace, preparation, and billing data.",
     badge: "Privacy",
   },
 });
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
               <p>
                 Public job records are kept separate from private candidate
                 workspace data. Opening an official application destination,
-                saving a job, or tracking an application does not mean Jobready
+                saving a job, or tracking an application does not mean Jiandae
                 applied on your behalf.
               </p>
               <p>

@@ -7,9 +7,9 @@ import { AuthResetPasswordForm } from "@/components/ui/AuthResetPasswordForm";
 import { generateSEO } from "@/lib/seo";
 
 export const metadata: Metadata = generateSEO({
-  title: "Reset your Jobready password",
+  title: "Reset your Jiandae password",
   description:
-    "Create a new password for your private Jobready workspace.",
+    "Create a new password for your private Jiandae workspace.",
   slug: "/reset-password",
   noIndex: true,
 });

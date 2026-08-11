@@ -102,7 +102,7 @@ export function MarketingNav({
       >
         <Link
           href="/"
-          aria-label="Jobready home"
+          aria-label="Jiandae home"
           data-analytics-event="nav_home"
           className="inline-flex min-h-11 items-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
         >

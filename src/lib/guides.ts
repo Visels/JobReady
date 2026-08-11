@@ -42,7 +42,7 @@ export const GUIDES = {
     badge: "Highest rejection risk",
     flag: "🇺🇸",
     visaType: "US F1 Student",
-    author: "VisaInterview editorial team",
+    author: "Jiandae editorial team",
     publishedAt: "2026-05-11",
     updatedAt: "2026-07-17",
     sources: [
@@ -113,7 +113,7 @@ export const GUIDES = {
     badge: "Overstay scrutiny",
     flag: "🇺🇸",
     visaType: "US B1/B2 Tourist",
-    author: "VisaInterview editorial team",
+    author: "Jiandae editorial team",
     publishedAt: "2026-05-11",
     updatedAt: "2026-07-17",
     sources: [
@@ -180,7 +180,7 @@ export const GUIDES = {
     badge: "Genuine student test",
     flag: "🇬🇧",
     visaType: "UK Student Visa",
-    author: "VisaInterview editorial team",
+    author: "Jiandae editorial team",
     publishedAt: "2026-05-11",
     updatedAt: "2026-07-17",
     sources: [
@@ -247,7 +247,7 @@ export const GUIDES = {
     badge: "Document consistency",
     flag: "🇨🇦",
     visaType: "Canada Express Entry",
-    author: "VisaInterview editorial team",
+    author: "Jiandae editorial team",
     publishedAt: "2026-05-11",
     updatedAt: "2026-07-17",
     sources: [
@@ -314,7 +314,7 @@ export const GUIDES = {
     badge: "Itinerary precision",
     flag: "🇪🇺",
     visaType: "Schengen Tourist",
-    author: "VisaInterview editorial team",
+    author: "Jiandae editorial team",
     publishedAt: "2026-05-11",
     updatedAt: "2026-07-17",
     sources: [
@@ -381,7 +381,7 @@ export const GUIDES = {
     badge: "Genuine student focus",
     flag: "🇦🇺",
     visaType: "Australia Student",
-    author: "VisaInterview editorial team",
+    author: "Jiandae editorial team",
     publishedAt: "2026-05-11",
     updatedAt: "2026-07-17",
     sources: [

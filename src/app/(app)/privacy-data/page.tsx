@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Privacy and Data",
-  description: "Private Jobready privacy and data controls page.",
+  description: "Private Jiandae privacy and data controls page.",
   slug: "/privacy-data",
   noIndex: true,
 });

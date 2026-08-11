@@ -102,7 +102,7 @@ function verifiedPrefillLabel(input: {
   }
 
   if (input.lastVerifiedAt) {
-    return "Stored public job context last verified by Jobready.";
+    return "Stored public job context last verified by Jiandae.";
   }
 
   if (input.sourceRetrievedAt) {

@@ -21,9 +21,9 @@ import type {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
-  title: "Private Jobready Workspace",
+  title: "Private Jiandae Workspace",
   description:
-    "Private Jobready dashboard for job discovery, CV/resume tailoring, application tracking, and mock interview progress.",
+    "Private Jiandae dashboard for job discovery, CV/resume tailoring, application tracking, and mock interview progress.",
   slug: "/dashboard",
   noIndex: true,
 });
@@ -168,7 +168,7 @@ function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
             />
           </h1>
           <p className="mt-5 max-w-2xl text-[15px] leading-7 text-muted md:text-[17px]">
-            Jobready helps candidates find verified jobs, tailor CV/resume
+            Jiandae helps candidates find verified jobs, tailor CV/resume
             versions, track applications privately, and practise real job
             interviews for Kenya and Africa.
           </p>
@@ -228,7 +228,7 @@ function FirstLoginDashboard({ data }: { data: CandidateWorkspaceData }) {
             title="Role and location preferences"
           />
           <p className="mt-3 text-[13px] leading-6 text-muted">
-            You can tell Jobready what roles and locations you prefer, or skip
+            You can tell Jiandae what roles and locations you prefer, or skip
             this and use the workspace immediately.
           </p>
           <div className="mt-5 grid gap-3">
@@ -442,7 +442,7 @@ function ApplicationPipeline({
         <div className="mt-5">
           <EmptyNote
             title="No tracked applications"
-            body="Start tracking from a saved public job or a private target. Jobready never marks an application as applied unless you confirm it."
+            body="Start tracking from a saved public job or a private target. Jiandae never marks an application as applied unless you confirm it."
             href="/saved-jobs"
             label="Use saved jobs"
           />

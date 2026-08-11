@@ -10,16 +10,16 @@ export type ProductFeatureFlags = Record<ProductFeatureFlag, boolean>;
 
 export type PublicProductEnv = Partial<{
   NEXT_PUBLIC_APP_URL: string;
-  NEXT_PUBLIC_JOBREADY_CANONICAL_HOST: string;
-  NEXT_PUBLIC_JOBREADY_BRAND_NAME: string;
-  NEXT_PUBLIC_JOBREADY_WORDMARK_TEXT: string;
-  NEXT_PUBLIC_JOBREADY_LEGAL_NAME: string;
-  NEXT_PUBLIC_JOBREADY_SUPPORT_EMAIL: string;
-  NEXT_PUBLIC_JOBREADY_DEFAULT_MARKET: string;
-  NEXT_PUBLIC_JOBREADY_X_HANDLE: string;
-  NEXT_PUBLIC_JOBREADY_LINKEDIN_URL: string;
-  NEXT_PUBLIC_JOBREADY_FACEBOOK_URL: string;
-  NEXT_PUBLIC_JOBREADY_INSTAGRAM_URL: string;
+  NEXT_PUBLIC_JIANDAE_CANONICAL_HOST: string;
+  NEXT_PUBLIC_JIANDAE_BRAND_NAME: string;
+  NEXT_PUBLIC_JIANDAE_WORDMARK_TEXT: string;
+  NEXT_PUBLIC_JIANDAE_LEGAL_NAME: string;
+  NEXT_PUBLIC_JIANDAE_SUPPORT_EMAIL: string;
+  NEXT_PUBLIC_JIANDAE_DEFAULT_MARKET: string;
+  NEXT_PUBLIC_JIANDAE_X_HANDLE: string;
+  NEXT_PUBLIC_JIANDAE_LINKEDIN_URL: string;
+  NEXT_PUBLIC_JIANDAE_FACEBOOK_URL: string;
+  NEXT_PUBLIC_JIANDAE_INSTAGRAM_URL: string;
   NEXT_PUBLIC_FEATURE_LEGACY_VISA_FLOW: string;
   NEXT_PUBLIC_FEATURE_PUBLIC_JOBS: string;
   NEXT_PUBLIC_FEATURE_CV_RESUME_TAILORING: string;
@@ -69,25 +69,25 @@ const DEFAULT_SUPPORT_EMAIL = "support@jiandae.africa";
 
 const publicEnv: PublicProductEnv = {
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-  NEXT_PUBLIC_JOBREADY_CANONICAL_HOST:
-    process.env.NEXT_PUBLIC_JOBREADY_CANONICAL_HOST,
-  NEXT_PUBLIC_JOBREADY_BRAND_NAME:
-    process.env.NEXT_PUBLIC_JOBREADY_BRAND_NAME,
-  NEXT_PUBLIC_JOBREADY_WORDMARK_TEXT:
-    process.env.NEXT_PUBLIC_JOBREADY_WORDMARK_TEXT,
-  NEXT_PUBLIC_JOBREADY_LEGAL_NAME:
-    process.env.NEXT_PUBLIC_JOBREADY_LEGAL_NAME,
-  NEXT_PUBLIC_JOBREADY_SUPPORT_EMAIL:
-    process.env.NEXT_PUBLIC_JOBREADY_SUPPORT_EMAIL,
-  NEXT_PUBLIC_JOBREADY_DEFAULT_MARKET:
-    process.env.NEXT_PUBLIC_JOBREADY_DEFAULT_MARKET,
-  NEXT_PUBLIC_JOBREADY_X_HANDLE: process.env.NEXT_PUBLIC_JOBREADY_X_HANDLE,
-  NEXT_PUBLIC_JOBREADY_LINKEDIN_URL:
-    process.env.NEXT_PUBLIC_JOBREADY_LINKEDIN_URL,
-  NEXT_PUBLIC_JOBREADY_FACEBOOK_URL:
-    process.env.NEXT_PUBLIC_JOBREADY_FACEBOOK_URL,
-  NEXT_PUBLIC_JOBREADY_INSTAGRAM_URL:
-    process.env.NEXT_PUBLIC_JOBREADY_INSTAGRAM_URL,
+  NEXT_PUBLIC_JIANDAE_CANONICAL_HOST:
+    process.env.NEXT_PUBLIC_JIANDAE_CANONICAL_HOST,
+  NEXT_PUBLIC_JIANDAE_BRAND_NAME:
+    process.env.NEXT_PUBLIC_JIANDAE_BRAND_NAME,
+  NEXT_PUBLIC_JIANDAE_WORDMARK_TEXT:
+    process.env.NEXT_PUBLIC_JIANDAE_WORDMARK_TEXT,
+  NEXT_PUBLIC_JIANDAE_LEGAL_NAME:
+    process.env.NEXT_PUBLIC_JIANDAE_LEGAL_NAME,
+  NEXT_PUBLIC_JIANDAE_SUPPORT_EMAIL:
+    process.env.NEXT_PUBLIC_JIANDAE_SUPPORT_EMAIL,
+  NEXT_PUBLIC_JIANDAE_DEFAULT_MARKET:
+    process.env.NEXT_PUBLIC_JIANDAE_DEFAULT_MARKET,
+  NEXT_PUBLIC_JIANDAE_X_HANDLE: process.env.NEXT_PUBLIC_JIANDAE_X_HANDLE,
+  NEXT_PUBLIC_JIANDAE_LINKEDIN_URL:
+    process.env.NEXT_PUBLIC_JIANDAE_LINKEDIN_URL,
+  NEXT_PUBLIC_JIANDAE_FACEBOOK_URL:
+    process.env.NEXT_PUBLIC_JIANDAE_FACEBOOK_URL,
+  NEXT_PUBLIC_JIANDAE_INSTAGRAM_URL:
+    process.env.NEXT_PUBLIC_JIANDAE_INSTAGRAM_URL,
   NEXT_PUBLIC_FEATURE_LEGACY_VISA_FLOW:
     process.env.NEXT_PUBLIC_FEATURE_LEGACY_VISA_FLOW,
   NEXT_PUBLIC_FEATURE_PUBLIC_JOBS: process.env.NEXT_PUBLIC_FEATURE_PUBLIC_JOBS,
@@ -142,18 +142,21 @@ export function buildPublicProductConfig(
   env: PublicProductEnv = publicEnv,
 ): PublicProductConfig {
   const hostname = normalizeHostname(
-    env.NEXT_PUBLIC_JOBREADY_CANONICAL_HOST,
+    env.NEXT_PUBLIC_JIANDAE_CANONICAL_HOST,
     DEFAULT_CANONICAL_HOSTNAME,
   );
 
   return {
     brand: {
-      name: stringValue(env.NEXT_PUBLIC_JOBREADY_BRAND_NAME, "Jiandae"),
+      name: stringValue(
+        env.NEXT_PUBLIC_JIANDAE_BRAND_NAME,
+        "Jiandae",
+      ),
       wordmarkText: stringValue(
-        env.NEXT_PUBLIC_JOBREADY_WORDMARK_TEXT,
+        env.NEXT_PUBLIC_JIANDAE_WORDMARK_TEXT,
         "jiandae",
       ),
-      legacyName: "VisaInterview",
+      legacyName: "Jiandae",
       assets: {
         wordmark: "/brand/jiandae/wordmark.png",
         wordmarkLight: "/brand/jiandae/wordmark.png",
@@ -170,25 +173,25 @@ export function buildPublicProductConfig(
     },
     legal: {
       legalName: stringValue(
-        env.NEXT_PUBLIC_JOBREADY_LEGAL_NAME,
+        env.NEXT_PUBLIC_JIANDAE_LEGAL_NAME,
         DEFAULT_LEGAL_NAME,
       ),
       supportEmail: stringValue(
-        env.NEXT_PUBLIC_JOBREADY_SUPPORT_EMAIL,
+        env.NEXT_PUBLIC_JIANDAE_SUPPORT_EMAIL,
         DEFAULT_SUPPORT_EMAIL,
       ),
     },
     market: {
       defaultCountryCode: stringValue(
-        env.NEXT_PUBLIC_JOBREADY_DEFAULT_MARKET,
+        env.NEXT_PUBLIC_JIANDAE_DEFAULT_MARKET,
         "KE",
       ).toUpperCase(),
     },
     social: {
-      xHandle: stringValue(env.NEXT_PUBLIC_JOBREADY_X_HANDLE, ""),
-      linkedinUrl: stringValue(env.NEXT_PUBLIC_JOBREADY_LINKEDIN_URL, ""),
-      facebookUrl: stringValue(env.NEXT_PUBLIC_JOBREADY_FACEBOOK_URL, ""),
-      instagramUrl: stringValue(env.NEXT_PUBLIC_JOBREADY_INSTAGRAM_URL, ""),
+      xHandle: stringValue(env.NEXT_PUBLIC_JIANDAE_X_HANDLE, ""),
+      linkedinUrl: stringValue(env.NEXT_PUBLIC_JIANDAE_LINKEDIN_URL, ""),
+      facebookUrl: stringValue(env.NEXT_PUBLIC_JIANDAE_FACEBOOK_URL, ""),
+      instagramUrl: stringValue(env.NEXT_PUBLIC_JIANDAE_INSTAGRAM_URL, ""),
     },
     features: {
       legacyVisaFlow: parseFeatureFlag(

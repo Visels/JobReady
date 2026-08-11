@@ -137,7 +137,7 @@ function getPlan(
   const planName = activeAccess
     ? `${purchasePlanName(activeAccess.purchase)}`
     : interviewCredits > 0 || tailoringCredits > 0
-      ? "Jobready credits"
+      ? "Jiandae credits"
     : source.credits > 0
       ? "Starter diagnostic"
       : "No active credits";

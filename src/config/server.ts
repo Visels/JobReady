@@ -10,7 +10,7 @@ export type ServerProductEnv = PublicProductEnv &
 
 const REQUIRED_PRODUCTION_ENV = [
   "NEXT_PUBLIC_APP_URL",
-  "NEXT_PUBLIC_JOBREADY_CANONICAL_HOST",
+  "NEXT_PUBLIC_JIANDAE_CANONICAL_HOST",
 ] as const;
 
 export function validateRequiredProductionConfig(
@@ -22,7 +22,7 @@ export function validateRequiredProductionConfig(
 
   if (missing.length > 0) {
     throw new Error(
-      `Missing required production Jobready configuration: ${missing.join(
+      `Missing required production Jiandae configuration: ${missing.join(
         ", ",
       )}. Set these public values before deploying.`,
     );

@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Career Resources",
   description:
-    "Private Jobready career resources for job seekers in Kenya and Africa.",
+    "Private Jiandae career resources for job seekers in Kenya and Africa.",
   slug: "/career-resources",
   noIndex: true,
 });

@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Profile and Preferences",
-  description: "Private Jobready profile and optional preferences page.",
+  description: "Private Jiandae profile and optional preferences page.",
   slug: "/profile",
   noIndex: true,
 });

@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Admin Content Operations",
-  description: "Protected Jobready editor operations for content and jobs.",
+  description: "Protected Jiandae editor operations for content and jobs.",
   slug: "/admin",
   noIndex: true,
 });

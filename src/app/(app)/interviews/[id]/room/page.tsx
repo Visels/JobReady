@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Text Job Interview Room",
   description:
-    "Private text job interview room for an authenticated Jobready candidate.",
+    "Private text job interview room for an authenticated Jiandae candidate.",
   slug: "/interviews/room",
   noIndex: true,
 });

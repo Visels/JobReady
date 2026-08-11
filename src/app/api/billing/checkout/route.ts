@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
   if (!plan) {
     return NextResponse.json(
-      { error: "Choose a current Jobready preparation product." },
+      { error: "Choose a current Jiandae preparation product." },
       { status: 400 },
     );
   }
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
     currency: price.currency,
     redirectUrl,
     customer: {
-      email: user.email ?? "customer@jobready.africa",
+      email: user.email ?? "customer@jiandae.africa",
       name: user.name ?? undefined,
     },
     description: `${price.name}: ${price.description}`,

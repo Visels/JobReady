@@ -70,7 +70,7 @@ export default async function InterviewOnboardingPage({
               </h1>
               <p className="mt-6 max-w-3xl text-[17px] leading-8 text-[#52605b] md:text-[19px]">
                 Pick the market, company, role, seniority, mode, and optional
-                CV context. Jobready turns that into a reviewed preparation
+                CV context. Jiandae turns that into a reviewed preparation
                 plan and keeps jobs and CVs optional.
               </p>
             </div>

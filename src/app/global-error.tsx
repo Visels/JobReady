@@ -21,13 +21,13 @@ export default function GlobalError({
           <section className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[860px] place-items-center">
             <div className="w-full rounded-[2rem] border border-[#d9cbb8] bg-white p-8 text-center shadow-[0_28px_90px_rgba(21,35,29,0.1)]">
               <p className="text-3xl font-black tracking-[-0.06em] text-[#00533f]">
-                jobready
+                jiandae
               </p>
               <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#6f4e00]">
                 Something failed
               </p>
               <h1 className="mx-auto mt-4 max-w-2xl text-[clamp(2.4rem,6vw,4.8rem)] font-black leading-[0.92] tracking-[-0.075em] text-[#071512]">
-                We could not load this Jobready surface.
+                We could not load this Jiandae surface.
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#52605b]">
                 Your private jobs, documents, applications, and reports remain

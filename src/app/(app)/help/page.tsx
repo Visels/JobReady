@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Help",
-  description: "Private Jobready help and support page.",
+  description: "Private Jiandae help and support page.",
   slug: "/help",
   noIndex: true,
 });

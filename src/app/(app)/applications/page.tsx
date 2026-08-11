@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = generateSEO({
   title: "Applications",
-  description: "Private Jobready application tracker.",
+  description: "Private Jiandae application tracker.",
   slug: "/applications",
   noIndex: true,
 });
@@ -163,7 +163,7 @@ export default async function ApplicationsPage({
     <WorkspacePageFrame
       eyebrow="Private tracker"
       title="Applications stay linked to exact targets."
-      body="Track public jobs and private opportunities without implying Jobready submitted anything for you. Marking an application as applied still requires explicit confirmation through the tracker API."
+      body="Track public jobs and private opportunities without implying Jiandae submitted anything for you. Marking an application as applied still requires explicit confirmation through the tracker API."
       action={{ href: "/saved-jobs", label: "Use saved job" }}
     >
       <WorkspaceCard>

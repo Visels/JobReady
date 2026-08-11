@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateSEO({
   title: "Interview Preparation",
   description:
-    "Private job interview preparation handoff after creating a Jobready interview setup.",
+    "Private job interview preparation handoff after creating a Jiandae interview setup.",
   slug: "/interviews/prepare",
   noIndex: true,
 });
