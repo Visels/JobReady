@@ -15,7 +15,7 @@ import { CANONICAL_SITE_URL, getSiteUrl } from "@/lib/site-url";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const fieldShellClass =
-  "mt-2 flex h-[3.7rem] items-center rounded-[0.72rem] border border-[#ccd6d2] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#087236] focus-within:ring-4 focus-within:ring-[#087236]/10";
+  "mt-2 flex h-[3.7rem] items-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-4 transition duration-300 ease-soft focus-within:border-[#087236] focus-within:ring-4 focus-within:ring-[#087236]/10";
 
 const inputClass =
   "min-w-0 flex-1 bg-transparent text-[0.95rem] font-medium text-[#071512] outline-none placeholder:text-[#8a96a5]";
@@ -238,21 +238,24 @@ export function AuthForm({
   }
 
   return (
-    <div className="reveal-up w-full">
+    <div
+      className="reveal-up w-full"
+      data-auth-scroll={showForgotPassword || isSignup ? "true" : undefined}
+    >
       <div>
-        <h1 className="text-[clamp(2.2rem,4.4vh,3.1rem)] font-bold leading-[1.05] tracking-[-0.045em] text-[#10201b]">
+        <h1 className="text-[clamp(2.25rem,4vh,3rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#0b2b22]">
           {showForgotPassword
             ? "Reset your password"
             : isSignup
               ? "Create your account"
               : "Welcome back"}
         </h1>
-        <p className="mt-4 max-w-[32ch] text-[1rem] font-medium leading-7 text-[#5d6a7b]">
+        <p className="mt-3 max-w-[38ch] text-[1rem] font-medium leading-6 text-[#5c6880]">
           {showForgotPassword
             ? "Enter your email and we will send a secure reset link."
             : isSignup
               ? "Create your private workspace for better interview preparation."
-              : "Log in to continue your journey to better interviews."}
+              : "Sign in to continue your interview practice."}
         </p>
       </div>
 
@@ -314,7 +317,28 @@ export function AuthForm({
         </form>
       ) : (
         <>
-          <form onSubmit={submit} className="mt-10 space-y-[clamp(0.875rem,2.2vh,1.125rem)]">
+          {!isSignup ? (
+            <>
+              <button
+                type="button"
+                onClick={signInWithGoogle}
+                disabled={loading}
+                className="mt-8 inline-flex h-14 w-full items-center justify-center gap-4 rounded-[0.8rem] border border-[#c7d1cd] bg-white px-5 text-[0.95rem] font-semibold text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <GoogleIcon />
+                Continue with Google
+              </button>
+              <div className="my-5 flex items-center gap-5">
+                <div className="h-px flex-1 bg-[#d5dce1]" />
+                <span className="text-sm font-medium text-[#59657a]">
+                  or continue with email
+                </span>
+                <div className="h-px flex-1 bg-[#d5dce1]" />
+              </div>
+            </>
+          ) : null}
+
+          <form onSubmit={submit} className={`${isSignup ? "mt-8" : ""} space-y-[clamp(0.75rem,1.8vh,1rem)]`}>
             {isSignup ? (
               <div>
                 <label htmlFor="auth-name" className="block text-sm font-bold text-[#172333]">
@@ -354,24 +378,9 @@ export function AuthForm({
             </div>
 
             <div>
-              <div className="flex items-center justify-between gap-4">
-                <label htmlFor="auth-password" className="block text-sm font-bold text-[#172333]">
-                  Password
-                </label>
-                {!isSignup ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(true);
-                      setError("");
-                      setNotice("");
-                    }}
-                    className="text-xs font-bold text-[#00533f] transition duration-300 ease-soft hover:text-[#043b30] hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                ) : null}
-              </div>
+              <label htmlFor="auth-password" className="block text-sm font-bold text-[#172333]">
+                Password
+              </label>
               <div className={fieldShellClass}>
                 <Lock className="mr-3 h-5 w-5 flex-none text-[#778498]" strokeWidth={1.8} />
                 <input
@@ -410,17 +419,28 @@ export function AuthForm({
             </div>
 
             {!isSignup ? (
-              <div className="sr-only">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(event) => setRememberMe(event.target.checked)}
-                  className="h-4 w-4 rounded border-[#b8c1cc] accent-[#00533f]"
-                />
-                <label htmlFor="remember-me" className="text-sm font-semibold text-[#4b596b]">
+              <div className="flex items-center justify-between gap-4 pt-1">
+                <label htmlFor="remember-me" className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-[#4b596b]">
+                  <input
+                    id="remember-me"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                    className="h-[1.15rem] w-[1.15rem] rounded border-[#b8c1cc] accent-[#00533f]"
+                  />
                   Remember me
                 </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotPassword(true);
+                    setError("");
+                    setNotice("");
+                  }}
+                  className="text-sm font-bold text-[#087236] transition duration-300 ease-soft hover:text-[#043b30] hover:underline"
+                >
+                  Forgot password?
+                </button>
               </div>
             ) : null}
 
@@ -517,7 +537,7 @@ export function AuthForm({
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#00533f] px-6 text-[0.95rem] font-bold text-white transition duration-300 ease-soft hover:bg-[#043b30] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-[0.8rem] bg-[#00533f] px-6 text-[0.95rem] font-bold text-white shadow-[0_10px_24px_rgba(0,83,63,0.16)] transition duration-300 ease-soft hover:bg-[#043b30] hover:shadow-[0_14px_28px_rgba(0,83,63,0.22)] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" strokeWidth={1.8} />
@@ -531,35 +551,17 @@ export function AuthForm({
           </form>
 
           {!isSignup ? (
-            <>
-              <div className="my-7 flex items-center gap-5">
-                <div className="h-px flex-1 bg-[#d9dee5]" />
-                <span className="text-sm font-medium text-[#5c6878]">
-                  or continue with
-                </span>
-                <div className="h-px flex-1 bg-[#d9dee5]" />
-              </div>
-              <button
-                type="button"
-                onClick={signInWithGoogle}
-                disabled={loading}
-                className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-[0.7rem] border border-[#c7d1cd] bg-white px-5 text-[0.95rem] font-bold text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <GoogleIcon />
-                Google
-              </button>
-              <div className="mt-4 text-center">
+            <div className="mt-5 border-t border-[#d9dee5] pt-5">
               <Link
                 href={`/magic-link?callbackUrl=${encodeURIComponent(returnPath)}`}
-                className="text-xs font-semibold text-[#52615b] transition duration-300 ease-soft hover:text-[#087236] hover:underline"
+                className="inline-flex h-13 w-full items-center justify-center rounded-[0.8rem] border border-[#c7d1cd] bg-white px-5 text-[0.92rem] font-semibold text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press"
               >
-                Email me a magic link instead
+                Sign in with a magic link
               </Link>
-              </div>
-            </>
+            </div>
           ) : null}
 
-          <p className="mt-8 text-center text-[0.95rem] font-medium text-[#34413c]">
+          <p className="mt-5 text-center text-[0.92rem] font-medium text-[#34413c]">
             {isSignup ? "Already have an account?" : "Don’t have an account?"}{" "}
             <button
               type="button"
