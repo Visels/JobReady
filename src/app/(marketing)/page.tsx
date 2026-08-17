@@ -781,23 +781,23 @@ const platformFeatures: PlatformFeature[] = [
 const testimonialStories: TestimonialStory[] = [
   {
     quote:
-      "Jiandae helped me find my voice and confidence. I got the job I always wanted.",
-    name: "Brian M.",
+      "Jiandae helped me find my voice and confidence. I walked into the panel ready and got the role.",
+    name: "Brian Otieno",
     location: "Nairobi, Kenya",
     image: "testimonial-daniel.jpg",
   },
   {
     quote:
-      "The mock interviews were spot on and the feedback was practical. Highly recommend.",
-    name: "Amina K.",
-    location: "Lagos, Nigeria",
+      "The mock interviews were spot on. The feedback helped me explain my experience clearly without sounding rehearsed.",
+    name: "Amina Wanjiku",
+    location: "Kisumu, Kenya",
     image: "testimonial-miriam.jpg",
   },
   {
     quote:
-      "I loved how personal everything felt. I knew what to improve before the real panel.",
-    name: "Tendai R.",
-    location: "Harare, Zimbabwe",
+      "I loved how personal everything felt. I knew what to improve before my final interview in Mombasa.",
+    name: "Grace Akinyi",
+    location: "Mombasa, Kenya",
     image: "testimonial-nadia.jpg",
   },
 ];
@@ -820,29 +820,29 @@ function ProductPathsSection() {
             </h2>
           </div>
 
-          <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {platformFeatures.map((item) => {
               const Icon = item.icon;
 
               return (
                 <article
                   key={item.title}
-                  className="group flex min-h-[17.5rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-6 text-center shadow-[0_18px_45px_rgba(24,53,43,0.055)] transition duration-300 hover:-translate-y-1 hover:border-[#cddfd5] hover:shadow-[0_24px_58px_rgba(24,53,43,0.09)]"
+                  className="group flex min-h-[17.5rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-6 text-center shadow-[0_18px_45px_rgba(24,53,43,0.055)] transition duration-300 hover:-translate-y-1 hover:border-[#cddfd5] hover:shadow-[0_24px_58px_rgba(24,53,43,0.09)] lg:min-h-[15rem] lg:px-5 lg:py-6"
                 >
-                  <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#eef5ef] text-[#00533f] ring-8 ring-[#f6faf6]">
-                    <Icon className="h-8 w-8" strokeWidth={1.9} />
+                  <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#eef5ef] text-[#00533f] ring-8 ring-[#f6faf6] lg:h-14 lg:w-14 lg:ring-[7px]">
+                    <Icon className="h-8 w-8 lg:h-7 lg:w-7" strokeWidth={1.9} />
                   </span>
-                  <h3 className="mt-6 text-lg font-bold leading-tight tracking-[-0.025em] text-[#10251e]">
+                  <h3 className="mt-6 text-lg font-bold leading-tight tracking-[-0.025em] text-[#10251e] lg:mt-5 lg:text-base">
                     {item.title}
                   </h3>
-                  <p className="mx-auto mt-3 max-w-[14.5rem] text-sm leading-6 text-[#3e4d47]">
+                  <p className="mx-auto mt-3 max-w-[14.5rem] text-sm leading-6 text-[#3e4d47] lg:text-[0.82rem] lg:leading-5">
                     {item.copy}
                   </p>
                   <Link
                     href={item.href}
                     data-analytics-event={item.analytics}
                     data-analytics-source="all_in_one_platform"
-                    className="mx-auto mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-[#00533f] transition group-hover:gap-3 group-hover:text-[#023d30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+                    className="mx-auto mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-[#00533f] transition group-hover:gap-3 group-hover:text-[#023d30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] lg:pt-5 lg:text-[0.82rem]"
                   >
                     Learn more
                     <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
@@ -852,8 +852,8 @@ function ProductPathsSection() {
             })}
           </div>
 
-          <div className="mt-8 grid gap-4 lg:grid-cols-[0.84fr_1fr_1fr_1fr]">
-            <div className="flex flex-col justify-center rounded-[1.35rem] bg-[#fffdf8] p-1 lg:pr-7">
+          <div className="mt-8 grid gap-4 lg:grid-cols-[0.72fr_1fr_1fr_1fr]">
+            <div className="flex flex-col justify-center rounded-[1.35rem] bg-[#fffdf8] p-1 lg:pr-6">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#007154]">
                 Success stories
               </p>
@@ -861,7 +861,7 @@ function ProductPathsSection() {
                 Real people. <span className="text-[#007154]">Real results.</span>
               </h3>
               <p className="mt-5 max-w-[18rem] text-sm leading-7 text-[#3e4d47]">
-                Jiandae has helped professionals across Africa land roles they
+                Jiandae has helped professionals across Kenya land roles they
                 are proud of.
               </p>
             </div>
@@ -869,29 +869,29 @@ function ProductPathsSection() {
             {testimonialStories.map((story) => (
               <article
                 key={story.name}
-                className="flex min-h-[16rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-6 shadow-[0_18px_45px_rgba(24,53,43,0.055)]"
+                className="flex min-h-[18rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-7 shadow-[0_18px_45px_rgba(24,53,43,0.055)]"
               >
                 <Quote
-                  className="h-7 w-7 fill-[#007154] text-[#007154]"
+                  className="h-8 w-8 fill-[#007154] text-[#007154]"
                   strokeWidth={1.5}
                   aria-hidden="true"
                 />
-                <p className="mt-4 text-sm leading-6 text-[#24332d]">
+                <p className="mt-5 text-[0.95rem] leading-7 text-[#24332d]">
                   {story.quote}
                 </p>
-                <div className="mt-auto flex items-center gap-3 pt-7">
+                <div className="mt-auto flex items-center gap-3.5 pt-8">
                   <Image
                     src={`/marketing/avatars/${story.image}`}
                     alt={`${story.name} from ${story.location}`}
-                    width={56}
-                    height={56}
-                    className="h-12 w-12 rounded-full object-cover ring-2 ring-[#eef5ef]"
+                    width={64}
+                    height={64}
+                    className="h-14 w-14 rounded-full object-cover ring-2 ring-[#eef5ef]"
                   />
                   <div>
-                    <p className="text-sm font-bold text-[#10251e]">
+                    <p className="text-base font-bold text-[#10251e]">
                       {story.name}
                     </p>
-                    <p className="mt-0.5 text-xs font-medium text-[#52635c]">
+                    <p className="mt-0.5 text-sm font-medium text-[#52635c]">
                       {story.location}
                     </p>
                   </div>
