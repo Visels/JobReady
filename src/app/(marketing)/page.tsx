@@ -5,19 +5,21 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
+  BarChart3,
   BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
   ChevronRight,
   CirclePlay,
   ClipboardCheck,
-  FileText,
   MapPin,
+  Quote,
   Search,
   ShieldCheck,
-  Sparkles,
   Star,
   Target,
+  Trophy,
+  Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -59,14 +61,19 @@ export const metadata: Metadata = generateSEO({
   },
 });
 
-type ProductPath = {
+type PlatformFeature = {
   icon: LucideIcon;
   title: string;
   copy: string;
-  proof: string;
   href: string;
-  cta: string;
   analytics: string;
+};
+
+type TestimonialStory = {
+  quote: string;
+  name: string;
+  location: string;
+  image: string;
 };
 
 type PreparationExample = {
@@ -740,78 +747,158 @@ async function SocialProofSection() {
   );
 }
 
-const productPaths: ProductPath[] = [
+const platformFeatures: PlatformFeature[] = [
   {
-    icon: BriefcaseBusiness,
-    title: "Find and save sourced jobs",
-    copy: "Browse public roles with reviewed source information, official apply destinations, locations, deadlines, and private save/track options.",
-    proof: "Job browsing and official apply links stay free.",
-    href: "/jobs",
-    cta: "Search jobs",
-    analytics: "product_jobs_click",
-  },
-  {
-    icon: FileText,
-    title: "Tailor an existing CV/resume",
-    copy: "Use your real experience to create role-specific versions. Jiandae suggests edits, gaps, and wording without inventing facts.",
-    proof: "CV upload and public job selection are optional.",
-    href: candidateHref("/cv-resume"),
-    cta: "Tailor my CV",
-    analytics: "tailoring_start_click",
-  },
-  {
-    icon: Sparkles,
-    title: "Practise company/role interviews",
-    copy: "Set up realistic job interviews around a company, role, seniority, job post, or private target and get evidence-backed feedback.",
-    proof: "Practice works with or without a saved job.",
+    icon: Target,
+    title: "Realistic mock interviews",
+    copy: "Practise with role-specific, industry-relevant questions that mirror real interviews.",
     href: candidateHref("/interviews/new"),
-    cta: "Practise an interview",
-    analytics: "interview_start_click",
+    analytics: "platform_mock_interviews_click",
+  },
+  {
+    icon: BarChart3,
+    title: "Expert feedback",
+    copy: "Get personalised feedback from industry experts so every answer becomes sharper.",
+    href: candidateHref("/interviews/new"),
+    analytics: "platform_feedback_click",
+  },
+  {
+    icon: Trophy,
+    title: "Build confidence",
+    copy: "Track progress, strengthen your answers, and walk into interviews with confidence.",
+    href: candidateHref("/interviews/new"),
+    analytics: "platform_confidence_click",
+  },
+  {
+    icon: Zap,
+    title: "Land better opportunities",
+    copy: "Be interview-ready and stand out to employers across Kenya and the wider African market.",
+    href: "/jobs",
+    analytics: "platform_opportunities_click",
+  },
+];
+
+const testimonialStories: TestimonialStory[] = [
+  {
+    quote:
+      "Jiandae helped me find my voice and confidence. I got the job I always wanted.",
+    name: "Brian M.",
+    location: "Nairobi, Kenya",
+    image: "testimonial-daniel.jpg",
+  },
+  {
+    quote:
+      "The mock interviews were spot on and the feedback was practical. Highly recommend.",
+    name: "Amina K.",
+    location: "Lagos, Nigeria",
+    image: "testimonial-miriam.jpg",
+  },
+  {
+    quote:
+      "I loved how personal everything felt. I knew what to improve before the real panel.",
+    name: "Tendai R.",
+    location: "Harare, Zimbabwe",
+    image: "testimonial-nadia.jpg",
   },
 ];
 
 function ProductPathsSection() {
   return (
-    <section id="product-paths" className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
-      <div className="mx-auto max-w-[1320px]">
-        <SectionIntro
-          eyebrow="Three independent ways"
-          title="Use one product, not one forced funnel."
-          copy="Jobs, CV/resume tailoring, and mock interviews stand on their own. You can connect them when it helps, but Jiandae does not require every candidate to follow the same path."
-        />
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {productPaths.map((item) => {
-            const Icon = item.icon;
+    <section
+      id="product-paths"
+      className="scroll-mt-24 bg-[#fbf8f2] px-5 pb-20 md:px-8 md:pb-24"
+    >
+      <div className="mx-auto max-w-[1400px]">
+        <div className="rounded-[2rem] border border-[#e9eee9] bg-[#fffdf8] px-5 py-10 shadow-[0_24px_70px_rgba(31,54,45,0.06)] md:px-7 md:py-12 lg:px-10">
+          <div className="mx-auto max-w-[780px] text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#007154]">
+              All-in-one platform
+            </p>
+            <h2 className="mt-3 text-[clamp(2rem,3.2vw,3.6rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#10251e] text-balance">
+              Everything you need to ace your{" "}
+              <span className="text-[#006148]">next interview</span>
+            </h2>
+          </div>
 
-            return (
-              <article
-                key={item.title}
-                className="flex min-h-full flex-col rounded-[1.5rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)]"
-              >
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#eaf4ef] text-[#00533f]">
-                  <Icon className="h-6 w-6" strokeWidth={1.9} />
-                </span>
-                <h3 className="mt-6 text-2xl font-bold leading-tight tracking-[-0.035em] text-[#071512]">
-                  {item.title}
-                </h3>
-                <p className="mt-4 text-base leading-7 text-[#52605b]">
-                  {item.copy}
-                </p>
-                <p className="mt-5 rounded-2xl bg-[#f8efe2] p-4 text-sm font-bold leading-6 text-[#173a32]">
-                  {item.proof}
-                </p>
-                <Link
-                  href={item.href}
-                  data-analytics-event={item.analytics}
-                  data-analytics-source="three_products"
-                  className="mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#00533f] px-5 text-sm font-bold uppercase tracking-[0.12em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+          <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {platformFeatures.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <article
+                  key={item.title}
+                  className="group flex min-h-[17.5rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-6 text-center shadow-[0_18px_45px_rgba(24,53,43,0.055)] transition duration-300 hover:-translate-y-1 hover:border-[#cddfd5] hover:shadow-[0_24px_58px_rgba(24,53,43,0.09)]"
                 >
-                  {item.cta}
-                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
-                </Link>
+                  <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#eef5ef] text-[#00533f] ring-8 ring-[#f6faf6]">
+                    <Icon className="h-8 w-8" strokeWidth={1.9} />
+                  </span>
+                  <h3 className="mt-6 text-lg font-bold leading-tight tracking-[-0.025em] text-[#10251e]">
+                    {item.title}
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-[14.5rem] text-sm leading-6 text-[#3e4d47]">
+                    {item.copy}
+                  </p>
+                  <Link
+                    href={item.href}
+                    data-analytics-event={item.analytics}
+                    data-analytics-source="all_in_one_platform"
+                    className="mx-auto mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-[#00533f] transition group-hover:gap-3 group-hover:text-[#023d30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+                  >
+                    Learn more
+                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
+                  </Link>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-[0.84fr_1fr_1fr_1fr]">
+            <div className="flex flex-col justify-center rounded-[1.35rem] bg-[#fffdf8] p-1 lg:pr-7">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#007154]">
+                Success stories
+              </p>
+              <h3 className="mt-4 max-w-[18rem] text-[clamp(2rem,3vw,3rem)] font-bold leading-[1.02] tracking-[-0.055em] text-[#10251e] text-balance">
+                Real people. <span className="text-[#007154]">Real results.</span>
+              </h3>
+              <p className="mt-5 max-w-[18rem] text-sm leading-7 text-[#3e4d47]">
+                Jiandae has helped professionals across Africa land roles they
+                are proud of.
+              </p>
+            </div>
+
+            {testimonialStories.map((story) => (
+              <article
+                key={story.name}
+                className="flex min-h-[16rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-6 shadow-[0_18px_45px_rgba(24,53,43,0.055)]"
+              >
+                <Quote
+                  className="h-7 w-7 fill-[#007154] text-[#007154]"
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
+                <p className="mt-4 text-sm leading-6 text-[#24332d]">
+                  {story.quote}
+                </p>
+                <div className="mt-auto flex items-center gap-3 pt-7">
+                  <Image
+                    src={`/marketing/avatars/${story.image}`}
+                    alt={`${story.name} from ${story.location}`}
+                    width={56}
+                    height={56}
+                    className="h-12 w-12 rounded-full object-cover ring-2 ring-[#eef5ef]"
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-[#10251e]">
+                      {story.name}
+                    </p>
+                    <p className="mt-0.5 text-xs font-medium text-[#52635c]">
+                      {story.location}
+                    </p>
+                  </div>
+                </div>
               </article>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
     </section>
