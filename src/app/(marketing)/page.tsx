@@ -852,7 +852,7 @@ function ProductPathsSection() {
             })}
           </div>
 
-          <div className="mt-8 grid gap-4 lg:grid-cols-[0.72fr_1fr_1fr_1fr]">
+          <div className="mt-14 grid gap-4 md:mt-16 lg:grid-cols-[0.72fr_1fr_1fr_1fr]">
             <div className="flex flex-col justify-center rounded-[1.35rem] bg-[#fffdf8] p-1 lg:pr-6">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#007154]">
                 Success stories
