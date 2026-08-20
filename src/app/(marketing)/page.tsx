@@ -571,24 +571,24 @@ function LandingCompanyMark({ job }: { job: PublicJobSummary }) {
 
   if (companyKey.includes("m-kopa")) {
     return (
-      <span className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-md bg-[#003f35] shadow-[0_10px_24px_rgba(0,63,53,0.18)]">
-        <span className="absolute left-[13px] top-[15px] h-4 w-2.5 -rotate-45 rounded-full rounded-br-sm bg-white" />
-        <span className="absolute right-[13px] top-[12px] h-5 w-3 rotate-45 rounded-full rounded-bl-sm bg-white" />
-        <span className="absolute bottom-[10px] left-1/2 h-3.5 w-0.5 -translate-x-1/2 rounded-full bg-white" />
+      <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-md bg-[#003f35] shadow-[0_9px_22px_rgba(0,63,53,0.18)]">
+        <span className="absolute left-[12px] top-[14px] h-3.5 w-2 -rotate-45 rounded-full rounded-br-sm bg-white" />
+        <span className="absolute right-[12px] top-[11px] h-[18px] w-2.5 rotate-45 rounded-full rounded-bl-sm bg-white" />
+        <span className="absolute bottom-[9px] left-1/2 h-3 w-0.5 -translate-x-1/2 rounded-full bg-white" />
       </span>
     );
   }
 
   if (companyKey.includes("flutterwave")) {
     return (
-      <span className="grid h-11 w-[92px] place-items-center rounded-md border border-[#eef1ef] bg-white px-2 shadow-[0_8px_18px_rgba(14,31,25,0.04)]">
+      <span className="grid h-10 w-[83px] place-items-center rounded-md border border-[#eef1ef] bg-white px-2 shadow-[0_7px_16px_rgba(14,31,25,0.04)]">
         <Image
           src="/companies/flutterwave.png"
           alt=""
           width={92}
           height={34}
-          sizes="92px"
-          className="h-auto max-h-8 w-full object-contain"
+          sizes="83px"
+          className="h-auto max-h-7 w-full object-contain"
         />
       </span>
     );
@@ -596,7 +596,7 @@ function LandingCompanyMark({ job }: { job: PublicJobSummary }) {
 
   if (companyKey.includes("nkash")) {
     return (
-      <span className="grid h-11 w-11 place-items-center rounded-md bg-[#6a3490] text-[1.35rem] font-bold tracking-[-0.06em] text-white shadow-[0_10px_24px_rgba(106,52,144,0.18)]">
+      <span className="grid h-10 w-10 place-items-center rounded-md bg-[#6a3490] text-[1.22rem] font-bold tracking-[-0.06em] text-white shadow-[0_9px_22px_rgba(106,52,144,0.18)]">
         nk
       </span>
     );
@@ -604,7 +604,7 @@ function LandingCompanyMark({ job }: { job: PublicJobSummary }) {
 
   if (companyKey.includes("expandcart")) {
     return (
-      <span className="grid h-11 w-11 place-items-center rounded-md bg-[#0ca55f] text-[2rem] font-bold tracking-[-0.08em] text-white shadow-[0_10px_24px_rgba(12,165,95,0.18)]">
+      <span className="grid h-10 w-10 place-items-center rounded-md bg-[#0ca55f] text-[1.8rem] font-bold tracking-[-0.08em] text-white shadow-[0_9px_22px_rgba(12,165,95,0.18)]">
         e
       </span>
     );
@@ -621,7 +621,7 @@ function LandingCompanyMark({ job }: { job: PublicJobSummary }) {
 
   return (
     <span
-      className={`grid h-11 w-11 place-items-center rounded-md text-[1.2rem] font-bold tracking-[-0.04em] ${style}`}
+      className={`grid h-10 w-10 place-items-center rounded-md text-[1.08rem] font-bold tracking-[-0.04em] ${style}`}
     >
       {initials.slice(0, 2)}
     </span>
@@ -632,11 +632,11 @@ function LandingJobCard({ job }: { job: PublicJobSummary }) {
   const isPartTime = job.employmentType === "part_time";
 
   return (
-    <article className="group flex min-h-[300px] flex-col rounded-lg border border-[#edf0ee] bg-white px-6 pb-7 pt-6 shadow-[0_10px_28px_rgba(24,39,34,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(24,39,34,0.12)]">
+    <article className="group flex min-h-[270px] flex-col rounded-lg border border-[#edf0ee] bg-white px-5 pb-6 pt-5 shadow-[0_9px_25px_rgba(24,39,34,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(24,39,34,0.12)]">
       <div className="flex items-start justify-between gap-3">
         <LandingCompanyMark job={job} />
         <span
-          className={`rounded-lg px-3 py-1.5 text-[0.85rem] font-semibold leading-none ${
+          className={`rounded-lg px-2.5 py-1.5 text-[0.78rem] font-semibold leading-none ${
             isPartTime
               ? "bg-[#fff0bf] text-[#9d6c00]"
               : "bg-[#dff2df] text-[#006148]"
@@ -650,18 +650,18 @@ function LandingJobCard({ job }: { job: PublicJobSummary }) {
         href={job.detailHref}
         data-analytics-event="job_view_click"
         data-analytics-source="landing_job_showcase"
-        className="mt-7 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+        className="mt-6 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
       >
-        <h3 className="line-clamp-2 text-[1.55rem] font-bold leading-[1.12] tracking-[-0.045em] text-[#081722] transition-colors group-hover:text-[#006148]">
+        <h3 className="line-clamp-2 text-[1.4rem] font-bold leading-[1.12] tracking-[-0.045em] text-[#081722] transition-colors group-hover:text-[#006148]">
           {job.title}
         </h3>
       </Link>
-      <p className="mt-2 text-[1.05rem] font-medium leading-6 text-[#273342]">
+      <p className="mt-2 text-[0.95rem] font-medium leading-6 text-[#273342]">
         {job.companyName}
       </p>
 
-      <p className="mt-6 flex items-center gap-2 text-[1rem] font-medium text-[#4f5b69]">
-        <MapPin className="h-[18px] w-[18px] flex-none text-[#4f5b69]" strokeWidth={2} />
+      <p className="mt-5 flex items-center gap-2 text-[0.92rem] font-medium text-[#4f5b69]">
+        <MapPin className="h-4 w-4 flex-none text-[#4f5b69]" strokeWidth={2} />
         {job.location ?? job.marketName}
       </p>
 
@@ -669,7 +669,7 @@ function LandingJobCard({ job }: { job: PublicJobSummary }) {
         href={job.detailHref}
         data-analytics-event="job_view_click"
         data-analytics-source="landing_job_card_cta"
-        className="mt-auto flex border-t border-[#dce3df] pt-6 text-[1.05rem] font-bold text-[#006148] transition-colors hover:text-[#003f35] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+        className="mt-auto flex border-t border-[#dce3df] pt-5 text-[0.95rem] font-bold text-[#006148] transition-colors hover:text-[#003f35] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
       >
         <span className="inline-flex items-center gap-3">
           View job
@@ -718,20 +718,20 @@ function OpportunitySearchSection({
   return (
     <section
       id="opportunities"
-      className="scroll-mt-20 bg-[#fdfbf8] px-5 py-20 md:px-8 md:py-[96px]"
+      className="scroll-mt-20 bg-[#fdfbf8] px-5 py-[72px] md:px-8 md:py-[86px]"
     >
-      <div className="mx-auto max-w-[1144px]">
-        <div className="mx-auto max-w-[660px] text-center">
-          <p className="text-[1rem] font-bold uppercase text-[#006148]">
+      <div className="mx-auto max-w-[1030px]">
+        <div className="mx-auto max-w-[595px] text-center">
+          <p className="text-[0.9rem] font-bold uppercase text-[#006148]">
             Featured jobs
           </p>
-          <h2 className="mt-7 text-[clamp(3.25rem,4.4vw,5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#081722] text-balance">
+          <h2 className="mt-6 text-[clamp(2.9rem,3.95vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#081722] text-balance">
             <span className="block">Find opportunities</span>
             <span className="block">
               that <span className="text-[#f7b716]">move you forward.</span>
             </span>
           </h2>
-          <p className="mx-auto mt-6 max-w-[510px] text-[1.28rem] font-medium leading-8 text-[#4f5b69]">
+          <p className="mx-auto mt-5 max-w-[460px] text-[1.15rem] font-medium leading-7 text-[#4f5b69]">
             Explore verified job opportunities from top organisations across
             Kenya and Africa.
           </p>
@@ -741,32 +741,32 @@ function OpportunitySearchSection({
           action="/jobs"
           data-analytics-event="landing_job_search_submit"
           data-analytics-product="jobs"
-          className="mt-[58px] grid gap-4 rounded-lg border border-[#edf0ee] bg-white p-5 shadow-[0_12px_32px_rgba(24,39,34,0.07)] md:grid-cols-2 lg:grid-cols-[minmax(270px,1.4fr)_minmax(220px,1fr)_minmax(220px,1fr)_182px]"
+          className="mt-[52px] grid gap-3.5 rounded-lg border border-[#edf0ee] bg-white p-4 shadow-[0_11px_29px_rgba(24,39,34,0.07)] md:grid-cols-2 lg:grid-cols-[minmax(240px,1.4fr)_minmax(198px,1fr)_minmax(198px,1fr)_164px]"
         >
           <label className="relative">
             <span className="sr-only">Job title, keyword, or company</span>
             <Search
-              className="pointer-events-none absolute left-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-[#4f5b69]"
+              className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#4f5b69]"
               strokeWidth={1.9}
             />
             <input
               name="q"
               placeholder="Job title, keyword or company"
               autoComplete="off"
-              className="h-[52px] w-full rounded-lg border border-[#d8dee6] bg-white pl-[50px] pr-4 text-[1.05rem] font-medium text-[#081722] outline-none transition placeholder:text-[#4f5b69] focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+              className="h-[47px] w-full rounded-lg border border-[#d8dee6] bg-white pl-[45px] pr-4 text-[0.95rem] font-medium text-[#081722] outline-none transition placeholder:text-[#4f5b69] focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
             />
           </label>
 
           <label className="relative">
             <span className="sr-only">Location</span>
             <MapPin
-              className="pointer-events-none absolute left-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-[#081722]"
+              className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#081722]"
               strokeWidth={2}
             />
             <select
               name="location"
               defaultValue=""
-              className="h-[52px] w-full appearance-none rounded-lg border border-[#d8dee6] bg-white pl-[50px] pr-11 text-[1.05rem] font-semibold text-[#081722] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+              className="h-[47px] w-full appearance-none rounded-lg border border-[#d8dee6] bg-white pl-[45px] pr-10 text-[0.95rem] font-semibold text-[#081722] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
             >
               <option value="">All locations</option>
               {options.locations.map((option) => (
@@ -777,7 +777,7 @@ function OpportunitySearchSection({
             </select>
             <ChevronDown
               aria-hidden="true"
-              className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#081722]"
+              className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#081722]"
               strokeWidth={2.2}
             />
           </label>
@@ -785,13 +785,13 @@ function OpportunitySearchSection({
           <label className="relative">
             <span className="sr-only">Job category</span>
             <BriefcaseBusiness
-              className="pointer-events-none absolute left-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-[#081722]"
+              className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#081722]"
               strokeWidth={1.9}
             />
             <select
               name="role"
               defaultValue=""
-              className="h-[52px] w-full appearance-none rounded-lg border border-[#d8dee6] bg-white pl-[50px] pr-11 text-[1.05rem] font-semibold text-[#081722] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+              className="h-[47px] w-full appearance-none rounded-lg border border-[#d8dee6] bg-white pl-[45px] pr-10 text-[0.95rem] font-semibold text-[#081722] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
             >
               <option value="">All categories</option>
               {options.roles.map((option) => (
@@ -802,33 +802,33 @@ function OpportunitySearchSection({
             </select>
             <ChevronDown
               aria-hidden="true"
-              className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#081722]"
+              className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#081722]"
               strokeWidth={2.2}
             />
           </label>
 
           <button
             type="submit"
-            className="min-h-[56px] rounded-lg bg-[#003f35] px-7 text-[1.05rem] font-bold text-white shadow-[0_12px_24px_rgba(0,63,53,0.16)] transition hover:-translate-y-px hover:bg-[#002f28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] md:col-span-2 lg:col-span-1"
+            className="min-h-[50px] rounded-lg bg-[#003f35] px-6 text-[0.95rem] font-bold text-white shadow-[0_11px_22px_rgba(0,63,53,0.16)] transition hover:-translate-y-px hover:bg-[#002f28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] md:col-span-2 lg:col-span-1"
           >
             Search jobs
           </button>
         </form>
 
-        <div className={`mt-[28px] grid gap-5 ${jobsGridClass}`}>
+        <div className={`mt-6 grid gap-[18px] ${jobsGridClass}`}>
           {displayJobs.map((job) => (
             <LandingJobCard key={job.id} job={job} />
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-center gap-5 text-center sm:flex-row">
-          <p className="text-[1.08rem] font-bold text-[#081722]">
+        <div className="mt-11 flex flex-col items-center justify-center gap-[18px] text-center sm:flex-row">
+          <p className="text-[0.98rem] font-bold text-[#081722]">
             See more opportunities
           </p>
           <Link
             href="/jobs"
             data-analytics-event="landing_jobs_view_all_click"
-            className="inline-flex min-h-[48px] min-w-[200px] items-center justify-center gap-4 rounded-md border border-[#006148] bg-transparent px-8 text-[1.05rem] font-semibold text-[#003f35] transition hover:-translate-y-px hover:bg-[#eef8f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98]"
+            className="inline-flex min-h-[43px] min-w-[180px] items-center justify-center gap-3 rounded-md border border-[#006148] bg-transparent px-7 text-[0.95rem] font-semibold text-[#003f35] transition hover:-translate-y-px hover:bg-[#eef8f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98]"
           >
             View all jobs
             <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
