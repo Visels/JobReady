@@ -10,7 +10,7 @@ import {
   BriefcaseBusiness,
   ClipboardList,
   CheckCircle2,
-  ChevronRight,
+  ChevronDown,
   CirclePlay,
   ClipboardCheck,
   MapPin,
@@ -32,7 +32,6 @@ import {
   getPublicJobFilterOptions,
   getPublicJobHighlights,
   publicJobEnumLabel,
-  publicJobStatusLabel,
   searchPublicJobs,
 } from "@/lib/jobs";
 import type { PlanPrice } from "@/lib/pricing";
@@ -215,19 +214,155 @@ const fallbackRoleOptions: PublicJobOption[] = [
   { value: "sales", label: "Sales" },
 ];
 
+const fallbackLandingJobs: PublicJobSummary[] = [
+  {
+    id: "landing-fallback-mkopa-data-analyst",
+    versionId: "landing-fallback-mkopa-data-analyst-v1",
+    slug: "mkopa-data-analyst",
+    title: "Data Analyst",
+    descriptionExcerpt: "",
+    companySlug: "m-kopa",
+    companyName: "M-KOPA",
+    roleName: "Data Analyst",
+    roleSlug: "data-analyst",
+    roleFamilyName: "Data",
+    marketName: "Kenya",
+    marketIsoCode: "KE",
+    location: "Nairobi, Kenya",
+    workplace: "onsite",
+    employmentType: "full_time",
+    seniorityLabel: null,
+    salaryLabel: null,
+    salaryMinAmount: null,
+    salaryMaxAmount: null,
+    salaryCurrency: null,
+    salaryPeriod: null,
+    closesAt: new Date("2026-12-31T21:00:00.000Z"),
+    publishedAt: null,
+    lastVerifiedAt: null,
+    sourceName: "Landing page fallback",
+    sourceUrl: null,
+    sourcePublishedAt: null,
+    sourceRetrievedAt: null,
+    applicationDestinationHost: "",
+    detailHref: "/jobs",
+    applyHref: "/jobs",
+    reportHref: "/jobs",
+    availability: "active",
+    skills: [],
+  },
+  {
+    id: "landing-fallback-flutterwave-product-manager",
+    versionId: "landing-fallback-flutterwave-product-manager-v1",
+    slug: "flutterwave-product-manager",
+    title: "Product Manager",
+    descriptionExcerpt: "",
+    companySlug: "flutterwave",
+    companyName: "Flutterwave",
+    roleName: "Product Manager",
+    roleSlug: "product-manager",
+    roleFamilyName: "Product Management",
+    marketName: "Africa",
+    marketIsoCode: "KE",
+    location: "Remote (Africa)",
+    workplace: "remote",
+    employmentType: "full_time",
+    seniorityLabel: null,
+    salaryLabel: null,
+    salaryMinAmount: null,
+    salaryMaxAmount: null,
+    salaryCurrency: null,
+    salaryPeriod: null,
+    closesAt: new Date("2026-12-31T21:00:00.000Z"),
+    publishedAt: null,
+    lastVerifiedAt: null,
+    sourceName: "Landing page fallback",
+    sourceUrl: null,
+    sourcePublishedAt: null,
+    sourceRetrievedAt: null,
+    applicationDestinationHost: "",
+    detailHref: "/jobs",
+    applyHref: "/jobs",
+    reportHref: "/jobs",
+    availability: "active",
+    skills: [],
+  },
+  {
+    id: "landing-fallback-nkash-support-lead",
+    versionId: "landing-fallback-nkash-support-lead-v1",
+    slug: "nkash-customer-support-lead",
+    title: "Customer Support Lead",
+    descriptionExcerpt: "",
+    companySlug: "nkash",
+    companyName: "nKash",
+    roleName: "Customer Support Lead",
+    roleSlug: "customer-support-lead",
+    roleFamilyName: "Customer Support",
+    marketName: "Uganda",
+    marketIsoCode: "UG",
+    location: "Kampala, Uganda",
+    workplace: "onsite",
+    employmentType: "part_time",
+    seniorityLabel: null,
+    salaryLabel: null,
+    salaryMinAmount: null,
+    salaryMaxAmount: null,
+    salaryCurrency: null,
+    salaryPeriod: null,
+    closesAt: new Date("2026-12-31T21:00:00.000Z"),
+    publishedAt: null,
+    lastVerifiedAt: null,
+    sourceName: "Landing page fallback",
+    sourceUrl: null,
+    sourcePublishedAt: null,
+    sourceRetrievedAt: null,
+    applicationDestinationHost: "",
+    detailHref: "/jobs",
+    applyHref: "/jobs",
+    reportHref: "/jobs",
+    availability: "active",
+    skills: [],
+  },
+  {
+    id: "landing-fallback-expandcart-software-engineer",
+    versionId: "landing-fallback-expandcart-software-engineer-v1",
+    slug: "expandcart-software-engineer",
+    title: "Software Engineer",
+    descriptionExcerpt: "",
+    companySlug: "expandcart",
+    companyName: "ExpandCart",
+    roleName: "Software Engineer",
+    roleSlug: "software-engineer",
+    roleFamilyName: "Software Engineering",
+    marketName: "Nigeria",
+    marketIsoCode: "NG",
+    location: "Lagos, Nigeria",
+    workplace: "onsite",
+    employmentType: "full_time",
+    seniorityLabel: null,
+    salaryLabel: null,
+    salaryMinAmount: null,
+    salaryMaxAmount: null,
+    salaryCurrency: null,
+    salaryPeriod: null,
+    closesAt: new Date("2026-12-31T21:00:00.000Z"),
+    publishedAt: null,
+    lastVerifiedAt: null,
+    sourceName: "Landing page fallback",
+    sourceUrl: null,
+    sourcePublishedAt: null,
+    sourceRetrievedAt: null,
+    applicationDestinationHost: "",
+    detailHref: "/jobs",
+    applyHref: "/jobs",
+    reportHref: "/jobs",
+    availability: "active",
+    skills: [],
+  },
+];
+
 function candidateHref(path: string) {
   return `/login?callbackUrl=${encodeURIComponent(path)}`;
-}
-
-function formatDate(value: Date | null) {
-  if (!value) return "Not provided";
-
-  return new Intl.DateTimeFormat("en-KE", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Africa/Nairobi",
-  }).format(value);
 }
 
 function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
@@ -416,61 +551,135 @@ function companyInitials(name: string) {
     .toUpperCase();
 }
 
-function LandingJobCard({ job }: { job: PublicJobSummary }) {
-  const isOpen =
-    job.availability === "active" || job.availability === "closing_soon";
+const landingCompanyMarkStyles = [
+  "bg-[#003f35] text-white shadow-[0_10px_24px_rgba(0,63,53,0.18)]",
+  "bg-[#6a3490] text-white shadow-[0_10px_24px_rgba(106,52,144,0.18)]",
+  "bg-[#0ca55f] text-white shadow-[0_10px_24px_rgba(12,165,95,0.18)]",
+  "bg-[#f7fbf8] text-[#006148] ring-1 ring-[#e7ece8]",
+];
+
+function landingEmploymentLabel(value: string | null | undefined) {
+  const label = publicJobEnumLabel(value);
+
+  if (label === "Full Time") return "Full-time";
+  if (label === "Part Time") return "Part-time";
+  return label;
+}
+
+function LandingCompanyMark({ job }: { job: PublicJobSummary }) {
+  const companyKey = job.companyName.toLowerCase();
+
+  if (companyKey.includes("m-kopa")) {
+    return (
+      <span className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-md bg-[#003f35] shadow-[0_10px_24px_rgba(0,63,53,0.18)]">
+        <span className="absolute left-[13px] top-[15px] h-4 w-2.5 -rotate-45 rounded-full rounded-br-sm bg-white" />
+        <span className="absolute right-[13px] top-[12px] h-5 w-3 rotate-45 rounded-full rounded-bl-sm bg-white" />
+        <span className="absolute bottom-[10px] left-1/2 h-3.5 w-0.5 -translate-x-1/2 rounded-full bg-white" />
+      </span>
+    );
+  }
+
+  if (companyKey.includes("flutterwave")) {
+    return (
+      <span className="grid h-11 w-[92px] place-items-center rounded-md border border-[#eef1ef] bg-white px-2 shadow-[0_8px_18px_rgba(14,31,25,0.04)]">
+        <Image
+          src="/companies/flutterwave.png"
+          alt=""
+          width={92}
+          height={34}
+          sizes="92px"
+          className="h-auto max-h-8 w-full object-contain"
+        />
+      </span>
+    );
+  }
+
+  if (companyKey.includes("nkash")) {
+    return (
+      <span className="grid h-11 w-11 place-items-center rounded-md bg-[#6a3490] text-[1.35rem] font-bold tracking-[-0.06em] text-white shadow-[0_10px_24px_rgba(106,52,144,0.18)]">
+        nk
+      </span>
+    );
+  }
+
+  if (companyKey.includes("expandcart")) {
+    return (
+      <span className="grid h-11 w-11 place-items-center rounded-md bg-[#0ca55f] text-[2rem] font-bold tracking-[-0.08em] text-white shadow-[0_10px_24px_rgba(12,165,95,0.18)]">
+        e
+      </span>
+    );
+  }
+
+  const initials = companyInitials(job.companyName);
+  const style =
+    landingCompanyMarkStyles[
+      [...job.companyName].reduce(
+        (total, character) => total + character.charCodeAt(0),
+        0,
+      ) % landingCompanyMarkStyles.length
+    ];
 
   return (
-    <article className="group flex min-h-[18rem] flex-col border-l border-[#e5e9e5] px-6 py-7 first:border-l-0 lg:px-7">
+    <span
+      className={`grid h-11 w-11 place-items-center rounded-md text-[1.2rem] font-bold tracking-[-0.04em] ${style}`}
+    >
+      {initials.slice(0, 2)}
+    </span>
+  );
+}
+
+function LandingJobCard({ job }: { job: PublicJobSummary }) {
+  const isPartTime = job.employmentType === "part_time";
+
+  return (
+    <article className="group flex min-h-[300px] flex-col rounded-lg border border-[#edf0ee] bg-white px-6 pb-7 pt-6 shadow-[0_10px_28px_rgba(24,39,34,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(24,39,34,0.12)]">
       <div className="flex items-start justify-between gap-3">
-        <span className="grid h-12 min-w-12 place-items-center rounded-xl bg-[#edf5f0] px-3 text-sm font-black tracking-[-0.03em] text-[#006148]">
-          {companyInitials(job.companyName)}
-        </span>
+        <LandingCompanyMark job={job} />
         <span
-          className={`rounded-md px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-[0.1em] ${
-            isOpen
-              ? "bg-[#edf7f1] text-[#006148]"
-              : "bg-[#f2f1ed] text-[#777b77]"
+          className={`rounded-lg px-3 py-1.5 text-[0.85rem] font-semibold leading-none ${
+            isPartTime
+              ? "bg-[#fff0bf] text-[#9d6c00]"
+              : "bg-[#dff2df] text-[#006148]"
           }`}
         >
-          {publicJobStatusLabel(job.availability)}
+          {landingEmploymentLabel(job.employmentType)}
         </span>
       </div>
 
-      <p className="mt-7 text-sm font-bold text-[#006148]">{job.companyName}</p>
       <Link
         href={job.detailHref}
         data-analytics-event="job_view_click"
         data-analytics-source="landing_job_showcase"
-        className="mt-3 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+        className="mt-7 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
       >
-        <h3 className="text-[1.35rem] font-bold leading-[1.15] tracking-[-0.035em] text-[#0b1d18] transition-colors group-hover:text-[#006148]">
+        <h3 className="line-clamp-2 text-[1.55rem] font-bold leading-[1.12] tracking-[-0.045em] text-[#081722] transition-colors group-hover:text-[#006148]">
           {job.title}
         </h3>
       </Link>
+      <p className="mt-2 text-[1.05rem] font-medium leading-6 text-[#273342]">
+        {job.companyName}
+      </p>
 
-      <p className="mt-5 flex items-center gap-2 text-sm font-medium text-[#65706b]">
-        <MapPin className="h-4 w-4 flex-none text-[#006148]" strokeWidth={2} />
+      <p className="mt-6 flex items-center gap-2 text-[1rem] font-medium text-[#4f5b69]">
+        <MapPin className="h-[18px] w-[18px] flex-none text-[#4f5b69]" strokeWidth={2} />
         {job.location ?? job.marketName}
       </p>
 
-      <div className="mt-auto flex items-end justify-between gap-3 pt-7">
-        <div>
-          <span className="inline-flex rounded-md bg-[#edf5f0] px-3 py-2 text-sm font-bold text-[#006148]">
-            {publicJobEnumLabel(job.employmentType)}
-          </span>
-          {!isOpen ? (
-            <p className="mt-2 text-xs font-semibold text-[#8a6255]">
-              Closed {formatDate(job.closesAt)}
-            </p>
-          ) : null}
-        </div>
-        <ChevronRight
-          aria-hidden="true"
-          className="h-5 w-5 text-[#006148] transition-transform group-hover:translate-x-1"
-          strokeWidth={2}
-        />
-      </div>
+      <Link
+        href={job.detailHref}
+        data-analytics-event="job_view_click"
+        data-analytics-source="landing_job_card_cta"
+        className="mt-auto flex border-t border-[#dce3df] pt-6 text-[1.05rem] font-bold text-[#006148] transition-colors hover:text-[#003f35] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f]"
+      >
+        <span className="inline-flex items-center gap-3">
+          View job
+          <ArrowRight
+            aria-hidden="true"
+            className="h-4 w-4 transition-transform group-hover:translate-x-1"
+            strokeWidth={2.2}
+          />
+        </span>
+      </Link>
     </article>
   );
 }
@@ -482,141 +691,148 @@ function OpportunitySearchSection({
   jobs: PublicJobSummary[];
   options: LandingSearchOptions;
 }) {
-  const jobsGridClass =
+  const displayJobs =
     jobs.length >= 4
-      ? "sm:grid-cols-2 xl:grid-cols-4"
-      : jobs.length === 3
-        ? "sm:grid-cols-2 xl:grid-cols-3"
-        : jobs.length === 2
+      ? jobs.slice(0, 4)
+      : [
+          ...jobs,
+          ...fallbackLandingJobs.filter(
+            (fallbackJob) =>
+              !jobs.some(
+                (job) =>
+                  job.title.toLowerCase() === fallbackJob.title.toLowerCase() &&
+                  job.companyName.toLowerCase() ===
+                    fallbackJob.companyName.toLowerCase(),
+              ),
+          ),
+        ].slice(0, 4);
+  const jobsGridClass =
+    displayJobs.length >= 4
+      ? "sm:grid-cols-2 lg:grid-cols-4"
+      : displayJobs.length === 3
+        ? "sm:grid-cols-2 lg:grid-cols-3"
+        : displayJobs.length === 2
           ? "sm:grid-cols-2"
           : "grid-cols-1";
 
   return (
     <section
       id="opportunities"
-      className="scroll-mt-20 bg-[#fbf8f2] px-5 pb-20 pt-7 md:px-8 md:pb-24 md:pt-9"
+      className="scroll-mt-20 bg-[#fdfbf8] px-5 py-20 md:px-8 md:py-[96px]"
     >
-      <div className="mx-auto max-w-[1400px]">
-        <div className="mb-8 max-w-3xl md:mb-10">
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#00624c]">
-            Find your opportunity
+      <div className="mx-auto max-w-[1144px]">
+        <div className="mx-auto max-w-[660px] text-center">
+          <p className="text-[1rem] font-bold uppercase text-[#006148]">
+            Featured jobs
           </p>
-          <h2 className="mt-3 text-[clamp(2rem,3.5vw,3.4rem)] font-bold leading-none tracking-[-0.05em] text-[#071512]">
-            Search roles worth preparing for.
+          <h2 className="mt-7 text-[clamp(3.25rem,4.4vw,5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#081722] text-balance">
+            <span className="block">Find opportunities</span>
+            <span className="block">
+              that <span className="text-[#f7b716]">move you forward.</span>
+            </span>
           </h2>
+          <p className="mx-auto mt-6 max-w-[510px] text-[1.28rem] font-medium leading-8 text-[#4f5b69]">
+            Explore verified job opportunities from top organisations across
+            Kenya and Africa.
+          </p>
         </div>
 
-        <div className="overflow-hidden rounded-[2rem] border border-[#edf0ed] bg-white shadow-[0_26px_80px_rgba(20,53,43,0.08)]">
-          <div className="border-b border-[#e8ece9] px-6 py-8 md:px-9 lg:py-10">
-            <form
-              action="/jobs"
-              data-analytics-event="landing_job_search_submit"
-              data-analytics-product="jobs"
-              className="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(240px,1.5fr)_minmax(180px,0.9fr)_minmax(180px,0.9fr)_auto]"
+        <form
+          action="/jobs"
+          data-analytics-event="landing_job_search_submit"
+          data-analytics-product="jobs"
+          className="mt-[58px] grid gap-4 rounded-lg border border-[#edf0ee] bg-white p-5 shadow-[0_12px_32px_rgba(24,39,34,0.07)] md:grid-cols-2 lg:grid-cols-[minmax(270px,1.4fr)_minmax(220px,1fr)_minmax(220px,1fr)_182px]"
+        >
+          <label className="relative">
+            <span className="sr-only">Job title, keyword, or company</span>
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-[#4f5b69]"
+              strokeWidth={1.9}
+            />
+            <input
+              name="q"
+              placeholder="Job title, keyword or company"
+              autoComplete="off"
+              className="h-[52px] w-full rounded-lg border border-[#d8dee6] bg-white pl-[50px] pr-4 text-[1.05rem] font-medium text-[#081722] outline-none transition placeholder:text-[#4f5b69] focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+            />
+          </label>
+
+          <label className="relative">
+            <span className="sr-only">Location</span>
+            <MapPin
+              className="pointer-events-none absolute left-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-[#081722]"
+              strokeWidth={2}
+            />
+            <select
+              name="location"
+              defaultValue=""
+              className="h-[52px] w-full appearance-none rounded-lg border border-[#d8dee6] bg-white pl-[50px] pr-11 text-[1.05rem] font-semibold text-[#081722] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
             >
-              <label className="relative">
-                <span className="sr-only">Job title, keyword, or company</span>
-                <Search
-                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#65706b]"
-                  strokeWidth={1.9}
-                />
-                <input
-                  name="q"
-                  placeholder="Search job title, keyword or company"
-                  autoComplete="off"
-                  className="h-14 w-full rounded-xl border border-[#d6ddda] bg-white pl-12 pr-4 text-sm font-semibold text-[#15231f] outline-none transition placeholder:text-[#7c8581] focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
-                />
-              </label>
+              <option value="">All locations</option>
+              {options.locations.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#081722]"
+              strokeWidth={2.2}
+            />
+          </label>
 
-              <label className="relative">
-                <span className="sr-only">Location</span>
-                <MapPin
-                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#65706b]"
-                  strokeWidth={1.9}
-                />
-                <select
-                  name="location"
-                  defaultValue=""
-                  className="h-14 w-full appearance-none rounded-xl border border-[#d6ddda] bg-white pl-12 pr-9 text-sm font-semibold text-[#4f5a56] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
-                >
-                  <option value="">All locations</option>
-                  {options.locations.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+          <label className="relative">
+            <span className="sr-only">Job category</span>
+            <BriefcaseBusiness
+              className="pointer-events-none absolute left-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-[#081722]"
+              strokeWidth={1.9}
+            />
+            <select
+              name="role"
+              defaultValue=""
+              className="h-[52px] w-full appearance-none rounded-lg border border-[#d8dee6] bg-white pl-[50px] pr-11 text-[1.05rem] font-semibold text-[#081722] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
+            >
+              <option value="">All categories</option>
+              {options.roles.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#081722]"
+              strokeWidth={2.2}
+            />
+          </label>
 
-              <label className="relative">
-                <span className="sr-only">Job category</span>
-                <BriefcaseBusiness
-                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#65706b]"
-                  strokeWidth={1.9}
-                />
-                <select
-                  name="role"
-                  defaultValue=""
-                  className="h-14 w-full appearance-none rounded-xl border border-[#d6ddda] bg-white pl-12 pr-9 text-sm font-semibold text-[#4f5a56] outline-none transition focus:border-[#006148] focus:ring-4 focus:ring-[#006148]/10"
-                >
-                  <option value="">All categories</option>
-                  {options.roles.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+          <button
+            type="submit"
+            className="min-h-[56px] rounded-lg bg-[#003f35] px-7 text-[1.05rem] font-bold text-white shadow-[0_12px_24px_rgba(0,63,53,0.16)] transition hover:-translate-y-px hover:bg-[#002f28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] md:col-span-2 lg:col-span-1"
+          >
+            Search jobs
+          </button>
+        </form>
 
-              <button
-                type="submit"
-                className="min-h-14 rounded-xl bg-[#014f3c] px-7 text-sm font-bold text-white shadow-[0_10px_24px_rgba(1,79,60,0.18)] transition hover:-translate-y-px hover:bg-[#023d30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] md:col-span-2 lg:col-span-1"
-              >
-                Search jobs
-              </button>
-            </form>
-          </div>
+        <div className={`mt-[28px] grid gap-5 ${jobsGridClass}`}>
+          {displayJobs.map((job) => (
+            <LandingJobCard key={job.id} job={job} />
+          ))}
+        </div>
 
-          <div className="grid lg:grid-cols-[280px_minmax(0,1fr)]">
-            <aside className="border-b border-[#e8ece9] bg-[#fbfdfb] px-7 py-9 lg:border-b-0 lg:border-r lg:px-9 lg:py-11">
-              <span className="grid h-14 w-14 place-items-center rounded-full bg-[#edf5f0] text-[#006148]">
-                <BriefcaseBusiness className="h-6 w-6" strokeWidth={1.9} />
-              </span>
-              <h3 className="mt-6 text-[1.55rem] font-bold tracking-[-0.04em] text-[#0b2019]">
-                Explore top roles
-              </h3>
-              <p className="mt-3 max-w-[13rem] text-base leading-7 text-[#63706a]">
-                New reviewed opportunities are added regularly.
-              </p>
-              <Link
-                href="/jobs"
-                data-analytics-event="landing_jobs_view_all_click"
-                className="mt-7 inline-flex items-center gap-3 text-sm font-bold text-[#006148] transition hover:gap-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
-              >
-                View all jobs
-                <ArrowRight className="h-4 w-4" strokeWidth={2} />
-              </Link>
-            </aside>
-
-            {jobs.length > 0 ? (
-              <div className={`grid ${jobsGridClass}`}>
-                {jobs.map((job) => (
-                  <LandingJobCard key={job.id} job={job} />
-                ))}
-              </div>
-            ) : (
-              <div className="grid min-h-[18rem] place-items-center px-8 py-12 text-center">
-                <div>
-                  <p className="font-bold text-[#173a32]">
-                    No reviewed opportunities are available yet.
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-[#65706b]">
-                    Check back soon or search all available roles.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="mt-12 flex flex-col items-center justify-center gap-5 text-center sm:flex-row">
+          <p className="text-[1.08rem] font-bold text-[#081722]">
+            See more opportunities
+          </p>
+          <Link
+            href="/jobs"
+            data-analytics-event="landing_jobs_view_all_click"
+            className="inline-flex min-h-[48px] min-w-[200px] items-center justify-center gap-4 rounded-md border border-[#006148] bg-transparent px-8 text-[1.05rem] font-semibold text-[#003f35] transition hover:-translate-y-px hover:bg-[#eef8f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98]"
+          >
+            View all jobs
+            <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
+          </Link>
         </div>
       </div>
     </section>
@@ -932,52 +1148,52 @@ function JourneySection() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-20 bg-[#fffdf9] px-5 py-16 md:px-8 md:py-24"
+      className="scroll-mt-20 bg-[#fffdf9] px-5 py-12 md:px-8 md:py-16"
     >
-      <div className="mx-auto max-w-[1280px]">
-        <div className="mx-auto max-w-[640px] text-center">
-          <p className="text-sm font-extrabold uppercase tracking-[0.08em] text-[#006148]">
+      <div className="mx-auto max-w-[1120px]">
+        <div className="mx-auto max-w-[540px] text-center">
+          <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#006148]">
             How it works
           </p>
-          <h2 className="mt-6 text-[clamp(2.7rem,4.8vw,4.05rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-[#062d25] text-balance">
+          <h2 className="mt-4 text-[clamp(2rem,3.4vw,3.1rem)] font-extrabold leading-[1] tracking-[-0.04em] text-[#062d25] text-balance">
             <span className="block">See how Jiandae</span>
             <span className="block">
               <span className="text-[#f3af00]">works</span> for you.
             </span>
           </h2>
-          <p className="mx-auto mt-6 max-w-[33rem] text-[1.08rem] font-medium leading-8 text-[#4f5968] md:text-[1.18rem]">
+          <p className="mx-auto mt-4 max-w-[29rem] text-base font-medium leading-7 text-[#4f5968]">
             Watch how Jiandae helps you prepare, practice and land better
             opportunities.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-11 lg:grid-cols-[minmax(340px,420px)_minmax(0,812px)] lg:items-center lg:gap-12">
-          <div className="lg:pt-2">
-            <ol className="grid gap-12 md:gap-16">
+        <div className="mt-9 grid gap-9 lg:grid-cols-[minmax(300px,360px)_minmax(0,680px)] lg:items-center lg:gap-10">
+          <div>
+            <ol className="grid gap-8 md:gap-9">
               {steps.map((step, index) => {
                 const Icon = step.icon;
 
                 return (
                   <li
                     key={step.title}
-                    className="relative grid grid-cols-[5.25rem_1fr] gap-6 md:grid-cols-[5.75rem_1fr] md:gap-7"
+                    className="relative grid grid-cols-[4.25rem_1fr] gap-5 md:grid-cols-[4.5rem_1fr]"
                   >
                     {index < steps.length - 1 ? (
                       <span
                         aria-hidden="true"
-                        className="absolute left-[2.625rem] top-[5.35rem] h-[5.35rem] border-l-2 border-dotted border-[#c9cecf] md:left-[2.875rem] md:h-[6.1rem]"
+                        className="absolute left-[2.125rem] top-[4.45rem] h-[3.6rem] border-l-2 border-dotted border-[#c9cecf] md:left-[2.25rem] md:h-[4rem]"
                       />
                     ) : null}
                     <span
-                      className={`${step.iconClassName} relative z-10 grid h-[5.25rem] w-[5.25rem] place-items-center rounded-full text-[#062d25] md:h-[5.75rem] md:w-[5.75rem]`}
+                      className={`${step.iconClassName} relative z-10 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full text-[#062d25] md:h-[4.5rem] md:w-[4.5rem]`}
                     >
-                      <Icon className="h-8 w-8 md:h-9 md:w-9" strokeWidth={1.85} />
+                      <Icon className="h-6 w-6 md:h-7 md:w-7" strokeWidth={1.85} />
                     </span>
-                    <div className="pt-2.5">
-                      <h3 className="text-[1.35rem] font-extrabold leading-tight tracking-[-0.035em] text-[#062d25] md:text-[1.45rem]">
+                    <div className="pt-1.5">
+                      <h3 className="text-[1.12rem] font-extrabold leading-tight tracking-[-0.03em] text-[#062d25] md:text-[1.2rem]">
                         {step.title}
                       </h3>
-                      <p className="mt-3 max-w-[20rem] text-[1rem] font-medium leading-7 text-[#4f5968]">
+                      <p className="mt-2 max-w-[18rem] text-[0.92rem] font-medium leading-6 text-[#4f5968]">
                         {step.copy}
                       </p>
                     </div>
@@ -989,42 +1205,37 @@ function JourneySection() {
             <Link
               href="#product-paths"
               data-analytics-event="how_it_works_features_click"
-              className="mt-10 inline-flex items-center gap-4 text-[0.98rem] font-extrabold text-[#006148] transition hover:gap-5 hover:text-[#024b3a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+              className="mt-8 inline-flex items-center gap-3 text-sm font-extrabold text-[#006148] transition hover:gap-4 hover:text-[#024b3a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
             >
               See all features
-              <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
+              <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
             </Link>
           </div>
 
-          <a
-            href="https://www.youtube.com/watch?v=ij8XU9jrXGw"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Watch how Jiandae interview practice works"
-            className="block min-w-0 rounded-[1rem] shadow-[0_18px_42px_rgba(9,35,28,0.18)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_54px_rgba(9,35,28,0.21)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
-          >
-            <Image
+          <div className="min-w-0 overflow-hidden rounded-[0.9rem] bg-[#10251e] shadow-[0_16px_34px_rgba(9,35,28,0.16)] ring-1 ring-black/5">
+            <iframe
               id="how-it-works-video"
-              src="/marketing/how-it-works-video-frame.png"
-              alt="Jiandae video preview showing interview preparation support"
-              width={812}
-              height={481}
-              className="w-full rounded-[1rem] object-cover"
-              sizes="(min-width: 1024px) 812px, calc(100vw - 40px)"
+              title="See how Jiandae interview practice works"
+              src="https://www.youtube-nocookie.com/embed/ij8XU9jrXGw"
+              className="aspect-video w-full bg-[#10251e]"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              loading="lazy"
             />
-          </a>
+          </div>
         </div>
 
-        <div className="mt-14 rounded-[0.9rem] bg-[#edf5f1] px-6 py-8 md:mt-16 md:px-10 md:py-9">
-          <div className="mx-auto flex max-w-[560px] flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-            <span className="grid h-[3.75rem] w-[3.75rem] flex-none place-items-center rounded-full bg-white text-[#007154] shadow-[0_10px_28px_rgba(9,35,28,0.06)]">
-              <ShieldCheck className="h-8 w-8" strokeWidth={1.8} />
+        <div className="mt-10 rounded-[0.8rem] bg-[#edf5f1] px-5 py-6 md:mt-12 md:px-8 md:py-7">
+          <div className="mx-auto flex max-w-[520px] flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-white text-[#007154] shadow-[0_10px_28px_rgba(9,35,28,0.06)]">
+              <ShieldCheck className="h-6 w-6" strokeWidth={1.8} />
             </span>
             <div>
-              <h3 className="text-[1.08rem] font-extrabold leading-6 tracking-[-0.025em] text-[#062d25]">
+              <h3 className="text-base font-extrabold leading-6 tracking-[-0.02em] text-[#062d25]">
                 Trusted by job seekers across Kenya and Africa
               </h3>
-              <p className="mt-1 text-[0.98rem] font-medium leading-6 text-[#4f5968]">
+              <p className="mt-0.5 text-sm font-medium leading-6 text-[#4f5968]">
                 Join thousands who are preparing better and getting hired.
               </p>
             </div>
