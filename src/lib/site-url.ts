@@ -30,6 +30,11 @@ function parseSiteUrl(value: string | undefined, fallback: string) {
   }
 }
 
+export type CanonicalDomainRedirectOptions = {
+  canonicalHostname?: string;
+  nodeEnv?: string;
+};
+
 export function resolveSiteUrl(
   env?: PublicProductEnv,
   nodeEnv = process.env.NODE_ENV,
@@ -37,12 +42,13 @@ export function resolveSiteUrl(
   const config = env
     ? buildPublicProductConfig(env)
     : publicProductConfig;
-  const url = parseSiteUrl(env?.NEXT_PUBLIC_APP_URL, config.canonical.url);
-  const isLocal = isLocalHostname(url.hostname);
 
-  if (isLocal && nodeEnv === "production") {
+  if (nodeEnv === "production") {
     return config.canonical.url;
   }
+
+  const url = parseSiteUrl(env?.NEXT_PUBLIC_APP_URL, config.canonical.url);
+  const isLocal = isLocalHostname(url.hostname);
 
   if (!isLocal) {
     url.protocol = "https:";
@@ -54,6 +60,43 @@ export function resolveSiteUrl(
   url.hash = "";
 
   return url.toString().replace(/\/$/, "");
+}
+
+export function getCanonicalDomainRedirectUrl(
+  value: string | URL,
+  {
+    canonicalHostname = CANONICAL_HOSTNAME,
+    nodeEnv = process.env.NODE_ENV,
+  }: CanonicalDomainRedirectOptions = {},
+) {
+  if (nodeEnv !== "production") {
+    return null;
+  }
+
+  let url: URL;
+
+  try {
+    url = typeof value === "string" ? new URL(value) : new URL(value.toString());
+  } catch {
+    return null;
+  }
+
+  const currentHostname = normalizeHostname(url.hostname);
+  const targetHostname = normalizeHostname(canonicalHostname);
+
+  if (isLocalHostname(currentHostname)) {
+    return null;
+  }
+
+  if (currentHostname === targetHostname && url.protocol === "https:") {
+    return null;
+  }
+
+  url.protocol = "https:";
+  url.hostname = targetHostname;
+  url.port = "";
+
+  return url.toString();
 }
 
 export function getSiteUrl() {

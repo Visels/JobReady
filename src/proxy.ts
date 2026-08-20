@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSupabaseSession } from "@/lib/supabase/proxy";
+import { getCanonicalDomainRedirectUrl } from "@/lib/site-url";
 
 const REFERRAL_COOKIE_NAME = "jobready_referrer_id";
 const UUID_PATTERN =
@@ -29,6 +30,39 @@ function legacyAuthRedirect(request: NextRequest) {
   return NextResponse.redirect(url, 308);
 }
 
+function firstHeaderValue(value: string | null) {
+  return value?.split(",")[0]?.trim() || null;
+}
+
+function getForwardedRequestUrl(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const host = firstHeaderValue(request.headers.get("x-forwarded-host")) ??
+    firstHeaderValue(request.headers.get("host"));
+  const protocol = firstHeaderValue(request.headers.get("x-forwarded-proto"));
+
+  if (host) {
+    url.host = host;
+  }
+
+  if (protocol === "http" || protocol === "https") {
+    url.protocol = `${protocol}:`;
+  }
+
+  return url.toString();
+}
+
+function primaryDomainRedirect(request: NextRequest) {
+  const redirectUrl = getCanonicalDomainRedirectUrl(
+    getForwardedRequestUrl(request),
+  );
+
+  if (!redirectUrl) {
+    return null;
+  }
+
+  return NextResponse.redirect(redirectUrl, 308);
+}
+
 function withReferralCookie(request: NextRequest, response: NextResponse) {
   const referralId = request.nextUrl.searchParams.get("ref")?.trim();
 
@@ -48,6 +82,12 @@ function withReferralCookie(request: NextRequest, response: NextResponse) {
 }
 
 export async function proxy(request: NextRequest) {
+  const domainRedirect = primaryDomainRedirect(request);
+
+  if (domainRedirect) {
+    return withReferralCookie(request, domainRedirect);
+  }
+
   const legacyRedirect = legacyLearningGuidesRedirect(request);
 
   if (legacyRedirect) {

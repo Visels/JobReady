@@ -8,7 +8,7 @@ The public product now presents one coherent Jobready identity for candidates ap
 
 ## Implemented
 
-- Locked the default public canonical host to `www.jobready.africa` through centralized public product configuration.
+- Locked the default public canonical host to `jiandae.africa` through centralized public product configuration.
 - Updated environment examples, public metadata, Open Graph defaults, structured data, sitemap, robots, canonical helpers, favicon/social references, and support email defaults to Jobready.
 - Replaced the legacy marketing navigation with a responsive Jobready header containing:
   - Jobs.
@@ -35,7 +35,7 @@ The public product now presents one coherent Jobready identity for candidates ap
 
 ## SEO And Indexing
 
-- The default canonical host is now `https://www.jobready.africa`.
+- The default canonical host is now `https://jiandae.africa`.
 - Base `/jobs` is indexable, while filter/search states are `noindex`.
 - Private workspace, checkout, admin, report, legacy visa, and thin/search routes are disallowed in `robots.ts`.
 - The sitemap includes only core public pages plus currently active public jobs returned by the public jobs service.

@@ -4,7 +4,10 @@ import {
   parseFeatureFlag,
 } from "../src/config/public";
 import { validateRequiredProductionConfig } from "../src/config/server";
-import { resolveSiteUrl } from "../src/lib/site-url";
+import {
+  getCanonicalDomainRedirectUrl,
+  resolveSiteUrl,
+} from "../src/lib/site-url";
 
 function relativeLuminance(hex: string) {
   const channels = hex
@@ -56,7 +59,7 @@ assert.equal(config.features.publicJobs, true);
 assert.equal(config.features.nativeApplications, false);
 
 const defaultConfig = buildPublicProductConfig({
-  NEXT_PUBLIC_APP_URL: "https://www.visainterview.ai",
+  NEXT_PUBLIC_APP_URL: "https://preview.example.com",
 });
 
 assert.equal(defaultConfig.canonical.hostname, "jiandae.africa");
@@ -90,7 +93,36 @@ assert.equal(
     },
     "production",
   ),
-  "https://staging.example.com",
+  "https://www.jiandae.test",
+);
+
+assert.equal(
+  getCanonicalDomainRedirectUrl("https://preview.example.com/jobs?ref=abc", {
+    canonicalHostname: "jiandae.africa",
+    nodeEnv: "production",
+  }),
+  "https://jiandae.africa/jobs?ref=abc",
+);
+assert.equal(
+  getCanonicalDomainRedirectUrl("http://jiandae.africa/jobs", {
+    canonicalHostname: "jiandae.africa",
+    nodeEnv: "production",
+  }),
+  "https://jiandae.africa/jobs",
+);
+assert.equal(
+  getCanonicalDomainRedirectUrl("https://jiandae.africa/jobs", {
+    canonicalHostname: "jiandae.africa",
+    nodeEnv: "production",
+  }),
+  null,
+);
+assert.equal(
+  getCanonicalDomainRedirectUrl("https://preview.example.com/jobs", {
+    canonicalHostname: "jiandae.africa",
+    nodeEnv: "development",
+  }),
+  null,
 );
 
 assert.throws(

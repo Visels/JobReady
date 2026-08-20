@@ -25,7 +25,7 @@ Server validation lives in `src/config/server.ts`.
 
 Canonical URL behavior lives in `src/lib/site-url.ts`.
 
-- `NEXT_PUBLIC_JOBREADY_CANONICAL_HOST` controls the canonical host.
+- `NEXT_PUBLIC_JIANDAE_CANONICAL_HOST` controls the canonical host.
 - `NEXT_PUBLIC_APP_URL` may still point at a local or preview origin.
 - Localhost is preserved in development and normalized to the canonical host in
   production.
@@ -35,16 +35,16 @@ Canonical URL behavior lives in `src/lib/site-url.ts`.
 
 Documented in `.env.example`:
 
-- `NEXT_PUBLIC_JOBREADY_CANONICAL_HOST`
-- `NEXT_PUBLIC_JOBREADY_BRAND_NAME`
-- `NEXT_PUBLIC_JOBREADY_WORDMARK_TEXT`
-- `NEXT_PUBLIC_JOBREADY_LEGAL_NAME`
-- `NEXT_PUBLIC_JOBREADY_SUPPORT_EMAIL`
-- `NEXT_PUBLIC_JOBREADY_DEFAULT_MARKET`
-- `NEXT_PUBLIC_JOBREADY_X_HANDLE`
-- `NEXT_PUBLIC_JOBREADY_LINKEDIN_URL`
-- `NEXT_PUBLIC_JOBREADY_FACEBOOK_URL`
-- `NEXT_PUBLIC_JOBREADY_INSTAGRAM_URL`
+- `NEXT_PUBLIC_JIANDAE_CANONICAL_HOST`
+- `NEXT_PUBLIC_JIANDAE_BRAND_NAME`
+- `NEXT_PUBLIC_JIANDAE_WORDMARK_TEXT`
+- `NEXT_PUBLIC_JIANDAE_LEGAL_NAME`
+- `NEXT_PUBLIC_JIANDAE_SUPPORT_EMAIL`
+- `NEXT_PUBLIC_JIANDAE_DEFAULT_MARKET`
+- `NEXT_PUBLIC_JIANDAE_X_HANDLE`
+- `NEXT_PUBLIC_JIANDAE_LINKEDIN_URL`
+- `NEXT_PUBLIC_JIANDAE_FACEBOOK_URL`
+- `NEXT_PUBLIC_JIANDAE_INSTAGRAM_URL`
 - `NEXT_PUBLIC_FEATURE_LEGACY_VISA_FLOW`
 - `NEXT_PUBLIC_FEATURE_PUBLIC_JOBS`
 - `NEXT_PUBLIC_FEATURE_CV_RESUME_TAILORING`
@@ -58,8 +58,8 @@ Safe defaults:
 - Public jobs, CV/resume tailoring, job interviews, application tracking, and
   native applications default off.
 - Default market is `KE`.
-- Canonical host remains `www.visainterview.ai` until the owner resolves D01 and
-  production callbacks are changed in later tasks.
+- Canonical host is `jiandae.africa`; production URL generation and primary
+  domain redirects must resolve there.
 
 ## Brand and Theme
 
