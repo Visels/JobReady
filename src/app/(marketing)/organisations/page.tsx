@@ -293,7 +293,7 @@ function HeroSection() {
   return (
     <section className="relative isolate overflow-hidden bg-[#02271f] px-5 pb-10 pt-8 text-white md:px-8 md:pb-14 md:pt-10 lg:min-h-[calc(100dvh-5.25rem)] lg:px-12 lg:pb-8 lg:pt-6">
       <div className="mx-auto grid min-h-full max-w-[1440px] gap-10 lg:grid-cols-[minmax(420px,0.9fr)_minmax(560px,1.1fr)] lg:items-center lg:gap-2 xl:gap-6">
-        <div className="reveal-up relative z-10 lg:translate-y-24 lg:pb-5">
+        <div className="reveal-up relative z-10 lg:pb-5">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#d8eb8f]">
             <UsersRound className="h-4 w-4" strokeWidth={2} />
             For organisations
