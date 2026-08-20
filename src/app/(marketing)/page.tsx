@@ -973,17 +973,16 @@ function JourneySection() {
 
           <div className="min-w-0">
             <div className="overflow-hidden rounded-[1.25rem] bg-[#10251e] shadow-[0_24px_60px_rgba(14,44,34,0.16)] ring-1 ring-black/5">
-              <video
+              <iframe
                 id="how-it-works-video"
-                controls
-                playsInline
-                preload="metadata"
-                className="aspect-video w-full bg-[#10251e] object-cover"
-                aria-label="See how Jiandae interview practice works"
-              >
-                <source src="/marketing/how_it_works.mp4" type="video/mp4" />
-                Your browser does not support the video element.
-              </video>
+                title="See how Jiandae interview practice works"
+                src="https://www.youtube-nocookie.com/embed/ij8XU9jrXGw"
+                className="aspect-video w-full bg-[#10251e]"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                loading="lazy"
+              />
             </div>
             <Link
               href={candidateHref("/interviews/new")}
