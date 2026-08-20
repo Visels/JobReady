@@ -95,7 +95,7 @@ export function MarketingNav({
   isAuthenticated = false,
 }: MarketingNavProps) {
   const pathname = usePathname();
-  const isLanding = pathname === "/";
+  const isLanding = pathname === "/" || pathname === "/organisations";
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
