@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import {
-  JobCard,
+  JobsPageHero,
+  JobsResultsHeader,
+  JobsSidebarFilters,
   JobsEmptyState,
-  JobsFilterForm,
   JobsPagination,
+  PublicJobsPageCard,
 } from "@/components/jobs/PublicJobsMarketplace";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -81,39 +83,40 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   return (
     <>
       <MarketingNav isAuthenticated={authenticated} />
-      <main className="min-h-viewport bg-[#fbf8f2] px-5 py-10 text-[#071512] md:px-9 md:py-14">
-      <JsonLd data={buildPublicJobsBreadcrumbJsonLd()} />
-      <div className="mx-auto max-w-[1180px]">
-        <h1 className="text-[clamp(2.2rem,4vw,3.6rem)] font-bold tracking-[-0.055em] text-[#071512]">
-          Verified jobs
-        </h1>
-        <section className="mt-7">
-          <JobsFilterForm filters={result.filters} options={filterOptions} />
-        </section>
+      <main className="min-h-viewport bg-[#f7f8f8] text-[#071512]">
+        <JsonLd data={buildPublicJobsBreadcrumbJsonLd()} />
+        <JobsPageHero filters={result.filters} options={filterOptions} />
 
-        <section className="mt-10" aria-live="polite">
-          <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-[-0.045em] text-[#071512]">
-                {result.total.toLocaleString()} job
-                {result.total === 1 ? "" : "s"} found
-              </h2>
+        <section className="px-5 py-5 md:px-9 md:py-6" aria-live="polite">
+          <div className="mx-auto grid max-w-[1536px] gap-6 lg:grid-cols-[22rem_1fr]">
+            <JobsSidebarFilters
+              filters={result.filters}
+              options={filterOptions}
+              total={result.total}
+            />
+
+            <div className="min-w-0">
+              <JobsResultsHeader total={result.total} />
+
+              {result.jobs.length > 0 ? (
+                <div className="grid gap-1.5">
+                  {result.jobs.map((job, index) => (
+                    <PublicJobsPageCard
+                      key={job.id}
+                      job={job}
+                      authenticated={authenticated}
+                      priorityLogo={index < 3}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <JobsEmptyState filters={result.filters} />
+              )}
+
+              <JobsPagination result={result} />
             </div>
           </div>
-
-          {result.jobs.length > 0 ? (
-            <div className="grid gap-5">
-              {result.jobs.map((job) => (
-                <JobCard key={job.id} job={job} authenticated={authenticated} />
-              ))}
-            </div>
-          ) : (
-            <JobsEmptyState filters={result.filters} />
-          )}
-
-          <JobsPagination result={result} />
         </section>
-      </div>
       </main>
     </>
   );

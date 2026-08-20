@@ -18,6 +18,11 @@ const navItems = [
     analytics: "how_it_works",
   },
   {
+    label: "Jobs",
+    href: "/jobs",
+    analytics: "jobs",
+  },
+  {
     label: "Prepare",
     href: "/dashboard",
     analytics: "prepare",
@@ -94,7 +99,8 @@ export function MarketingNav({
   isAuthenticated = false,
 }: MarketingNavProps) {
   const pathname = usePathname();
-  const isLanding = pathname === "/" || pathname === "/organisations";
+  const isLanding =
+    pathname === "/" || pathname === "/organisations" || pathname === "/jobs";
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [suppressedDropdown, setSuppressedDropdown] = useState<

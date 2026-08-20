@@ -50,6 +50,7 @@ export type PublicJobSummary = {
   slug: string;
   title: string;
   descriptionExcerpt: string;
+  companySlug: string;
   companyName: string;
   roleName: string;
   roleSlug: string;
@@ -594,6 +595,7 @@ function mapSummary(
     slug: record.slug,
     title: version.title,
     descriptionExcerpt: excerpt(version.description),
+    companySlug: record.company.slug,
     companyName: record.company.displayName,
     roleName: record.jobRole?.name ?? record.roleFamily.name,
     roleSlug: record.jobRole?.slug ?? record.roleFamily.slug,
