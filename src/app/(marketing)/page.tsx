@@ -8,11 +8,13 @@ import {
   BarChart3,
   BookOpen,
   BriefcaseBusiness,
+  ClipboardList,
   CheckCircle2,
   ChevronRight,
   CirclePlay,
   ClipboardCheck,
   MapPin,
+  MessageSquareMore,
   Quote,
   Search,
   ShieldCheck,
@@ -908,60 +910,74 @@ function ProductPathsSection() {
 function JourneySection() {
   const steps = [
     {
+      icon: ClipboardList,
+      title: "1. Prepare",
+      copy: "Build your profile and get personalized recommendations to help you prepare.",
+      iconClassName: "bg-[#e8f1ec]",
+    },
+    {
+      icon: MessageSquareMore,
+      title: "2. Practice",
+      copy: "Practice interviews, take skill tests and get expert feedback with confidence.",
+      iconClassName: "bg-[#fff2d9]",
+    },
+    {
       icon: BriefcaseBusiness,
-      title: "Choose your practice",
-      copy: "Select a role and get interview questions tailored to that job and industry.",
-    },
-    {
-      icon: ClipboardCheck,
-      title: "Practise and get feedback",
-      copy: "Record your answers, get AI insights, and use expert feedback to improve.",
-    },
-    {
-      icon: Target,
-      title: "Build confidence and land the job",
-      copy: "Track your progress and walk into your interview ready to impress.",
+      title: "3. Progress",
+      copy: "Discover relevant opportunities and move forward in your career.",
+      iconClassName: "bg-[#e8f1ec]",
     },
   ];
 
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-20 bg-[#fbf8f2] px-5 pb-20 md:px-8 md:pb-24"
+      className="scroll-mt-20 bg-[#fffdf9] px-5 py-16 md:px-8 md:py-24"
     >
-      <div className="mx-auto max-w-[1400px] overflow-hidden rounded-[2rem] border border-[#e5ece7] bg-[#f0f6f1] shadow-[0_24px_70px_rgba(20,53,43,0.07)]">
-        <div className="grid gap-10 px-6 py-9 md:px-9 md:py-12 lg:grid-cols-[minmax(280px,0.72fr)_minmax(0,1.28fr)] lg:items-center lg:gap-12 lg:px-12 lg:py-14">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#006148]">
-              How it works
-            </p>
-            <h2 className="mt-4 max-w-[24rem] text-[clamp(2rem,3.1vw,3.25rem)] font-bold leading-[1.04] tracking-[-0.05em] text-[#10251e] text-balance">
-              Better preparation in <span className="text-[#006148]">3 simple steps</span>
-            </h2>
+      <div className="mx-auto max-w-[1280px]">
+        <div className="mx-auto max-w-[640px] text-center">
+          <p className="text-sm font-extrabold uppercase tracking-[0.08em] text-[#006148]">
+            How it works
+          </p>
+          <h2 className="mt-6 text-[clamp(2.7rem,4.8vw,4.05rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-[#062d25] text-balance">
+            <span className="block">See how Jiandae</span>
+            <span className="block">
+              <span className="text-[#f3af00]">works</span> for you.
+            </span>
+          </h2>
+          <p className="mx-auto mt-6 max-w-[33rem] text-[1.08rem] font-medium leading-8 text-[#4f5968] md:text-[1.18rem]">
+            Watch how Jiandae helps you prepare, practice and land better
+            opportunities.
+          </p>
+        </div>
 
-            <ol className="mt-9 grid gap-1">
+        <div className="mt-10 grid gap-11 lg:grid-cols-[minmax(340px,420px)_minmax(0,812px)] lg:items-center lg:gap-12">
+          <div className="lg:pt-2">
+            <ol className="grid gap-12 md:gap-16">
               {steps.map((step, index) => {
                 const Icon = step.icon;
 
                 return (
                   <li
                     key={step.title}
-                    className="relative grid grid-cols-[3.25rem_1fr] gap-4 pb-6 last:pb-0"
+                    className="relative grid grid-cols-[5.25rem_1fr] gap-6 md:grid-cols-[5.75rem_1fr] md:gap-7"
                   >
                     {index < steps.length - 1 ? (
                       <span
                         aria-hidden="true"
-                        className="absolute left-[1.6rem] top-[3.25rem] h-[calc(100%-2.8rem)] w-px bg-[#bfd8cd]"
+                        className="absolute left-[2.625rem] top-[5.35rem] h-[5.35rem] border-l-2 border-dotted border-[#c9cecf] md:left-[2.875rem] md:h-[6.1rem]"
                       />
                     ) : null}
-                    <span className="relative z-10 grid h-[3.25rem] w-[3.25rem] place-items-center rounded-full border border-[#d8e6df] bg-white text-[#006148] shadow-[0_8px_20px_rgba(24,79,62,0.06)]">
-                      <Icon className="h-5 w-5" strokeWidth={1.9} />
+                    <span
+                      className={`${step.iconClassName} relative z-10 grid h-[5.25rem] w-[5.25rem] place-items-center rounded-full text-[#062d25] md:h-[5.75rem] md:w-[5.75rem]`}
+                    >
+                      <Icon className="h-8 w-8 md:h-9 md:w-9" strokeWidth={1.85} />
                     </span>
-                    <div className="pt-1">
-                      <h3 className="text-base font-bold tracking-[-0.025em] text-[#10251e]">
+                    <div className="pt-2.5">
+                      <h3 className="text-[1.35rem] font-extrabold leading-tight tracking-[-0.035em] text-[#062d25] md:text-[1.45rem]">
                         {step.title}
                       </h3>
-                      <p className="mt-1 max-w-[28rem] text-sm leading-6 text-[#52635c]">
+                      <p className="mt-3 max-w-[20rem] text-[1rem] font-medium leading-7 text-[#4f5968]">
                         {step.copy}
                       </p>
                     </div>
@@ -969,29 +985,49 @@ function JourneySection() {
                 );
               })}
             </ol>
+
+            <Link
+              href="#product-paths"
+              data-analytics-event="how_it_works_features_click"
+              className="mt-10 inline-flex items-center gap-4 text-[0.98rem] font-extrabold text-[#006148] transition hover:gap-5 hover:text-[#024b3a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+            >
+              See all features
+              <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
+            </Link>
           </div>
 
-          <div className="min-w-0">
-            <div className="overflow-hidden rounded-[1.25rem] bg-[#10251e] shadow-[0_24px_60px_rgba(14,44,34,0.16)] ring-1 ring-black/5">
-              <iframe
-                id="how-it-works-video"
-                title="See how Jiandae interview practice works"
-                src="https://www.youtube-nocookie.com/embed/ij8XU9jrXGw"
-                className="aspect-video w-full bg-[#10251e]"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                loading="lazy"
-              />
+          <a
+            href="https://www.youtube.com/watch?v=ij8XU9jrXGw"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Watch how Jiandae interview practice works"
+            className="block min-w-0 rounded-[1rem] shadow-[0_18px_42px_rgba(9,35,28,0.18)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_54px_rgba(9,35,28,0.21)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+          >
+            <Image
+              id="how-it-works-video"
+              src="/marketing/how-it-works-video-frame.png"
+              alt="Jiandae video preview showing interview preparation support"
+              width={812}
+              height={481}
+              className="w-full rounded-[1rem] object-cover"
+              sizes="(min-width: 1024px) 812px, calc(100vw - 40px)"
+            />
+          </a>
+        </div>
+
+        <div className="mt-14 rounded-[0.9rem] bg-[#edf5f1] px-6 py-8 md:mt-16 md:px-10 md:py-9">
+          <div className="mx-auto flex max-w-[560px] flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+            <span className="grid h-[3.75rem] w-[3.75rem] flex-none place-items-center rounded-full bg-white text-[#007154] shadow-[0_10px_28px_rgba(9,35,28,0.06)]">
+              <ShieldCheck className="h-8 w-8" strokeWidth={1.8} />
+            </span>
+            <div>
+              <h3 className="text-[1.08rem] font-extrabold leading-6 tracking-[-0.025em] text-[#062d25]">
+                Trusted by job seekers across Kenya and Africa
+              </h3>
+              <p className="mt-1 text-[0.98rem] font-medium leading-6 text-[#4f5968]">
+                Join thousands who are preparing better and getting hired.
+              </p>
             </div>
-            <Link
-              href={candidateHref("/interviews/new")}
-              data-analytics-event="how_it_works_start_click"
-              className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#006148] transition hover:gap-3 hover:text-[#024b3a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
-            >
-              Start practising
-              <ArrowRight className="h-4 w-4" strokeWidth={2} />
-            </Link>
           </div>
         </div>
       </div>
