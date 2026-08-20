@@ -20,6 +20,12 @@ const staticPages: Array<{
     changeFrequency: "daily",
     lastModified: "2026-07-28",
   },
+  {
+    path: "/organisations",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    lastModified: "2026-08-20",
+  },
   { path: "/terms", priority: 0.35, changeFrequency: "yearly" },
   { path: "/privacy", priority: 0.35, changeFrequency: "yearly" },
 ];

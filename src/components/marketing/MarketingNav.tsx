@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthNavigationLink } from "@/components/marketing/AuthNavigationLink";
@@ -18,22 +18,44 @@ const navItems = [
     analytics: "how_it_works",
   },
   {
-    label: "Features",
-    href: "/#product-paths",
-    analytics: "features",
+    label: "Prepare",
+    href: "/dashboard",
+    analytics: "prepare",
+    hasChevron: true,
+    private: true,
   },
   {
-    label: "Jobs",
-    href: "/jobs",
-    analytics: "jobs",
+    label: "Organisations",
+    href: "/organisations",
+    analytics: "organisations",
   },
-  { label: "Pricing", href: "/#pricing", analytics: "pricing" },
   {
     label: "Resources",
     href: "/career-resources",
     analytics: "resources",
     hasChevron: true,
     private: true,
+  },
+] as const;
+
+const preparationNavItems = [
+  {
+    label: "Tailor your CV",
+    description: "Tailor your CV to a specific job opportunity.",
+    href: "/dashboard",
+    analytics: "prepare_cv",
+  },
+  {
+    label: "Tailor your cover letter",
+    description: "Create a cover letter tailored to a specific role.",
+    href: "/dashboard",
+    analytics: "prepare_cover_letter",
+  },
+  {
+    label: "Practise your interview",
+    description: "Prepare with role-specific mock interviews.",
+    href: "/dashboard",
+    analytics: "prepare_interview",
   },
 ] as const;
 
@@ -111,6 +133,7 @@ export function MarketingNav({
 
   const signInHref = "/login";
   const signUpHref = "/login?mode=signup";
+  const prepareHref = candidateHref("/dashboard", isAuthenticated);
 
   return (
     <header
@@ -152,9 +175,10 @@ export function MarketingNav({
             const href = isPrivateNavItem(item)
               ? candidateHref(item.href, isAuthenticated)
               : item.href;
+            const hasPrepareMenu = item.label === "Prepare";
             const hasResourceMenu = item.label === "Resources";
 
-            if (hasResourceMenu) {
+            if (hasPrepareMenu || hasResourceMenu) {
               return (
                 <div key={item.label} className="group relative">
                   <Link
@@ -170,26 +194,74 @@ export function MarketingNav({
                     <ChevronDown className="h-4 w-4" strokeWidth={2.2} />
                   </Link>
                   <div
-                    className={`invisible absolute left-1/2 top-full w-72 -translate-x-1/2 translate-y-3 rounded-2xl border p-2 opacity-0 shadow-[0_20px_54px_rgba(0,18,14,0.22)] transition duration-200 group-hover:visible group-hover:translate-y-2 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-2 group-focus-within:opacity-100 ${
+                    className={`invisible absolute left-1/2 top-full -translate-x-1/2 translate-y-3 rounded-2xl border opacity-0 shadow-[0_20px_54px_rgba(0,18,14,0.22)] transition duration-200 group-hover:visible group-hover:translate-y-2 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-2 group-focus-within:opacity-100 ${
                       isLanding
                         ? "border-white/12 bg-[#07372d]/98"
                         : "border-[#e4d8c8] bg-white"
-                    }`}
+                    } ${hasPrepareMenu ? "w-[25rem] p-3" : "w-72 p-2"}`}
                   >
-                    {resourceNavItems.map((resource) => (
-                      <Link
-                        key={resource.label}
-                        href={candidateHref(resource.href, isAuthenticated)}
-                        data-analytics-event={`nav_${resource.analytics}`}
-                        className={`block rounded-xl px-4 py-3 text-sm font-bold transition ${
-                          isLanding
-                            ? "text-white/86 hover:bg-white/8 hover:text-[#f7bd22]"
-                            : "text-[#173a32] hover:bg-[#f8efe2] hover:text-[#00533f]"
-                        }`}
-                      >
-                        {resource.label}
-                      </Link>
-                    ))}
+                    {hasPrepareMenu ? (
+                      <>
+                        <div className="grid gap-1">
+                          {preparationNavItems.map((prepare) => (
+                            <Link
+                              key={prepare.label}
+                              href={candidateHref(prepare.href, isAuthenticated)}
+                              data-analytics-event={`nav_${prepare.analytics}`}
+                              className={`grid gap-1 rounded-xl px-4 py-3 transition ${
+                                isLanding
+                                  ? "text-white/86 hover:bg-white/8 hover:text-[#f7bd22]"
+                                  : "text-[#173a32] hover:bg-[#f8efe2] hover:text-[#00533f]"
+                              }`}
+                            >
+                              <span className="text-sm font-bold">
+                                {prepare.label}
+                              </span>
+                              <span
+                                className={`text-xs font-semibold leading-5 ${
+                                  isLanding ? "text-white/58" : "text-[#60716b]"
+                                }`}
+                              >
+                                {prepare.description}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                        <div
+                          className={`mt-2 border-t pt-2 ${
+                            isLanding ? "border-white/10" : "border-[#eadfce]"
+                          }`}
+                        >
+                          <Link
+                            href={prepareHref}
+                            data-analytics-event="nav_prepare_start"
+                            className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition ${
+                              isLanding
+                                ? "bg-white/8 text-[#f7bd22] hover:bg-white/12"
+                                : "bg-[#eaf4ef] text-[#00533f] hover:bg-[#dcefe6]"
+                            }`}
+                          >
+                            Start preparing
+                            <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      resourceNavItems.map((resource) => (
+                        <Link
+                          key={resource.label}
+                          href={candidateHref(resource.href, isAuthenticated)}
+                          data-analytics-event={`nav_${resource.analytics}`}
+                          className={`block rounded-xl px-4 py-3 text-sm font-bold transition ${
+                            isLanding
+                              ? "text-white/86 hover:bg-white/8 hover:text-[#f7bd22]"
+                              : "text-[#173a32] hover:bg-[#f8efe2] hover:text-[#00533f]"
+                          }`}
+                        >
+                          {resource.label}
+                        </Link>
+                      ))
+                    )}
                   </div>
                 </div>
               );
@@ -246,7 +318,7 @@ export function MarketingNav({
                 }`}
                 loadingLabel="Loading account creation"
               >
-                {isLanding ? "Sign up" : "Get Started"}
+                Get started
               </AuthNavigationLink>
             </>
           )}
@@ -273,7 +345,7 @@ export function MarketingNav({
         id="public-mobile-menu"
         className={`${isLanding ? "border-white/10 bg-[#02271f]" : "border-[#eadfce] bg-white"} border-t px-5 transition-[max-height,opacity] duration-300 ease-soft lg:hidden ${
           menuOpen
-            ? "max-h-[560px] opacity-100"
+            ? "max-h-[calc(100dvh-88px)] overflow-y-auto overscroll-contain opacity-100"
             : "max-h-0 overflow-hidden opacity-0"
         }`}
       >
@@ -285,6 +357,8 @@ export function MarketingNav({
             const href = isPrivateNavItem(item)
               ? candidateHref(item.href, isAuthenticated)
               : item.href;
+            const hasPrepareMenu = item.label === "Prepare";
+            const hasResourceMenu = item.label === "Resources";
 
             return (
               <div key={item.label} className="grid gap-1">
@@ -300,7 +374,44 @@ export function MarketingNav({
                 >
                   {item.label}
                 </Link>
-                {item.label === "Resources" ? (
+                {hasPrepareMenu ? (
+                  <div className="grid gap-1 pl-4">
+                    {preparationNavItems.map((prepare) => (
+                      <Link
+                        key={prepare.label}
+                        href={candidateHref(prepare.href, isAuthenticated)}
+                        data-analytics-event={`mobile_nav_${prepare.analytics}`}
+                        onClick={() => setMenuOpen(false)}
+                        className={`grid gap-1 rounded-lg px-4 py-2.5 transition ${
+                          isLanding
+                            ? "text-white/74 hover:bg-white/8 hover:text-[#f7bd22]"
+                            : "text-[#52605b] hover:bg-[#fff7ee] hover:text-[#00533f]"
+                        }`}
+                      >
+                        <span className="text-[0.88rem] font-bold">
+                          {prepare.label}
+                        </span>
+                        <span className="text-[0.78rem] font-semibold leading-5 opacity-75">
+                          {prepare.description}
+                        </span>
+                      </Link>
+                    ))}
+                    <Link
+                      href={prepareHref}
+                      data-analytics-event="mobile_nav_prepare_start"
+                      onClick={() => setMenuOpen(false)}
+                      className={`mt-1 inline-flex items-center justify-between rounded-lg px-4 py-3 text-[0.88rem] font-bold transition ${
+                        isLanding
+                          ? "bg-white/8 text-[#f7bd22] hover:bg-white/12"
+                          : "bg-[#eaf4ef] text-[#00533f] hover:bg-[#dcefe6]"
+                      }`}
+                    >
+                      Start preparing
+                      <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                    </Link>
+                  </div>
+                ) : null}
+                {hasResourceMenu ? (
                   <div className="grid gap-1 pl-4">
                     {resourceNavItems.map((resource) => (
                       <Link
@@ -354,7 +465,7 @@ export function MarketingNav({
                 className="inline-flex min-h-[2.75rem] items-center justify-center rounded-lg bg-[#00533f] px-6 text-center text-[0.95rem] font-bold text-white transition hover:bg-[#043b30]"
                 loadingLabel="Loading account creation"
               >
-                {isLanding ? "Sign up" : "Get Started"}
+                Get started
               </AuthNavigationLink>
             </div>
           )}
