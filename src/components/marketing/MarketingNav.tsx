@@ -34,7 +34,6 @@ const navItems = [
     href: "/career-resources",
     analytics: "resources",
     hasChevron: true,
-    private: true,
   },
 ] as const;
 
@@ -62,22 +61,22 @@ const preparationNavItems = [
 const resourceNavItems = [
   {
     label: "Before you apply",
-    href: "/find-jobs",
+    href: "/career-resources#before-you-apply",
     analytics: "resources_before_apply",
   },
   {
     label: "CV and resume truthfulness",
-    href: "/cv-resume",
+    href: "/career-resources#cv-resume-truthfulness",
     analytics: "resources_cv_resume",
   },
   {
     label: "Interview practice loop",
-    href: "/interviews/new",
+    href: "/career-resources#interview-practice-loop",
     analytics: "resources_interview_loop",
   },
   {
     label: "Application tracker habits",
-    href: "/applications",
+    href: "/career-resources#application-tracker-habits",
     analytics: "resources_tracker_habits",
   },
 ] as const;
@@ -98,6 +97,9 @@ export function MarketingNav({
   const isLanding = pathname === "/" || pathname === "/organisations";
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [suppressedDropdown, setSuppressedDropdown] = useState<
+    "Prepare" | "Resources" | null
+  >(null);
 
   useEffect(() => {
     let frame = 0;
@@ -177,10 +179,15 @@ export function MarketingNav({
               : item.href;
             const hasPrepareMenu = item.label === "Prepare";
             const hasResourceMenu = item.label === "Resources";
+            const isDropdownSuppressed = suppressedDropdown === item.label;
 
             if (hasPrepareMenu || hasResourceMenu) {
               return (
-                <div key={item.label} className="group relative">
+                <div
+                  key={item.label}
+                  onMouseLeave={() => setSuppressedDropdown(null)}
+                  className="group relative"
+                >
                   <Link
                     href={href}
                     data-analytics-event={`nav_${item.analytics}`}
@@ -194,7 +201,11 @@ export function MarketingNav({
                     <ChevronDown className="h-4 w-4" strokeWidth={2.2} />
                   </Link>
                   <div
-                    className={`invisible absolute left-1/2 top-full -translate-x-1/2 translate-y-3 rounded-2xl border opacity-0 shadow-[0_20px_54px_rgba(0,18,14,0.22)] transition duration-200 group-hover:visible group-hover:translate-y-2 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-2 group-focus-within:opacity-100 ${
+                    className={`absolute left-1/2 top-full -translate-x-1/2 translate-y-0 rounded-2xl border shadow-[0_20px_54px_rgba(0,18,14,0.22)] transition duration-200 ${
+                      isDropdownSuppressed
+                        ? "pointer-events-none invisible opacity-0"
+                        : "invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+                    } ${
                       isLanding
                         ? "border-white/12 bg-[#07372d]/98"
                         : "border-[#e4d8c8] bg-white"
@@ -208,6 +219,7 @@ export function MarketingNav({
                               key={prepare.label}
                               href={candidateHref(prepare.href, isAuthenticated)}
                               data-analytics-event={`nav_${prepare.analytics}`}
+                              onClick={() => setSuppressedDropdown("Prepare")}
                               className={`grid gap-1 rounded-xl px-4 py-3 transition ${
                                 isLanding
                                   ? "text-white/86 hover:bg-white/8 hover:text-[#f7bd22]"
@@ -235,6 +247,7 @@ export function MarketingNav({
                           <Link
                             href={prepareHref}
                             data-analytics-event="nav_prepare_start"
+                            onClick={() => setSuppressedDropdown("Prepare")}
                             className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition ${
                               isLanding
                                 ? "bg-white/8 text-[#f7bd22] hover:bg-white/12"
@@ -250,8 +263,9 @@ export function MarketingNav({
                       resourceNavItems.map((resource) => (
                         <Link
                           key={resource.label}
-                          href={candidateHref(resource.href, isAuthenticated)}
+                          href={resource.href}
                           data-analytics-event={`nav_${resource.analytics}`}
+                          onClick={() => setSuppressedDropdown("Resources")}
                           className={`block rounded-xl px-4 py-3 text-sm font-bold transition ${
                             isLanding
                               ? "text-white/86 hover:bg-white/8 hover:text-[#f7bd22]"
@@ -416,7 +430,7 @@ export function MarketingNav({
                     {resourceNavItems.map((resource) => (
                       <Link
                         key={resource.label}
-                        href={candidateHref(resource.href, isAuthenticated)}
+                        href={resource.href}
                         data-analytics-event={`mobile_nav_${resource.analytics}`}
                         onClick={() => setMenuOpen(false)}
                         className={`rounded-lg px-4 py-2.5 text-[0.88rem] font-semibold transition ${

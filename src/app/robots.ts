@@ -18,7 +18,6 @@ export default function robots(): MetadataRoute.Robots {
         "/admin",
         "/applications",
         "/billing",
-        "/career-resources",
         "/cv-resume",
         "/dashboard",
         "/find-jobs",
