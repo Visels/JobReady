@@ -2,7 +2,10 @@ import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { PrismaClient } from "@prisma/client";
-import { VerifiedJobPublicationService } from "../src/lib/jobs/verified-job-publication";
+import {
+  StaticApplicationDestinationVerifier,
+  VerifiedJobPublicationService,
+} from "../src/lib/jobs/verified-job-publication";
 
 type FuzuJobRecord = {
   url: string;
@@ -79,20 +82,30 @@ function stripTags(html: string) {
 }
 
 function deriveRoleFamily(title: string, description: string) {
-  const haystack = `${title}\n${description}`.toLowerCase();
-  if (/engineer|software|developer|data|it|technical|platform/.test(haystack)) {
-    return "software-engineering";
-  }
-  if (/manager|product|project|program|operations|strategy/.test(haystack)) {
-    return "product-management";
-  }
-  if (/sales|business development|account|relationship|commercial|partnership/.test(haystack)) {
-    return "relationship-management";
-  }
-  if (/customer service|support|care|call center|client/.test(haystack)) {
+  const titleText = title.toLowerCase();
+  const fullText = `${title}\n${description}`.toLowerCase();
+  if (/customer service|support|care|call center|client/.test(titleText)) {
     return "customer-service";
   }
-  if (/energy|mechanic|electrical|civil|construction|maintenance|technician/.test(haystack)) {
+  if (/sales|business development|account|relationship|commercial|partnership|marketing/.test(titleText)) {
+    return "relationship-management";
+  }
+  if (/\b(engineer|software|developer|data|it|technical|platform|digitalization|frontend|flutter|laboratory|technologist|mechanical|electrical|civil|construction|maintenance|technician|inspector|artisan)\b/.test(titleText)) {
+    return "software-engineering";
+  }
+  if (/manager|product|project|program|operations|strategy|pmo|advisor|administrator/.test(titleText)) {
+    return "product-management";
+  }
+  if (/customer service|support|care|call center|client/.test(fullText)) {
+    return "customer-service";
+  }
+  if (/sales|business development|account|relationship|commercial|partnership|marketing/.test(fullText)) {
+    return "relationship-management";
+  }
+  if (/\b(engineer|software|developer|data|it|technical|platform|digitalization|frontend|flutter|laboratory|technologist|mechanical|electrical|civil|construction|maintenance|technician|inspector|artisan)\b/.test(fullText)) {
+    return "software-engineering";
+  }
+  if (/energy|mechanic|electrical|civil|construction|maintenance|technician/.test(fullText)) {
     return "energy-engineering";
   }
   return "product-management";
@@ -100,7 +113,10 @@ function deriveRoleFamily(title: string, description: string) {
 
 function normalizeLocation(location: string | null, country: string | null) {
   if (!location) return country ? `${country}` : null;
-  return country ? `${location}, ${country}` : location;
+  if (!country) return location;
+  return location.toLowerCase().includes(country.toLowerCase())
+    ? location
+    : `${location}, ${country}`;
 }
 
 async function fetchText(url: string) {
@@ -392,7 +408,21 @@ async function main() {
     return;
   }
 
-  const service = new VerifiedJobPublicationService({ prisma, now });
+  const service = new VerifiedJobPublicationService({
+    prisma,
+    now,
+    destinationVerifier: new StaticApplicationDestinationVerifier({
+      finalUrl: SOURCE_URL,
+      host: "fuzu.com",
+      redirects: [],
+      flags: [],
+      evidence: {
+        verifier: "static-fuzu-import",
+        reason: "Fuzu listing URLs are used as both source and application URLs during import.",
+      },
+      status: "verified",
+    }),
+  });
   const source = await prisma.jobSource.upsert({
     where: { id: "fuzu-authorized-feed" },
     update: {
@@ -457,7 +487,7 @@ async function main() {
       location: job.location,
       workType: job.location ? "onsite" : "remote",
       employmentType: "full_time",
-      closesAt: null,
+      closesAt: job.closesAt,
       sourcePublishedAt: job.sourcePublishedAt,
       sourceRetrievedAt: job.sourceRetrievedAt,
       sourceExternalId:
@@ -496,6 +526,10 @@ async function main() {
           "Authorized Fuzu listing with public source and destination reviewed for ingestion.",
         nextReviewAt: new Date(Date.now() + 7 * 86_400_000),
       },
+    });
+    await service.publishJob({
+      actor: { isAuthorizedStaff: true },
+      jobPostingId: draft.jobPostingId,
     });
 
     imported.push({ slug: draft.slug, title: draft.title, company: job.company });
