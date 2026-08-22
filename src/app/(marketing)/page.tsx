@@ -5,7 +5,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  BarChart3,
   BookOpen,
   BriefcaseBusiness,
   ClipboardList,
@@ -15,15 +14,11 @@ import {
   ClipboardCheck,
   MapPin,
   MessageSquareMore,
-  Quote,
   Search,
   ShieldCheck,
   Star,
   Target,
-  Trophy,
-  Zap,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { publicProductConfig } from "@/config/public";
@@ -61,29 +56,6 @@ export const metadata: Metadata = generateSEO({
     badge: "Jiandae",
   },
 });
-
-type PlatformFeature = {
-  icon: LucideIcon;
-  title: string;
-  copy: string;
-  href: string;
-  analytics: string;
-};
-
-type TestimonialStory = {
-  quote: string;
-  name: string;
-  location: string;
-  image: string;
-};
-
-type PreparationExample = {
-  company: string;
-  role: string;
-  reviewedAt: string;
-  source: string;
-  focus: string;
-};
 
 type LandingSearchOptions = {
   locations: PublicJobOption[];
@@ -965,164 +937,6 @@ async function SocialProofSection() {
   );
 }
 
-const platformFeatures: PlatformFeature[] = [
-  {
-    icon: Target,
-    title: "Realistic mock interviews",
-    copy: "Practise with role-specific, industry-relevant questions that mirror real interviews.",
-    href: candidateHref("/interviews/new"),
-    analytics: "platform_mock_interviews_click",
-  },
-  {
-    icon: BarChart3,
-    title: "Expert feedback",
-    copy: "Get personalised feedback from industry experts so every answer becomes sharper.",
-    href: candidateHref("/interviews/new"),
-    analytics: "platform_feedback_click",
-  },
-  {
-    icon: Trophy,
-    title: "Build confidence",
-    copy: "Track progress, strengthen your answers, and walk into interviews with confidence.",
-    href: candidateHref("/interviews/new"),
-    analytics: "platform_confidence_click",
-  },
-  {
-    icon: Zap,
-    title: "Land better opportunities",
-    copy: "Be interview-ready and stand out to employers across Kenya and the wider African market.",
-    href: "/jobs",
-    analytics: "platform_opportunities_click",
-  },
-];
-
-const testimonialStories: TestimonialStory[] = [
-  {
-    quote:
-      "Jiandae helped me find my voice and confidence. I walked into the panel ready and got the role.",
-    name: "Brian Otieno",
-    location: "Nairobi, Kenya",
-    image: "testimonial-daniel.jpg",
-  },
-  {
-    quote:
-      "The mock interviews were spot on. The feedback helped me explain my experience clearly without sounding rehearsed.",
-    name: "Amina Wanjiku",
-    location: "Kisumu, Kenya",
-    image: "testimonial-miriam.jpg",
-  },
-  {
-    quote:
-      "I loved how personal everything felt. I knew what to improve before my final interview in Mombasa.",
-    name: "Grace Akinyi",
-    location: "Mombasa, Kenya",
-    image: "testimonial-nadia.jpg",
-  },
-];
-
-function ProductPathsSection() {
-  return (
-    <section
-      id="product-paths"
-      className="scroll-mt-24 bg-[#fbf8f2] px-5 pb-20 md:px-8 md:pb-24"
-    >
-      <div className="mx-auto max-w-[1400px]">
-        <div className="rounded-[2rem] border border-[#e9eee9] bg-[#fffdf8] px-5 py-10 shadow-[0_24px_70px_rgba(31,54,45,0.06)] md:px-7 md:py-12 lg:px-10">
-          <div className="mx-auto max-w-[780px] text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#007154]">
-              All-in-one platform
-            </p>
-            <h2 className="mt-3 text-[clamp(2rem,3.2vw,3.6rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#10251e] text-balance">
-              Everything you need to ace your{" "}
-              <span className="text-[#006148]">next interview</span>
-            </h2>
-          </div>
-
-          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {platformFeatures.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <article
-                  key={item.title}
-                  className="group flex min-h-[17.5rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-6 text-center shadow-[0_18px_45px_rgba(24,53,43,0.055)] transition duration-300 hover:-translate-y-1 hover:border-[#cddfd5] hover:shadow-[0_24px_58px_rgba(24,53,43,0.09)] lg:min-h-[15rem] lg:px-5 lg:py-6"
-                >
-                  <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#eef5ef] text-[#00533f] ring-8 ring-[#f6faf6] lg:h-14 lg:w-14 lg:ring-[7px]">
-                    <Icon className="h-8 w-8 lg:h-7 lg:w-7" strokeWidth={1.9} />
-                  </span>
-                  <h3 className="mt-6 text-lg font-bold leading-tight tracking-[-0.025em] text-[#10251e] lg:mt-5 lg:text-base">
-                    {item.title}
-                  </h3>
-                  <p className="mx-auto mt-3 max-w-[14.5rem] text-sm leading-6 text-[#3e4d47] lg:text-[0.82rem] lg:leading-5">
-                    {item.copy}
-                  </p>
-                  <Link
-                    href={item.href}
-                    data-analytics-event={item.analytics}
-                    data-analytics-source="all_in_one_platform"
-                    className="mx-auto mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-[#00533f] transition group-hover:gap-3 group-hover:text-[#023d30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] lg:pt-5 lg:text-[0.82rem]"
-                  >
-                    Learn more
-                    <ArrowRight className="h-4 w-4" strokeWidth={2.1} />
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-
-          <div className="mt-14 grid gap-4 md:mt-16 lg:grid-cols-[0.72fr_1fr_1fr_1fr]">
-            <div className="flex flex-col justify-center rounded-[1.35rem] bg-[#fffdf8] p-1 lg:pr-6">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#007154]">
-                Success stories
-              </p>
-              <h3 className="mt-4 max-w-[18rem] text-[clamp(2rem,3vw,3rem)] font-bold leading-[1.02] tracking-[-0.055em] text-[#10251e] text-balance">
-                Real people. <span className="text-[#007154]">Real results.</span>
-              </h3>
-              <p className="mt-5 max-w-[18rem] text-sm leading-7 text-[#3e4d47]">
-                Jiandae has helped professionals across Kenya land roles they
-                are proud of.
-              </p>
-            </div>
-
-            {testimonialStories.map((story) => (
-              <article
-                key={story.name}
-                className="flex min-h-[18rem] flex-col rounded-[1.35rem] border border-[#e7ebe7] bg-white p-7 shadow-[0_18px_45px_rgba(24,53,43,0.055)]"
-              >
-                <Quote
-                  className="h-8 w-8 fill-[#007154] text-[#007154]"
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                />
-                <p className="mt-5 text-[0.95rem] leading-7 text-[#24332d]">
-                  {story.quote}
-                </p>
-                <div className="mt-auto flex items-center gap-3.5 pt-8">
-                  <Image
-                    src={`/marketing/avatars/${story.image}`}
-                    alt={`${story.name} from ${story.location}`}
-                    width={64}
-                    height={64}
-                    className="h-14 w-14 rounded-full object-cover ring-2 ring-[#eef5ef]"
-                  />
-                  <div>
-                    <p className="text-base font-bold text-[#10251e]">
-                      {story.name}
-                    </p>
-                    <p className="mt-0.5 text-sm font-medium text-[#52635c]">
-                      {story.location}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function JourneySection() {
   const steps = [
     {
@@ -1203,11 +1017,11 @@ function JourneySection() {
             </ol>
 
             <Link
-              href="#product-paths"
+              href="#pricing"
               data-analytics-event="how_it_works_features_click"
               className="mt-8 inline-flex items-center gap-3 text-sm font-extrabold text-[#006148] transition hover:gap-4 hover:text-[#024b3a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
             >
-              See all features
+              See plans
               <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
             </Link>
           </div>
@@ -1238,150 +1052,6 @@ function JourneySection() {
               <p className="mt-0.5 text-sm font-medium leading-6 text-[#4f5968]">
                 Join thousands who are preparing better and getting hired.
               </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const preparationExamples: PreparationExample[] = [
-  {
-    company: "Safaricom",
-    role: "Software Engineering / Product Management",
-    reviewedAt: "28 Jul 2026",
-    source: "Careers page and 2026 Annual Report",
-    focus: "Customer impact, M-PESA ecosystem awareness, product metrics, and engineering trade-offs.",
-  },
-  {
-    company: "KCB Bank Kenya",
-    role: "Customer Service / Relationship Management",
-    reviewedAt: "28 Jul 2026",
-    source: "KCB Careers and integrated reporting sources",
-    focus: "Customer trust, banking operations, relationship growth, compliance awareness, and service recovery.",
-  },
-  {
-    company: "Kenya Pipeline Company",
-    role: "Graduate Engineering / Pipeline Engineering",
-    reviewedAt: "28 Jul 2026",
-    source: "KPC Careers, About, Morendat, and project updates",
-    focus: "Safety, infrastructure reliability, technical judgment, and public-sector operating context.",
-  },
-];
-
-function CompanyPrepSection() {
-  return (
-    <section className="bg-[#fcfcfa] px-5 py-16 md:px-9 md:py-24">
-      <div className="mx-auto max-w-[1320px]">
-        <SectionIntro
-          eyebrow="Company and role preparation"
-          title="Reviewed context, never employer-approved unless a partnership exists."
-          copy="Company prep is built from reviewed public sources and internal review records. We do not claim access to leaked questions, private employer rubrics, or official hiring approval."
-        />
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {preparationExamples.map((example) => (
-            <article
-              key={example.company}
-              className="rounded-[1.5rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_48px_rgba(29,43,37,0.06)]"
-            >
-              <span className="inline-flex rounded-full bg-[#eaf4ef] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#00533f]">
-                Reviewed {example.reviewedAt}
-              </span>
-              <h3 className="mt-5 text-2xl font-bold tracking-[-0.035em] text-[#071512]">
-                {example.company}
-              </h3>
-              <p className="mt-2 font-bold text-[#173a32]">{example.role}</p>
-              <p className="mt-4 text-base leading-7 text-[#52605b]">
-                {example.focus}
-              </p>
-              <dl className="mt-5 rounded-2xl bg-[#f8efe2] p-4 text-sm leading-6">
-                <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
-                  Sources
-                </dt>
-                <dd className="mt-1 font-bold text-[#173a32]">
-                  {example.source}
-                </dd>
-              </dl>
-            </article>
-          ))}
-        </div>
-        <p className="mt-6 rounded-[1.5rem] border border-[#d9cbb8] bg-[#fffaf3] p-5 text-sm font-bold leading-6 text-[#52605b]">
-          Non-affiliation: Jiandae is not affiliated with Safaricom, KCB Bank
-          Kenya, Kenya Pipeline Company, or any listed employer unless an
-          explicit partnership is stated on the relevant page.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function ProductDemoSection() {
-  const insights = [
-    "Uses controlled fixture data only.",
-    "Separates candidate facts from suggested wording.",
-    "Shows evidence gaps before rewrite suggestions.",
-    "Keeps official application access outside paid preparation.",
-  ];
-
-  return (
-    <section className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
-      <div className="mx-auto grid max-w-[1320px] gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-        <SectionIntro
-          eyebrow="Product demonstration"
-          title="A real interface state, not a stock-photo promise."
-          copy="This demo uses controlled fixture content to show how a sourced job, CV tailoring notes, and an interview report can sit together without implying real user outcomes."
-        />
-        <div className="rounded-[1.65rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_24px_70px_rgba(21,35,29,0.1)] md:p-6">
-          <div className="rounded-[1.35rem] bg-[#063c31] p-5 text-white">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7a84f]">
-                Controlled report fixture
-              </p>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white/78">
-                No fake score
-              </span>
-            </div>
-            <h3 className="mt-5 text-2xl font-bold leading-tight tracking-[-0.035em]">
-              Customer-impact story needs a clearer metric and decision path.
-            </h3>
-            <p className="mt-4 text-base leading-7 text-white/74">
-              The report explains what the answer proved, what stayed vague,
-              and which follow-up to practise next. It does not invent a
-              promotion, employer, KPI, or result for the candidate.
-            </p>
-          </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {insights.map((insight) => (
-              <div
-                key={insight}
-                className="flex gap-3 rounded-[1.4rem] border border-[#d9cbb8] bg-[#fcfcfa] p-4"
-              >
-                <CheckCircle2
-                  className="mt-0.5 h-5 w-5 flex-none text-[#00533f]"
-                  strokeWidth={2}
-                />
-                <p className="text-sm font-bold leading-6 text-[#52605b]">
-                  {insight}
-                </p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 rounded-[1.4rem] bg-[#f8efe2] p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6f4e00]">
-              Report actions
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {["Practise follow-up", "Tailor CV evidence", "Track application"].map(
-                (action) => (
-                  <span
-                    key={action}
-                    className="rounded-full border border-[#d9cbb8] bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#173a32]"
-                  >
-                    {action}
-                  </span>
-                ),
-              )}
             </div>
           </div>
         </div>
@@ -1680,9 +1350,6 @@ export default async function Home() {
       <SocialProofSection />
       <OpportunitySearchSection jobs={jobs} options={searchOptions} />
       <JourneySection />
-      <ProductPathsSection />
-      <CompanyPrepSection />
-      <ProductDemoSection />
       <CareerResourcesSection />
       <PricingSection plans={plans} />
       <FinalCtaFooter />
