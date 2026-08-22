@@ -112,7 +112,7 @@ export function TestimonialsCarousel() {
           type="button"
           aria-label="Show previous testimonials"
           onClick={() => setActivePage(previousIndex)}
-          className="absolute left-0 top-1/2 z-10 hidden h-12 w-12 -translate-x-2 -translate-y-1/2 items-center justify-center rounded-full bg-[#e9eee9] text-[#004735] transition hover:bg-[#dfe8e1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] xl:flex"
+          className="absolute left-0 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#e9eee9] text-[#004735] transition hover:bg-[#dfe8e1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] lg:flex"
         >
           <ArrowLeft className="h-6 w-6" strokeWidth={2.2} />
         </button>
@@ -120,7 +120,7 @@ export function TestimonialsCarousel() {
         <div
           key={activePage}
           aria-live="polite"
-          className="mx-auto grid max-w-[1110px] gap-6 md:grid-cols-3 md:gap-7"
+          className="mx-auto grid max-w-[1060px] gap-6 lg:grid-cols-3 lg:gap-6"
         >
           {testimonials.map((testimonial) => (
             <article
@@ -183,22 +183,13 @@ export function TestimonialsCarousel() {
           type="button"
           aria-label="Show next testimonials"
           onClick={() => setActivePage(nextIndex)}
-          className="absolute right-0 top-1/2 z-10 hidden h-12 w-12 translate-x-2 -translate-y-1/2 items-center justify-center rounded-full bg-[#e9eee9] text-[#004735] transition hover:bg-[#dfe8e1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] xl:flex"
+          className="absolute right-0 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#e9eee9] text-[#004735] transition hover:bg-[#dfe8e1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] lg:flex"
         >
           <ArrowRight className="h-6 w-6" strokeWidth={2.2} />
         </button>
       </div>
 
-      <div className="mt-8 flex items-center justify-center gap-4">
-        <button
-          type="button"
-          aria-label="Show previous testimonials"
-          onClick={() => setActivePage(previousIndex)}
-          className="grid h-10 w-10 place-items-center rounded-full bg-[#e9eee9] text-[#004735] transition hover:bg-[#dfe8e1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] xl:hidden"
-        >
-          <ArrowLeft className="h-5 w-5" strokeWidth={2.2} />
-        </button>
-
+      <div className="mt-8 flex items-center justify-center">
         <div className="flex items-center justify-center gap-5">
           {testimonialPages.map((_, index) => (
             <button
@@ -213,15 +204,6 @@ export function TestimonialsCarousel() {
             />
           ))}
         </div>
-
-        <button
-          type="button"
-          aria-label="Show next testimonials"
-          onClick={() => setActivePage(nextIndex)}
-          className="grid h-10 w-10 place-items-center rounded-full bg-[#e9eee9] text-[#004735] transition hover:bg-[#dfe8e1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98] xl:hidden"
-        >
-          <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
-        </button>
       </div>
     </>
   );
