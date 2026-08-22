@@ -12,8 +12,11 @@ import {
   ChevronDown,
   CirclePlay,
   ClipboardCheck,
+  Headphones,
   MapPin,
   MessageSquareMore,
+  Minus,
+  Plus,
   Search,
   ShieldCheck,
   Star,
@@ -186,6 +189,39 @@ const fallbackRoleOptions: PublicJobOption[] = [
   { value: "customer-service", label: "Customer service" },
   { value: "sales", label: "Sales" },
 ];
+
+const faqItems = [
+  {
+    question: "What is Jiandae?",
+    answer:
+      "Jiandae is an AI-powered career preparation platform that helps you practice interviews, improve your skills, and connect with verified job opportunities across Kenya and Africa.",
+  },
+  {
+    question: "Is Jiandae free to use?",
+    answer:
+      "Yes. You can browse jobs, open official application links, save opportunities, and start preparing for free. Paid plans add finite interview or CV tailoring credits when you need deeper practice.",
+  },
+  {
+    question: "How does the interview practice work?",
+    answer:
+      "Choose a role or job context, answer realistic interview questions, and get structured feedback on clarity, relevance, examples, and next steps so each practice round becomes easier to improve.",
+  },
+  {
+    question: "Are the job opportunities verified?",
+    answer:
+      "Jiandae prioritizes opportunities with traceable sources, current application destinations, and reviewed employer context so candidates can focus on roles that are worth their time.",
+  },
+  {
+    question: "Can I use Jiandae on my phone?",
+    answer:
+      "Yes. Jiandae is built for modern mobile browsers, so you can browse jobs, prepare answers, and review feedback from your phone, tablet, or laptop.",
+  },
+  {
+    question: "How do I get started?",
+    answer:
+      "Create a free account, browse jobs or open your workspace, then start with the preparation path that fits your goal: CV tailoring, application tracking, or interview practice.",
+  },
+] as const;
 
 const fallbackLandingJobs: PublicJobSummary[] = [
   {
@@ -1249,6 +1285,77 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
   );
 }
 
+function FaqSection() {
+  const { legal } = publicProductConfig;
+
+  return (
+    <section id="faqs" className="scroll-mt-20 bg-[#fffdf9] px-5 py-[72px] md:px-8 md:py-[86px]">
+      <div className="mx-auto max-w-[1030px]">
+        <div className="mx-auto max-w-[595px] text-center">
+          <p className="text-[0.9rem] font-bold text-[#006148]">
+            FAQs
+          </p>
+          <h2 className="mt-6 text-[clamp(2.9rem,3.95vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#081722] text-balance">
+            <span className="block">Frequently asked</span>
+            <span className="block text-[#f7b716]">questions</span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-[470px] text-[1.15rem] font-medium leading-7 text-[#4f5b69]">
+            Find answers to common questions about Jiandae and how it can help
+            you in your career journey.
+          </p>
+        </div>
+
+        <div className="mt-[52px] grid gap-[14px]">
+          {faqItems.map((item, index) => (
+            <details
+              key={item.question}
+              open={index === 0}
+              className="group rounded-lg border border-[#edf0ee] bg-white shadow-[0_9px_25px_rgba(24,39,34,0.08)] transition duration-300 open:shadow-[0_14px_34px_rgba(24,39,34,0.1)]"
+            >
+              <summary className="flex cursor-pointer list-none items-center gap-5 px-5 py-5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00533f] md:px-7">
+                <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-[#eaf4ef] text-[#006148] transition group-open:bg-[#00533f] group-open:text-white">
+                  <Plus className="h-5 w-5 group-open:hidden" strokeWidth={2.25} />
+                  <Minus className="hidden h-5 w-5 group-open:block" strokeWidth={2.25} />
+                </span>
+                <span className="min-w-0 flex-1 text-[1.12rem] font-extrabold leading-tight tracking-[-0.03em] text-[#081722] md:text-[1.2rem]">
+                  {item.question}
+                </span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className="h-5 w-5 flex-none text-[#081722] transition-transform duration-300 group-open:rotate-180"
+                  strokeWidth={2.2}
+                />
+              </summary>
+              <div className="pb-7 pl-[5.8rem] pr-5 md:pl-[6.5rem] md:pr-16">
+                <p className="max-w-[760px] text-[1rem] font-medium leading-7 text-[#4f5b69]">
+                  {item.answer}
+                </p>
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <div className="mt-9 flex flex-col items-center justify-center gap-4 text-center sm:flex-row sm:gap-5">
+          <span className="grid h-14 w-14 flex-none place-items-center rounded-full bg-[#e6f0ea] text-[#006148]">
+            <Headphones className="h-7 w-7" strokeWidth={1.9} />
+          </span>
+          <p className="text-[0.98rem] font-bold text-[#081722]">
+            Still have questions?
+          </p>
+          <a
+            href={`mailto:${legal.supportEmail}`}
+            data-analytics-event="faq_contact_click"
+            className="inline-flex items-center gap-3 text-[0.98rem] font-extrabold text-[#006148] transition hover:gap-4 hover:text-[#024b3a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148]"
+          >
+            Contact us
+            <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCtaFooter() {
   const { brand, legal, social } = publicProductConfig;
   const socialLinks = [
@@ -1408,6 +1515,7 @@ export default async function Home() {
       <TestimonialsSection />
       <CareerResourcesSection />
       <PricingSection plans={plans} />
+      <FaqSection />
       <FinalCtaFooter />
     </main>
   );
