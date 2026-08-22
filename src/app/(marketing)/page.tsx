@@ -5,13 +5,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  BookOpen,
   BriefcaseBusiness,
   ClipboardList,
   CheckCircle2,
   ChevronDown,
   CirclePlay,
-  ClipboardCheck,
   Headphones,
   MapPin,
   MessageSquareMore,
@@ -20,7 +18,6 @@ import {
   Search,
   ShieldCheck,
   Star,
-  Target,
 } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BrandMark } from "@/components/ui/BrandMark";
@@ -1151,72 +1148,6 @@ function TestimonialsSection() {
   );
 }
 
-function CareerResourcesSection() {
-  const resources = [
-    {
-      icon: ClipboardCheck,
-      title: "STAR method for Kenyan candidates",
-      copy: "Structure behavioral answers around situation, task, action, and result without turning them into scripts.",
-    },
-    {
-      icon: Target,
-      title: "Supported role guides",
-      copy: "Prepare software engineering, product, customer service, banking relationship, and engineering examples from reviewed plans.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Technical and role-specific practice",
-      copy: "Use role rubrics for technical, product, operations, customer, and safety judgment instead of forcing every answer into STAR.",
-    },
-  ];
-
-  return (
-    <section className="bg-[#fcfcfa] px-5 py-16 md:px-9 md:py-24">
-      <div className="mx-auto max-w-[1320px]">
-        <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr]">
-          <SectionIntro
-            eyebrow="Career resources"
-            title="Useful guides, not doorway pages."
-            copy="The resource surface starts from reviewed role and interview frameworks. Thin, unsupported, or private combinations stay out of the index."
-          />
-          <div className="grid gap-4">
-            {resources.map((resource) => {
-              const Icon = resource.icon;
-
-              return (
-                <article
-                  key={resource.title}
-                  className="grid gap-4 rounded-[1.7rem] border border-[#d9cbb8] bg-white p-5 md:grid-cols-[56px_1fr]"
-                >
-                  <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#eaf4ef] text-[#00533f]">
-                    <Icon className="h-6 w-6" strokeWidth={1.9} />
-                  </span>
-                  <div>
-                    <h3 className="text-xl font-bold tracking-[-0.035em] text-[#071512]">
-                      {resource.title}
-                    </h3>
-                    <p className="mt-2 text-base leading-7 text-[#52605b]">
-                      {resource.copy}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
-            <Link
-              href={candidateHref("/career-resources")}
-              data-analytics-event="career_resources_click"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#00533f] px-6 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#063c31] md:w-fit"
-            >
-              Open career resources
-              <BookOpen className="h-4 w-4" strokeWidth={2} />
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function PricingSection({ plans }: { plans: PlanPrice[] }) {
   return (
     <section id="pricing" className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
@@ -1513,7 +1444,6 @@ export default async function Home() {
       <OpportunitySearchSection jobs={jobs} options={searchOptions} />
       <JourneySection />
       <TestimonialsSection />
-      <CareerResourcesSection />
       <PricingSection plans={plans} />
       <FaqSection />
       <FinalCtaFooter />
