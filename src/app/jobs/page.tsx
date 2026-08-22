@@ -88,7 +88,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         <JobsPageHero filters={result.filters} options={filterOptions} />
 
         <section className="px-5 py-5 md:px-9 md:py-6" aria-live="polite">
-          <div className="mx-auto grid max-w-[1536px] gap-6 lg:grid-cols-[22rem_1fr]">
+          <div className="mx-auto grid max-w-[1536px] items-start gap-6 lg:grid-cols-[22rem_1fr]">
             <JobsSidebarFilters
               filters={result.filters}
               options={filterOptions}

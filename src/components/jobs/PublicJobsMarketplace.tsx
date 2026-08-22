@@ -422,7 +422,7 @@ export function JobsSidebarFilters({
   total: number;
 }) {
   return (
-    <aside className="rounded-md border border-[#e0e5e8] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.04)] lg:sticky lg:top-28 lg:self-start">
+    <aside className="rounded-md border border-[#e0e5e8] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.04)] lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto">
       <form action="/jobs" data-analytics-event="job_sidebar_filter_submit">
         {filters.q ? <input type="hidden" name="q" value={filters.q} /> : null}
 
@@ -1439,6 +1439,85 @@ export function JobSourcePanel({ job }: { job: PublicJobDetail }) {
 }
 
 export function JobsLoadingShell({ detail = false }: { detail?: boolean }) {
+  if (detail) {
+    return (
+      <main className="min-h-viewport bg-[radial-gradient(circle_at_18%_8%,rgba(215,168,79,0.2),transparent_28%),radial-gradient(circle_at_84%_6%,rgba(0,83,63,0.14),transparent_30%),#f7efe5] px-5 py-6 text-[#071512] md:px-9">
+        <div className="mx-auto max-w-[1180px] animate-pulse">
+          <div className="h-16 rounded-md border border-[#d9cbb8] bg-white/80" />
+
+          <div className="mb-6 mt-6 flex items-center gap-2">
+            <div className="h-4 w-12 rounded-full bg-[#e4d7c6]" />
+            <div className="h-4 w-2 rounded-full bg-[#e4d7c6]" />
+            <div className="h-4 w-28 rounded-full bg-[#e4d7c6]" />
+          </div>
+
+          <header className="relative overflow-hidden rounded-[2.2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-10">
+            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-[#d7a84f]/20 blur-3xl" />
+            <div className="relative max-w-4xl">
+              <div className="h-4 w-48 rounded-full bg-[#d7c4aa]" />
+              <div className="mt-6 h-24 max-w-4xl rounded-[1.5rem] bg-[#e4d7c6] md:h-32" />
+              <div className="mt-6 h-7 w-80 max-w-full rounded-full bg-[#e4d7c6]" />
+              <div className="mt-6 grid max-w-3xl gap-3">
+                <div className="h-5 rounded-full bg-[#eadfce]" />
+                <div className="h-5 w-5/6 rounded-full bg-[#eadfce]" />
+              </div>
+            </div>
+          </header>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+            <div className="grid gap-6">
+              <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_16px_48px_rgba(21,35,29,0.05)]">
+                <div className="h-7 w-44 rounded-full bg-[#e4d7c6]" />
+                <div className="mt-6 grid gap-3">
+                  <div className="h-5 rounded-full bg-[#eadfce]" />
+                  <div className="h-5 rounded-full bg-[#eadfce]" />
+                  <div className="h-5 w-4/5 rounded-full bg-[#eadfce]" />
+                </div>
+                <div className="mt-6 grid gap-3 md:grid-cols-2">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <div key={index} className="h-20 rounded-2xl bg-[#f8efe2]" />
+                  ))}
+                </div>
+              </section>
+
+              {Array.from({ length: 4 }).map((_, index) => (
+                <section
+                  key={index}
+                  className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_16px_48px_rgba(21,35,29,0.05)]"
+                >
+                  <div className="h-7 w-56 rounded-full bg-[#e4d7c6]" />
+                  <div className="mt-5 grid gap-3">
+                    <div className="h-14 rounded-2xl bg-[#fffaf3]" />
+                    <div className="h-14 rounded-2xl bg-[#fffaf3]" />
+                    <div className="h-14 w-11/12 rounded-2xl bg-[#fffaf3]" />
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <aside className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_20px_70px_rgba(21,35,29,0.08)] lg:sticky lg:top-6 lg:self-start">
+              <div className="h-7 w-28 rounded-full bg-[#d7c4aa]" />
+              <div className="mt-5 h-8 w-44 rounded-full bg-[#e4d7c6]" />
+              <div className="mt-4 grid gap-2">
+                <div className="h-4 rounded-full bg-[#eadfce]" />
+                <div className="h-4 w-4/5 rounded-full bg-[#eadfce]" />
+              </div>
+              <div className="mt-5 grid gap-3">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="h-12 rounded-full bg-[#fff4d6]" />
+                ))}
+              </div>
+              <div className="mt-6 grid gap-3">
+                <div className="h-20 rounded-2xl bg-[#f8efe2]" />
+                <div className="h-20 rounded-2xl bg-[#f8efe2]" />
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-viewport bg-[#f7efe5] px-5 py-6 text-[#071512] md:px-9">
       <div className="mx-auto max-w-[1180px]">

@@ -1148,26 +1148,26 @@ function JourneySection() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-20 bg-[#fffdf9] px-5 py-12 md:px-8 md:py-16"
+      className="scroll-mt-20 bg-[#fffdf9] px-5 py-[72px] md:px-8 md:py-[86px]"
     >
-      <div className="mx-auto max-w-[1120px]">
-        <div className="mx-auto max-w-[540px] text-center">
-          <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#006148]">
+      <div className="mx-auto max-w-[1030px]">
+        <div className="mx-auto max-w-[595px] text-center">
+          <p className="text-[0.9rem] font-bold uppercase text-[#006148]">
             How it works
           </p>
-          <h2 className="mt-4 text-[clamp(2rem,3.4vw,3.1rem)] font-extrabold leading-[1] tracking-[-0.04em] text-[#062d25] text-balance">
+          <h2 className="mt-6 text-[clamp(2.9rem,3.95vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#062d25] text-balance">
             <span className="block">See how Jiandae</span>
             <span className="block">
               <span className="text-[#f3af00]">works</span> for you.
             </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-[29rem] text-base font-medium leading-7 text-[#4f5968]">
+          <p className="mx-auto mt-5 max-w-[460px] text-[1.15rem] font-medium leading-7 text-[#4f5968]">
             Watch how Jiandae helps you prepare, practice and land better
             opportunities.
           </p>
         </div>
 
-        <div className="mt-9 grid gap-9 lg:grid-cols-[minmax(300px,360px)_minmax(0,680px)] lg:items-center lg:gap-10">
+        <div className="mt-[52px] grid gap-9 lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] lg:items-center lg:gap-10">
           <div>
             <ol className="grid gap-8 md:gap-9">
               {steps.map((step, index) => {
@@ -1226,7 +1226,7 @@ function JourneySection() {
           </div>
         </div>
 
-        <div className="mt-10 rounded-[0.8rem] bg-[#edf5f1] px-5 py-6 md:mt-12 md:px-8 md:py-7">
+        <div className="mt-11 rounded-[0.8rem] bg-[#edf5f1] px-5 py-6 md:px-8 md:py-7">
           <div className="mx-auto flex max-w-[520px] flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
             <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-white text-[#007154] shadow-[0_10px_28px_rgba(9,35,28,0.06)]">
               <ShieldCheck className="h-6 w-6" strokeWidth={1.8} />
