@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import {
   JobsPageHero,
   JobsResultsHeader,
   JobsSidebarFilters,
   JobsEmptyState,
   JobsPagination,
+  JobsResultsLoadingSkeleton,
   PublicJobsPageCard,
 } from "@/components/jobs/PublicJobsMarketplace";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
@@ -12,6 +14,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildPublicJobsBreadcrumbJsonLd,
   getPublicJobFilterOptions,
+  sanitizePublicJobSearchParams,
   searchPublicJobs,
 } from "@/lib/jobs";
 import { getCurrentUser } from "@/lib/auth";
@@ -75,9 +78,11 @@ export async function generateMetadata({
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const rawSearchParams = await searchParams;
-  const result = await searchPublicJobs({ searchParams: rawSearchParams });
-  const filterOptions = await getPublicJobFilterOptions();
-  const currentUser = await getCurrentUser();
+  const filters = sanitizePublicJobSearchParams(rawSearchParams);
+  const [filterOptions, currentUser] = await Promise.all([
+    getPublicJobFilterOptions(),
+    getCurrentUser(),
+  ]);
   const authenticated = Boolean(currentUser);
 
   return (
@@ -85,39 +90,57 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
       <MarketingNav isAuthenticated={authenticated} />
       <main className="min-h-viewport bg-[#f7f8f8] text-[#071512]">
         <JsonLd data={buildPublicJobsBreadcrumbJsonLd()} />
-        <JobsPageHero filters={result.filters} options={filterOptions} />
+        <JobsPageHero filters={filters} options={filterOptions} />
 
         <section className="px-5 py-5 md:px-9 md:py-6" aria-live="polite">
           <div className="mx-auto grid max-w-[1536px] items-start gap-6 lg:grid-cols-[22rem_1fr]">
             <JobsSidebarFilters
-              filters={result.filters}
+              filters={filters}
               options={filterOptions}
-              total={result.total}
             />
 
-            <div className="min-w-0">
-              <JobsResultsHeader total={result.total} />
-
-              {result.jobs.length > 0 ? (
-                <div className="grid gap-1.5">
-                  {result.jobs.map((job, index) => (
-                    <PublicJobsPageCard
-                      key={job.id}
-                      job={job}
-                      authenticated={authenticated}
-                      priorityLogo={index < 3}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <JobsEmptyState filters={result.filters} />
-              )}
-
-              <JobsPagination result={result} />
-            </div>
+            <Suspense fallback={<JobsResultsLoadingSkeleton />}>
+              <JobsResults
+                authenticated={authenticated}
+                searchParams={rawSearchParams}
+              />
+            </Suspense>
           </div>
         </section>
       </main>
     </>
+  );
+}
+
+async function JobsResults({
+  authenticated,
+  searchParams,
+}: {
+  authenticated: boolean;
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const result = await searchPublicJobs({ searchParams });
+
+  return (
+    <div className="min-w-0">
+      <JobsResultsHeader total={result.total} />
+
+      {result.jobs.length > 0 ? (
+        <div className="grid gap-1.5">
+          {result.jobs.map((job, index) => (
+            <PublicJobsPageCard
+              key={job.id}
+              job={job}
+              authenticated={authenticated}
+              priorityLogo={index < 3}
+            />
+          ))}
+        </div>
+      ) : (
+        <JobsEmptyState filters={result.filters} />
+      )}
+
+      <JobsPagination result={result} />
+    </div>
   );
 }

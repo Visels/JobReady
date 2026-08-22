@@ -419,7 +419,7 @@ export function JobsSidebarFilters({
   filters: PublicJobsSearchFilters;
   options: PublicJobFilterOptions;
   resetHref?: string;
-  total: number;
+  total?: number;
 }) {
   return (
     <aside className="rounded-md border border-[#e0e5e8] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.04)] lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto">
@@ -497,7 +497,9 @@ export function JobsSidebarFilters({
             type="submit"
             className="inline-flex h-12 min-w-[13.6rem] items-center justify-center rounded-md bg-[#063b32] px-5 text-[1rem] font-bold text-white shadow-[0_10px_22px_rgba(0,83,63,0.18)] transition hover:-translate-y-px hover:bg-[#012f27] focus:outline-none focus:ring-4 focus:ring-[#00533f]/20 active:scale-[0.98]"
           >
-            Show {total.toLocaleString()} jobs
+            {typeof total === "number"
+              ? `Show ${total.toLocaleString()} jobs`
+              : "Show jobs"}
           </button>
         </div>
       </form>
@@ -1518,35 +1520,73 @@ export function JobsLoadingShell({ detail = false }: { detail?: boolean }) {
     );
   }
 
+  const filters: PublicJobsSearchFilters = {
+    page: 1,
+    pageSize: 10,
+  };
+  const options: PublicJobFilterOptions = {
+    companies: [],
+    roles: [],
+    locations: [],
+    workplaces: [],
+    employmentTypes: [],
+    seniorities: [],
+    closingWindows: [],
+  };
+
   return (
-    <main className="min-h-viewport bg-[#f7efe5] px-5 py-6 text-[#071512] md:px-9">
-      <div className="mx-auto max-w-[1180px]">
-        <div className="h-5 w-48 rounded-full bg-[#e4d7c6]" />
-        <div className="mt-10 rounded-[2rem] border border-[#d9cbb8] bg-white p-8">
-          <div className="h-4 w-44 rounded-full bg-[#e4d7c6]" />
-          <div className="mt-6 h-16 max-w-3xl rounded-3xl bg-[#e4d7c6]" />
-          <div className="mt-5 h-6 max-w-2xl rounded-full bg-[#eadfce]" />
+    <main className="min-h-viewport bg-[#f7f8f8] text-[#071512]">
+      <JobsPageHero filters={filters} options={options} />
+
+      <section className="px-5 py-5 md:px-9 md:py-6" aria-live="polite">
+        <div className="mx-auto grid max-w-[1536px] items-start gap-6 lg:grid-cols-[22rem_1fr]">
+          <JobsSidebarFilters filters={filters} options={options} />
+
+          <JobsResultsLoadingSkeleton />
         </div>
-        <div
-          className={
-            detail
-              ? "mt-8 grid gap-6 lg:grid-cols-[1fr_340px]"
-              : "mt-8 grid gap-5"
-          }
-        >
-          {Array.from({ length: detail ? 3 : 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="min-h-44 animate-pulse rounded-[2rem] border border-[#d9cbb8] bg-white p-6"
-            >
-              <div className="h-4 w-32 rounded-full bg-[#eadfce]" />
-              <div className="mt-5 h-8 w-2/3 rounded-full bg-[#e4d7c6]" />
-              <div className="mt-4 h-5 w-full rounded-full bg-[#eadfce]" />
-              <div className="mt-3 h-5 w-4/5 rounded-full bg-[#eadfce]" />
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
     </main>
+  );
+}
+
+export function JobsResultsLoadingSkeleton() {
+  return (
+    <div className="min-w-0">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="h-6 w-28 rounded-full bg-[#dde4e1]" />
+        <div className="h-11 w-36 rounded-md border border-[#dfe4e8] bg-white" />
+      </div>
+
+      <div className="grid gap-1.5">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <article
+            key={index}
+            className="animate-pulse rounded-md border border-[#e0e5e8] bg-white px-4 py-5 shadow-[0_16px_45px_rgba(15,23,42,0.035)] sm:px-5"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="h-[5.15rem] w-[5.15rem] shrink-0 rounded-lg bg-[#dfe8e4]" />
+
+              <div className="min-w-0 flex-1">
+                <div className="h-7 w-4/5 max-w-[34rem] rounded-full bg-[#dce5e1]" />
+                <div className="mt-2 h-6 w-48 rounded-full bg-[#e7ecea]" />
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="h-5 w-28 rounded-full bg-[#e7ecea]" />
+                  <div className="h-5 w-20 rounded-full bg-[#e7ecea]" />
+                  <div className="h-5 w-32 rounded-full bg-[#e7ecea]" />
+                </div>
+
+                <div className="mt-4 h-8 w-36 rounded-md bg-[#e8f3ed]" />
+              </div>
+
+              <div className="flex shrink-0 items-center justify-between gap-3 sm:min-w-[12rem] sm:justify-end">
+                <div className="h-7 w-24 rounded-md bg-[#d8f3df]" />
+                <div className="h-10 w-10 rounded-md border border-[#e0e5e8] bg-white" />
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
   );
 }
