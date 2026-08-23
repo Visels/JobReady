@@ -959,41 +959,37 @@ export async function getDashboardSidebarPlan(
   const db = input.prisma ?? defaultPrisma;
   const now = input.now ?? new Date();
   const soon = addDays(now, 7);
-  const [
-    user,
-    savedJobCount,
-    openApplicationCount,
-    candidateDocumentCount,
-    urgentSavedJobCount,
-    interviewCredits,
-    tailoringCredits,
-  ] =
-    await Promise.all([
-      db.user.findUnique({
-        where: { id: userId },
-        select: {
-          credits: true,
-          purchases: {
-            orderBy: { createdAt: "desc" },
-            take: 5,
-            select: {
-              createdAt: true,
-              plan: true,
-              planDays: true,
-              accessExpiresAt: true,
-              fulfillmentState: true,
-            },
+  // Keep each burst below the configured Prisma pool size. One large
+  // Promise.all can leave later reads in Prisma's FIFO queue until P2024.
+  const [user, savedJobCount, openApplicationCount] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      select: {
+        credits: true,
+        purchases: {
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: {
+            createdAt: true,
+            plan: true,
+            planDays: true,
+            accessExpiresAt: true,
+            fulfillmentState: true,
           },
         },
-      }),
-      db.savedJob.count({ where: { userId, deletedAt: null } }),
-      db.jobApplication.count({
-        where: {
-          userId,
-          deletedAt: null,
-          currentStatus: { notIn: ["rejected", "withdrawn"] },
-        },
-      }),
+      },
+    }),
+    db.savedJob.count({ where: { userId, deletedAt: null } }),
+    db.jobApplication.count({
+      where: {
+        userId,
+        deletedAt: null,
+        currentStatus: { notIn: ["rejected", "withdrawn"] },
+      },
+    }),
+  ]);
+  const [candidateDocumentCount, urgentSavedJobCount, interviewCredits] =
+    await Promise.all([
       db.candidateDocument.count({
         where: { userId, deletedAt: null, status: "active" },
       }),
@@ -1010,8 +1006,8 @@ export async function getDashboardSidebarPlan(
         },
       }),
       ledgerBalance(db, userId, "interview"),
-      ledgerBalance(db, userId, "tailoring"),
     ]);
+  const tailoringCredits = await ledgerBalance(db, userId, "tailoring");
 
   const plan = getPlan(user ?? { credits: 0, purchases: [] }, {
     interviewCredits,
@@ -1041,16 +1037,9 @@ export async function getDashboardData(
   const db = input.prisma ?? defaultPrisma;
   const now = input.now ?? new Date();
 
-  const [
-    user,
-    savedJobRecords,
-    applicationRecords,
-    documentRecords,
-    tailoringRunRecords,
-    interviewRecords,
-    interviewCredits,
-    tailoringCredits,
-  ] = await Promise.all([
+  // Bound each burst so concurrent layout and page rendering cannot enqueue
+  // the entire dashboard behind a small Prisma connection pool.
+  const [user, savedJobRecords, applicationRecords] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
       select: {
@@ -1111,71 +1100,76 @@ export async function getDashboardData(
       orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
       take: 24,
     }),
-    db.candidateDocument.findMany({
-      where: { userId, status: "active", deletedAt: null },
-      include: {
-        currentVersion: {
-          include: {
-            _count: { select: { facts: true } },
-          },
-        },
-      },
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-      take: 16,
-    }),
-    db.tailoringRun.findMany({
-      where: { userId },
-      include: {
-        jobPostingVersion: {
-          include: {
-            posting: {
-              include: {
-                company: true,
-              },
+  ]);
+  const [documentRecords, tailoringRunRecords, interviewRecords] =
+    await Promise.all([
+      db.candidateDocument.findMany({
+        where: { userId, status: "active", deletedAt: null },
+        include: {
+          currentVersion: {
+            include: {
+              _count: { select: { facts: true } },
             },
           },
         },
-        privateJobTargetVersion: true,
-        exports: {
-          where: { deletedAt: null },
-          select: { format: true },
-          orderBy: { createdAt: "desc" },
-        },
-      },
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-      take: 24,
-    }),
-    db.interviewSession.findMany({
-      where: { userId, sessionKind: "job_interview" },
-      include: {
-        company: true,
-        roleFamily: true,
-        jobRole: true,
-        jobPostingVersion: {
-          include: {
-            posting: {
-              include: {
-                company: true,
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+        take: 16,
+      }),
+      db.tailoringRun.findMany({
+        where: { userId },
+        include: {
+          jobPostingVersion: {
+            include: {
+              posting: {
+                include: {
+                  company: true,
+                },
               },
             },
           },
-        },
-        privateJobTargetVersion: true,
-        interviewReports: {
-          orderBy: { createdAt: "desc" },
-          take: 1,
-          select: {
-            score: true,
-            evidenceStatus: true,
-            priorities: true,
-            actions: true,
-            rubricVersion: true,
+          privateJobTargetVersion: true,
+          exports: {
+            where: { deletedAt: null },
+            select: { format: true },
+            orderBy: { createdAt: "desc" },
           },
         },
-      },
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-      take: 24,
-    }),
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+        take: 24,
+      }),
+      db.interviewSession.findMany({
+        where: { userId, sessionKind: "job_interview" },
+        include: {
+          company: true,
+          roleFamily: true,
+          jobRole: true,
+          jobPostingVersion: {
+            include: {
+              posting: {
+                include: {
+                  company: true,
+                },
+              },
+            },
+          },
+          privateJobTargetVersion: true,
+          interviewReports: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: {
+              score: true,
+              evidenceStatus: true,
+              priorities: true,
+              actions: true,
+              rubricVersion: true,
+            },
+          },
+        },
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+        take: 24,
+      }),
+    ]);
+  const [interviewCredits, tailoringCredits] = await Promise.all([
     ledgerBalance(db, userId, "interview"),
     ledgerBalance(db, userId, "tailoring"),
   ]);

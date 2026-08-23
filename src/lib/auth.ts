@@ -1,4 +1,5 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { cache } from "react";
 import {
   createResendContact,
   hasResendContactConfig,
@@ -169,7 +170,7 @@ export async function syncAppUser(authUser: SupabaseUser) {
   return user;
 }
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async function getCurrentUser() {
   let supabase;
 
   try {
@@ -193,4 +194,4 @@ export async function getCurrentUser() {
   if (error || !user) return null;
 
   return syncAppUser(user);
-}
+});
