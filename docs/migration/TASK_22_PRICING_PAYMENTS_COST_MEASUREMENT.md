@@ -184,7 +184,7 @@ Result:
 - Failed payment recorded with no grants.
 - Failed payment recovered to fulfilled with one grant.
 - Failed preparation released a reserved tailoring credit.
-- Localized pricing returned KES 149 for `interview-standard`.
+- Localized pricing returned KES 150 for `interview-standard`.
 - Bundle entitlements were queryable.
 - Cost distribution returned p50/p95 rows by action, plan, and mode.
 - Configurable limits honored environment overrides.

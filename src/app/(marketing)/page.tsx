@@ -10,14 +10,18 @@ import {
   CheckCircle2,
   ChevronDown,
   CirclePlay,
+  FileText,
   Headphones,
+  Lock,
   MapPin,
   MessageSquareMore,
   Minus,
+  Monitor,
   Plus,
   Search,
   ShieldCheck,
   Star,
+  Users,
 } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BrandMark } from "@/components/ui/BrandMark";
@@ -383,6 +387,51 @@ function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
     .join(" + ");
 }
 
+function pricingFeatures(plan: PlanPrice) {
+  const interviewCredits =
+    plan.entitlements.find((entitlement) => entitlement.productAction === "interview")
+      ?.units ?? 0;
+
+  if (plan.category === "tailoring") {
+    return [
+      "CV revamping",
+      "Cover letter revamping",
+    ];
+  }
+
+  if (interviewCredits > 1) {
+    return [
+      `${interviewCredits} realistic mock interviews`,
+      "AI-powered feedback",
+      "Performance report",
+    ];
+  }
+
+  return [
+    "1 realistic mock interview",
+    "AI-powered feedback",
+    "Performance report",
+  ];
+}
+
+function pricingPriceParts(display: string) {
+  if (display.toLowerCase() === "free") {
+    return { amount: "Free", currency: "" };
+  }
+
+  const normalizedDisplay = display.replace(/\u00a0/g, " ");
+  const priceMatch = normalizedDisplay.match(/^(\D*?)([\d,.]+)(.*)$/);
+
+  if (!priceMatch) {
+    return { amount: normalizedDisplay, currency: "" };
+  }
+
+  return {
+    amount: `${priceMatch[2]}${priceMatch[3]}`.trim(),
+    currency: priceMatch[1].trim(),
+  };
+}
+
 async function getLandingJobs() {
   const [activeResult, highlightsResult] = await Promise.allSettled([
     searchPublicJobs({ searchParams: { pageSize: "4" } }),
@@ -426,10 +475,9 @@ async function getPricingPlans() {
       publicProductConfig.market.defaultCountryCode,
     );
     const preferredPlans = [
-      "starter-diagnostic",
-      "interview-standard",
       "tailoring-single",
-      "job-readiness-bundle",
+      "interview-standard",
+      "interview-pack-3",
     ];
 
     return preferredPlans
@@ -491,45 +539,6 @@ async function getLandingSearchOptions(
       roles: mergeOptions(jobRoles, fallbackRoleOptions),
     };
   }
-}
-
-function SectionIntro({
-  eyebrow,
-  title,
-  copy,
-  id,
-  tone = "default",
-}: {
-  eyebrow: string;
-  title: string;
-  copy: string;
-  id?: string;
-  tone?: "default" | "reversed";
-}) {
-  const reversed = tone === "reversed";
-
-  return (
-    <div id={id} className="max-w-4xl">
-      <p
-        className={`text-sm font-bold uppercase tracking-[0.18em] ${reversed ? "text-[#d7a84f]" : "text-[#6f4e00]"
-          }`}
-      >
-        {eyebrow}
-      </p>
-      <h2
-        className={`mt-5 text-[clamp(2.25rem,3.9vw,4.4rem)] font-bold leading-none tracking-[-0.05em] text-balance ${reversed ? "text-white" : "text-[#071512]"
-          }`}
-      >
-        {title}
-      </h2>
-      <p
-        className={`mt-6 max-w-3xl text-base leading-7 md:text-lg md:leading-8 ${reversed ? "text-white/72" : "text-[#52605b]"
-          }`}
-      >
-        {copy}
-      </p>
-    </div>
-  );
 }
 
 function HeroInterviewPreview() {
@@ -1150,66 +1159,158 @@ function TestimonialsSection() {
 
 function PricingSection({ plans }: { plans: PlanPrice[] }) {
   return (
-    <section id="pricing" className="bg-[#fffaf3] px-5 py-16 md:px-9 md:py-24">
-      <div className="mx-auto max-w-[1320px]">
-        <SectionIntro
-          eyebrow="Transparent pricing"
-          title="Free discovery. Finite paid preparation credits."
-          copy="Job browsing, official apply links, saving, and tracking remain outside paid entitlement. Paid products grant auditable interview or CV tailoring credits."
-        />
+    <section id="pricing" className="scroll-mt-20 bg-[#fffaf3] px-5 py-[72px] md:px-8 md:py-[86px]">
+      <div className="mx-auto max-w-[1110px]">
+        <div className="mx-auto max-w-[680px] text-center">
+          <p className="mx-auto inline-flex rounded-full bg-[#e8f1ec] px-4 py-2 text-[0.9rem] font-bold uppercase leading-none text-[#006148]">
+            Pricing
+          </p>
+          <h2 className="mt-5 text-[clamp(2.9rem,3.95vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#062d25] text-balance">
+            <span className="block">Simple pricing.</span>
+            <span className="relative inline-block text-[#f3af00]">
+              Powerful preparation.
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-1 left-[12%] h-1.5 w-[76%] rounded-full bg-[#f3af00]"
+              />
+            </span>
+          </h2>
+          <p className="mx-auto mt-6 max-w-[610px] text-[1.15rem] font-medium leading-7 text-[#4f5968]">
+            Choose the option that fits your needs and start preparing with
+            confidence.
+          </p>
+        </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-4">
+        <div className="mt-[52px] grid gap-6 lg:grid-cols-3">
           {plans.map((plan) => {
-            const highlighted = plan.highlighted || plan.category === "bundle";
-
+            const interviewCredits =
+              plan.entitlements.find(
+                (entitlement) => entitlement.productAction === "interview",
+              )?.units ?? 0;
+            const isTailoring = plan.category === "tailoring";
+            const CardIcon = isTailoring
+              ? FileText
+              : interviewCredits > 1
+                ? Users
+                : Monitor;
+            const price = pricingPriceParts(plan.display);
+            const features = pricingFeatures(plan);
+            const title = isTailoring
+              ? "CV & cover letter"
+              : interviewCredits > 1
+                ? `${interviewCredits} mock interviews`
+                : "1 mock interview";
+            const description = isTailoring
+              ? "Get your CV and cover letter professionally tailored."
+              : interviewCredits > 1
+                ? "More practice. More feedback. Better results."
+                : "Practice one-on-one with our AI interviewer.";
             return (
               <article
                 key={plan.plan}
-                className={`flex min-h-full flex-col rounded-[1.5rem] border p-6 ${highlighted
-                    ? "border-[#063c31] bg-[#063c31] text-white shadow-[0_28px_70px_rgba(6,60,49,0.18)]"
-                    : "border-[#d9cbb8] bg-white text-[#071512] shadow-[0_18px_54px_rgba(21,35,29,0.06)]"
-                  }`}
+                className="group flex min-h-[390px] flex-col rounded-lg border border-[#edf0ee] bg-white px-6 pb-7 pt-6 text-[#062d25] shadow-[0_18px_45px_rgba(24,39,34,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(24,39,34,0.12)] md:px-7"
               >
-                <p
-                  className={`text-[11px] font-bold uppercase tracking-[0.16em] ${highlighted ? "text-[#d7a84f]" : "text-[#6f4e00]"
-                    }`}
-                >
-                  {plan.modeLabel}
+                <div className="grid gap-6 sm:grid-cols-[5.4rem_1fr] sm:items-center lg:grid-cols-1 xl:grid-cols-[5.4rem_1fr]">
+                  <span className="grid h-[5.4rem] w-[5.4rem] place-items-center rounded-full bg-[#fff2d9] text-[#f3af00] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+                    <CardIcon className="h-11 w-11" strokeWidth={1.75} />
+                  </span>
+                  <div>
+                    <h3 className="text-[1.38rem] font-extrabold leading-tight tracking-[-0.04em] text-[#062d25] md:text-[1.5rem]">
+                      {title}
+                    </h3>
+                    <p className="mt-2 text-sm font-bold uppercase tracking-[0.14em] text-[#6f4e00]">
+                      {plan.modeLabel}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-7 min-h-[3.5rem] text-center text-[1.05rem] font-medium leading-7 text-[#4f5968]">
+                  {description}
                 </p>
-                <h3 className="mt-4 text-2xl font-bold tracking-[-0.035em]">
-                  {plan.name}
-                </h3>
-                <p
-                  className={`mt-4 text-base leading-7 ${highlighted ? "text-white/74" : "text-[#52605b]"
-                    }`}
-                >
-                  {plan.description}
-                </p>
-                <p className="mt-6 text-3xl font-bold tracking-[-0.055em]">
-                  {plan.display}
-                </p>
-                <p
-                  className={`mt-3 text-sm font-bold leading-6 ${highlighted ? "text-white/76" : "text-[#52605b]"
-                    }`}
-                >
-                  {entitlementSummary(plan.entitlements)}. Credits expire after{" "}
-                  {plan.planDays} days.
-                </p>
+
+                <div className="mt-6 border-t border-[#dce3df] pt-6 text-center">
+                  <p className="flex items-end justify-center gap-3 text-[#062d25]">
+                    {price.currency ? (
+                      <span className="pb-2 text-[1.25rem] font-extrabold leading-none tracking-[-0.03em]">
+                        {price.currency}
+                      </span>
+                    ) : null}
+                    <span className="text-[clamp(3.1rem,5vw,4.35rem)] font-extrabold leading-[0.82] tracking-[-0.07em]">
+                      {price.amount}
+                    </span>
+                  </p>
+                  <p className="mt-3 text-sm font-semibold leading-6 text-[#52605b]">
+                    {entitlementSummary(plan.entitlements)}. Credits expire after{" "}
+                    {plan.planDays} days.
+                  </p>
+                </div>
+
                 <Link
                   href={candidateHref(`/billing?plan=${plan.plan}`)}
                   data-analytics-event="purchase_intent_click"
                   data-analytics-product={plan.plan}
-                  className={`mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold uppercase tracking-[0.12em] transition ${highlighted
-                      ? "bg-white text-[#063c31] hover:bg-[#f8efe2]"
-                      : "bg-[#00533f] text-white hover:bg-[#063c31]"
-                    }`}
+                  className="mt-6 inline-flex min-h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#004735] px-7 text-[1rem] font-bold text-white shadow-[0_11px_22px_rgba(0,71,53,0.16)] transition hover:-translate-y-px hover:bg-[#00372b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98]"
                 >
-                  {plan.checkoutEnabled ? "Choose plan" : "Start free"}
-                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  {isTailoring ? "Get started" : "Book now"}
                 </Link>
+
+                <ul className="mt-5 grid gap-3 text-[0.98rem] font-medium leading-5 text-[#384557]">
+                  {features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <CheckCircle2
+                        className="mt-0.5 h-[18px] w-[18px] flex-none text-[#f3af00]"
+                        strokeWidth={2.2}
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </article>
             );
           })}
+        </div>
+
+        <div className="mt-7 rounded-lg bg-[#edf5f1] px-6 py-6 md:px-9">
+          <div className="grid gap-6 md:grid-cols-3 md:divide-x md:divide-[#cbd8d1]">
+            {[
+              {
+                icon: ShieldCheck,
+                title: "Cancel anytime",
+                copy: "No lock-ins.",
+              },
+              {
+                icon: Lock,
+                title: "Secure payments",
+                copy: "Your data is always protected.",
+              },
+              {
+                icon: Headphones,
+                title: "Need help?",
+                copy: "We're here for you.",
+              },
+            ].map((item, index) => {
+              const StripIcon = item.icon;
+
+              return (
+                <div
+                  key={item.title}
+                  className={`flex items-center gap-5 ${index > 0 ? "md:pl-9" : ""}`}
+                >
+                  <span className="grid h-14 w-14 flex-none place-items-center text-[#006148]">
+                    <StripIcon className="h-10 w-10" strokeWidth={1.85} />
+                  </span>
+                  <div>
+                    <h3 className="text-[1.05rem] font-extrabold leading-6 tracking-[-0.03em] text-[#062d25]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 text-[0.98rem] font-medium leading-6 text-[#4f5968]">
+                      {item.copy}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

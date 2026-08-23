@@ -91,7 +91,7 @@ const PLAN_DEFINITIONS = {
     budgetLimitUsd: "0.085",
     durationLimitMinutes: 20,
     entitlements: [{ productAction: "interview", units: 1, expiresAfterDays: 30 }],
-    prices: regionalPrices({ usd: 125, kes: 14900, ngn: 190000, zar: 2200, ghs: 1600 }),
+    prices: regionalPrices({ usd: 125, kes: 15000, ngn: 190000, zar: 2200, ghs: 1600 }),
   },
   "interview-extended": {
     slug: "interview-extended",
@@ -124,7 +124,7 @@ const PLAN_DEFINITIONS = {
     budgetLimitUsd: "0.24",
     durationLimitMinutes: 20,
     entitlements: [{ productAction: "interview", units: 3, expiresAfterDays: 45 }],
-    prices: regionalPrices({ usd: 310, kes: 39900, ngn: 480000, zar: 5600, ghs: 4100 }),
+    prices: regionalPrices({ usd: 310, kes: 40000, ngn: 480000, zar: 5600, ghs: 4100 }),
   },
   "tailoring-single": {
     slug: "tailoring-single",
@@ -139,7 +139,7 @@ const PLAN_DEFINITIONS = {
     modeLabel: "cv tailoring",
     budgetLimitUsd: "0.075",
     entitlements: [{ productAction: "tailoring", units: 1, expiresAfterDays: 30 }],
-    prices: regionalPrices({ usd: 160, kes: 19900, ngn: 240000, zar: 2800, ghs: 2100 }),
+    prices: regionalPrices({ usd: 160, kes: 3000, ngn: 240000, zar: 2800, ghs: 2100 }),
   },
   "job-readiness-bundle": {
     slug: "job-readiness-bundle",

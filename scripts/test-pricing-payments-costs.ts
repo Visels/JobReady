@@ -148,7 +148,7 @@ async function createFixtureUser() {
 
 async function testPricingCatalog() {
   const standard = await planPriceForCountry("KE", "interview-standard");
-  assert.equal(standard.amount, 14900);
+  assert.equal(standard.amount, 15000);
   assert.equal(standard.currency, "kes");
   assert.equal(standard.entitlements.length, 1);
   assert.equal(standard.entitlements[0].productAction, "interview");
