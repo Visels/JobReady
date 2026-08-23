@@ -534,7 +534,7 @@ export function JobsResultsHeader({ total }: { total: number }) {
   );
 }
 
-function JobCompanyLogo({
+export function JobCompanyLogo({
   job,
   priority = false,
 }: {
@@ -1192,15 +1192,13 @@ export function JobDetailActionPanelContent({
     : job.applyHref;
 
   return (
-    <aside className="sticky top-6 rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_20px_70px_rgba(21,35,29,0.08)]">
+    <section className="rounded-xl border border-[#e0e6e2] bg-white p-6 shadow-[0_14px_44px_rgba(19,55,43,0.035)]">
       <AvailabilityBadge job={job} />
-      <h2 className="mt-5 text-2xl font-black tracking-[-0.04em] text-[#071512]">
-        Ready to act?
+      <h2 className="mt-4 text-xl font-bold tracking-[-0.025em] text-[#111b18]">
+        Take the next step
       </h2>
-      <p className="mt-3 text-sm leading-6 text-[#52605b]">
-        Official application access is public. Personal actions ask you to sign
-        in so we can keep your saved jobs, CV/resume versions, and practice
-        history private.
+      <p className="mt-3 text-sm leading-6 text-[#5d6b66]">
+        Apply on the verified destination, or save this role and prepare in your private workspace.
       </p>
       <div className="mt-5 grid gap-3">
         {canApply ? (
@@ -1208,7 +1206,7 @@ export function JobDetailActionPanelContent({
             href={applyHref}
             data-analytics-event="job_apply_click"
             data-analytics-source="job_detail_panel"
-            className="rounded-full bg-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-white transition hover:bg-[#063c31]"
+            className="rounded-md bg-[#00533f] px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#003f30] active:translate-y-px"
           >
             Apply on official site
           </a>
@@ -1220,7 +1218,7 @@ export function JobDetailActionPanelContent({
         )}
         {authenticated ? (
           personalState.savedJobId ? (
-            <p className="rounded-full border border-[#00533f] bg-[#e8fff1] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f]">
+            <p className="rounded-md border border-[#93b8a9] bg-[#eef6f1] px-5 py-3 text-center text-sm font-semibold text-[#00533f]">
               Saved job
             </p>
           ) : (
@@ -1229,7 +1227,7 @@ export function JobDetailActionPanelContent({
                 type="submit"
                 data-analytics-event="job_save_click"
                 data-analytics-source="job_detail_panel"
-                className="w-full rounded-full border border-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+                className="w-full rounded-md border border-[#00533f] px-5 py-3 text-center text-sm font-semibold text-[#00533f] transition hover:bg-[#eef6f1]"
               >
                 Save job
               </button>
@@ -1240,14 +1238,14 @@ export function JobDetailActionPanelContent({
             href={personalActionHref(job.slug, "save")}
             data-analytics-event="job_save_click"
             data-analytics-source="job_detail_panel"
-            className="rounded-full border border-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+            className="rounded-md border border-[#00533f] px-5 py-3 text-center text-sm font-semibold text-[#00533f] transition hover:bg-[#eef6f1]"
           >
             Save job
           </Link>
         )}
         {authenticated ? (
           personalState.applicationId ? (
-            <p className="rounded-full border border-[#d7a84f] bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00]">
+            <p className="rounded-md border border-[#d8c28d] bg-[#fff9e9] px-5 py-3 text-center text-sm font-semibold text-[#6c4b00]">
               Tracking this job
             </p>
           ) : (
@@ -1257,7 +1255,7 @@ export function JobDetailActionPanelContent({
                 type="submit"
                 data-analytics-event="application_tracking_start"
                 data-analytics-source="job_detail_panel"
-                className="w-full rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
+                className="w-full rounded-md border border-[#d8c28d] px-5 py-3 text-center text-sm font-semibold text-[#6c4b00] transition hover:bg-[#fff9e9]"
               >
                 Track application
               </button>
@@ -1272,7 +1270,7 @@ export function JobDetailActionPanelContent({
           }
           data-analytics-event="tailoring_start_click"
           data-analytics-source="job_detail_panel"
-          className="rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
+          className="rounded-md border border-[#d8c28d] px-5 py-3 text-center text-sm font-semibold text-[#6c4b00] transition hover:bg-[#fff9e9]"
         >
           Tailor CV/resume
         </Link>
@@ -1284,7 +1282,7 @@ export function JobDetailActionPanelContent({
           }
           data-analytics-event="interview_start_click"
           data-analytics-source="job_detail_panel"
-          className="rounded-full border border-[#d7a84f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#fff4d6]"
+          className="rounded-md border border-[#d8c28d] px-5 py-3 text-center text-sm font-semibold text-[#6c4b00] transition hover:bg-[#fff9e9]"
         >
           Practise interview
         </Link>
@@ -1292,13 +1290,13 @@ export function JobDetailActionPanelContent({
           href={job.reportHref}
           data-analytics-event="job_report_click"
           data-analytics-source="job_detail_panel"
-          className="rounded-full border border-[#d9cbb8] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#52605b] transition hover:border-[#b45a1a] hover:text-[#b45a1a]"
+          className="rounded-md border border-[#d9dfdb] px-5 py-3 text-center text-sm font-semibold text-[#5d6b66] transition hover:border-[#00533f] hover:text-[#00533f]"
         >
           Report this job
         </a>
       </div>
-      <dl className="mt-6 grid gap-3 text-sm">
-        <div className="rounded-2xl bg-[#f8efe2] p-4">
+      <dl className="mt-6 grid gap-3 border-t border-[#e5eae7] pt-5 text-sm">
+        <div className="rounded-md bg-[#f3f6f4] p-4">
           <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
             Application destination
           </dt>
@@ -1306,7 +1304,7 @@ export function JobDetailActionPanelContent({
             {job.applicationDestinationHost}
           </dd>
         </div>
-        <div className="rounded-2xl bg-[#f8efe2] p-4">
+        <div className="rounded-md bg-[#f3f6f4] p-4">
           <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
             Last verified
           </dt>
@@ -1315,7 +1313,7 @@ export function JobDetailActionPanelContent({
           </dd>
         </div>
       </dl>
-    </aside>
+    </section>
   );
 }
 
@@ -1365,23 +1363,23 @@ export function DetailSection({
   empty: string;
 }) {
   return (
-    <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_16px_48px_rgba(21,35,29,0.05)]">
-      <h2 className="text-2xl font-black tracking-[-0.04em] text-[#071512]">
+    <section>
+      <h2 className="text-2xl font-bold tracking-[-0.03em] text-[#111b18]">
         {title}
       </h2>
       {items.length > 0 ? (
-        <ul className="mt-5 grid gap-3 text-base leading-7 text-[#52605b]">
+        <ul className="mt-4 grid gap-2.5 text-[1.02rem] leading-7 text-[#4d5c57]">
           {items.map((item) => (
             <li
               key={item}
-              className="rounded-2xl border border-[#eadfce] bg-[#fffaf3] px-4 py-3"
+              className="relative pl-5 before:absolute before:left-0 before:top-[0.7rem] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#00533f]"
             >
               {item}
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-base leading-7 text-[#52605b]">{empty}</p>
+        <p className="mt-4 text-base leading-7 text-[#66736f]">{empty}</p>
       )}
     </section>
   );
