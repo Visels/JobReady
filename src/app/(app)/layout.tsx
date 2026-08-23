@@ -44,7 +44,7 @@ export default async function AppLayout({
         email: user.email ?? null,
         image: user.image ?? null,
       }}
-      className={`${dmSans.variable} ${fraunces.variable} min-h-viewport bg-surface font-sans text-primary`}
+      className={`${dmSans.variable} ${fraunces.variable} min-h-viewport bg-surface [font-family:var(--font-dm-sans)] text-primary`}
     >
       {children}
     </AppShell>

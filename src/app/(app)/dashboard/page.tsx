@@ -59,20 +59,6 @@ function formatScore(score: number | null) {
   return score === null ? "Coaching only" : `${score}/100`;
 }
 
-function toneClasses(tone: CandidateWorkspaceData["nextBestAction"]["tone"]) {
-  if (tone === "danger") {
-    return "border-danger/20 bg-danger-surface text-danger";
-  }
-  if (tone === "warning") {
-    return "border-warning/25 bg-warning-surface text-warning";
-  }
-  if (tone === "success") {
-    return "border-success/20 bg-success-surface text-success";
-  }
-
-  return "border-muted-line bg-surface-soft text-primary";
-}
-
 function PrimaryLink({
   href,
   children,
@@ -87,8 +73,8 @@ function PrimaryLink({
       href={href}
       className={
         subtle
-          ? "inline-flex min-h-10 items-center justify-center rounded-full border border-muted-line bg-surface px-4 text-[12px] font-black text-foreground transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
-          : "inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-[12px] font-black text-white shadow-[0_14px_32px_color-mix(in_srgb,var(--color-primary)_18%,transparent)] transition duration-300 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+          ? "inline-flex min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3.5 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+          : "inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3.5 text-[11px] font-semibold text-white transition duration-200 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
       }
     >
       {children}
@@ -106,19 +92,19 @@ function SectionHeader({
   action?: { href: string; label: string };
 }) {
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex items-start justify-between gap-3">
       <div>
-        <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+        <p className="text-[10px] font-semibold text-muted-subtle">
           {eyebrow}
         </p>
-        <h2 className="mt-1 text-[20px] font-black tracking-[-0.04em] text-foreground">
+        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
           {title}
         </h2>
       </div>
       {action ? (
         <Link
           href={action.href}
-          className="rounded-full border border-muted-line bg-surface px-3 py-2 text-[11px] font-black text-foreground transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+          className="rounded-lg border border-muted-line bg-surface px-2.5 py-1.5 text-[10px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
         >
           {action.label}
         </Link>
@@ -139,10 +125,10 @@ function EmptyNote({
   label: string;
 }) {
   return (
-    <div className="rounded-[1.25rem] border border-dashed border-muted-line bg-surface-soft p-5">
-      <p className="text-[14px] font-black text-foreground">{title}</p>
-      <p className="mt-2 text-[12px] leading-5 text-muted">{body}</p>
-      <div className="mt-4">
+    <div className="rounded-xl border border-dashed border-muted-line bg-surface-soft p-4">
+      <p className="text-[13px] font-semibold text-foreground">{title}</p>
+      <p className="mt-1.5 text-[11px] leading-[1.55] text-muted">{body}</p>
+      <div className="mt-3">
         <PrimaryLink href={href} subtle>
           {label}
         </PrimaryLink>
@@ -153,34 +139,32 @@ function EmptyNote({
 
 function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
   return (
-    <header className="relative overflow-hidden rounded-[2rem] border border-muted-line bg-[radial-gradient(circle_at_12%_0%,color-mix(in_srgb,var(--color-accent)_22%,transparent),transparent_30%),linear-gradient(135deg,var(--color-surface),var(--color-surface-warm))] p-6 shadow-shell md:p-8">
-      <div className="pointer-events-none absolute right-8 top-8 h-24 w-24 rounded-full border border-primary/10" />
-      <div className="pointer-events-none absolute -bottom-16 right-24 h-40 w-40 rounded-full bg-primary/8 blur-3xl" />
-      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-[11px] font-black uppercase tracking-badge text-accent-strong">
+    <header className="border-b border-muted-line pb-5 pt-1 md:pb-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-[720px]">
+          <p className="text-[11px] font-semibold text-primary">
             {data.isFirstLogin ? "First sign-in" : "Welcome back"}
           </p>
-          <h1 className="mt-3 max-w-3xl text-[clamp(2.4rem,5vw,5.25rem)] font-black leading-[0.92] tracking-[-0.075em] text-foreground text-balance">
+          <h1 className="mt-1.5 text-[clamp(2rem,3.4vw,3.15rem)] font-semibold leading-[1.02] tracking-[-0.045em] text-foreground text-balance">
             <DashboardGreeting
               name={displayFirstName(data.user.name)}
               initialGreeting={greeting()}
             />
           </h1>
-          <p className="mt-5 max-w-2xl text-[15px] leading-7 text-muted md:text-[17px]">
-            Jiandae helps candidates find verified jobs, tailor CV/resume
-            versions, track applications privately, and practise real job
-            interviews for Kenya and Africa.
+          <p className="mt-3 max-w-[64ch] text-[13px] leading-[1.6] text-muted">
+            Pick up where you left off across jobs, applications, CV versions,
+            and interview practice.
           </p>
         </div>
-        <div className="rounded-[1.35rem] border border-muted-line bg-surface/82 p-4 shadow-panel">
-          <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
-            Access
-          </p>
-          <p className="mt-2 text-[16px] font-black text-foreground">
+        <div className="min-w-[210px] rounded-xl border border-muted-line bg-surface px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-[10px] font-medium text-muted-subtle">Access</p>
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
+          </div>
+          <p className="mt-1 text-[13px] font-semibold text-foreground">
             {data.user.planName}
           </p>
-          <p className="mt-1 text-[12px] leading-5 text-muted">
+          <p className="mt-0.5 text-[10px] leading-4 text-muted">
             {data.user.daysRemaining > 0
               ? `${data.user.daysRemaining} days of interview access remaining.`
               : data.user.freeSessionsRemaining > 0
@@ -195,63 +179,63 @@ function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
 
 function FirstLoginDashboard({ data }: { data: CandidateWorkspaceData }) {
   return (
-    <div className="space-y-6">
-      <section className="grid gap-4 lg:grid-cols-3">
+    <div className="space-y-4">
+      <section className="grid gap-3 lg:grid-cols-3">
         {data.launchChoices.map((choice) => (
           <Link
             key={choice.id}
             href={choice.href}
-            className="group flex min-h-[240px] flex-col justify-between rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel transition duration-300 ease-soft hover:-translate-y-1 hover:border-muted-line-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+            className="group flex min-h-[176px] flex-col justify-between rounded-2xl border border-muted-line bg-surface p-4 transition duration-200 ease-soft hover:-translate-y-0.5 hover:border-muted-line-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
           >
             <span>
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-[11px] font-black text-white">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary-soft text-[9px] font-bold text-primary">
                 {choice.id === "jobs" ? "JB" : choice.id === "cv" ? "CV" : "MI"}
               </span>
-              <span className="mt-5 block text-[24px] font-black tracking-[-0.05em] text-foreground">
+              <span className="mt-4 block text-[17px] font-semibold tracking-[-0.025em] text-foreground">
                 {choice.title}
               </span>
-              <span className="mt-3 block text-[13px] leading-6 text-muted">
+              <span className="mt-2 block text-[11px] leading-[1.55] text-muted">
                 {choice.body}
               </span>
             </span>
-            <span className="mt-7 inline-flex min-h-10 items-center justify-center rounded-full bg-primary-soft px-4 text-[12px] font-black text-primary transition duration-300 ease-soft group-hover:bg-primary group-hover:text-white motion-reduce:transition-none">
+            <span className="mt-5 inline-flex min-h-9 items-center justify-center rounded-lg bg-primary-soft px-3 text-[11px] font-semibold text-primary transition duration-200 ease-soft group-hover:bg-primary group-hover:text-white motion-reduce:transition-none">
               {choice.label}
             </span>
           </Link>
         ))}
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+      <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <article className="rounded-2xl border border-muted-line bg-surface p-4">
           <SectionHeader
             eyebrow="Optional"
             title="Role and location preferences"
           />
-          <p className="mt-3 text-[13px] leading-6 text-muted">
+          <p className="mt-2 text-[11px] leading-[1.6] text-muted">
             You can tell Jiandae what roles and locations you prefer, or skip
             this and use the workspace immediately.
           </p>
-          <div className="mt-5 grid gap-3">
-            <label className="grid gap-2 text-[12px] font-black text-foreground">
+          <div className="mt-4 grid gap-3">
+            <label className="grid gap-1.5 text-[11px] font-semibold text-foreground">
               Target role
               <input
                 type="text"
                 name="role"
                 placeholder="Product Manager, Software Engineer, Analyst"
-                className="min-h-11 rounded-xl border border-muted-line bg-surface-soft px-3 text-[13px] font-semibold text-foreground outline-none transition duration-300 ease-soft placeholder:text-muted-subtle focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15 motion-reduce:transition-none"
+                className="min-h-10 rounded-lg border border-muted-line bg-surface-soft px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15 motion-reduce:transition-none"
               />
             </label>
-            <label className="grid gap-2 text-[12px] font-black text-foreground">
+            <label className="grid gap-1.5 text-[11px] font-semibold text-foreground">
               Preferred location
               <input
                 type="text"
                 name="location"
                 placeholder="Nairobi, Mombasa, remote, East Africa"
-                className="min-h-11 rounded-xl border border-muted-line bg-surface-soft px-3 text-[13px] font-semibold text-foreground outline-none transition duration-300 ease-soft placeholder:text-muted-subtle focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15 motion-reduce:transition-none"
+                className="min-h-10 rounded-lg border border-muted-line bg-surface-soft px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15 motion-reduce:transition-none"
               />
             </label>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <PrimaryLink href="/profile" subtle>
               Save later in profile
             </PrimaryLink>
@@ -261,12 +245,12 @@ function FirstLoginDashboard({ data }: { data: CandidateWorkspaceData }) {
           </div>
         </article>
 
-        <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+        <article className="rounded-2xl border border-muted-line bg-surface p-4">
           <SectionHeader
             eyebrow="What appears next"
             title="Your private workspace fills as you move"
           />
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {data.firstLoginEmptyStates.map((state) => (
               <EmptyNote
                 key={state.id}
@@ -287,25 +271,25 @@ function NextBestAction({ data }: { data: CandidateWorkspaceData }) {
   const action = data.nextBestAction;
 
   return (
-    <section className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel md:p-6">
-      <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-        <div className="flex gap-4">
+    <section className="rounded-2xl border border-primary/15 bg-primary px-4 py-4 text-white md:px-5">
+      <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="flex gap-3.5">
           <span
-            className={`grid h-12 w-12 flex-none place-items-center rounded-2xl border text-[11px] font-black ${toneClasses(action.tone)}`}
+            className="grid h-9 w-9 flex-none place-items-center rounded-lg border border-white/15 bg-white/10 text-[9px] font-bold text-white"
           >
             NBA
           </span>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+            <p className="text-[10px] font-medium text-white/58">
               {action.eyebrow}
             </p>
-            <h2 className="mt-1 text-[24px] font-black tracking-[-0.05em] text-foreground">
+            <h2 className="mt-1 text-[18px] font-semibold tracking-[-0.025em] text-white">
               {action.title}
             </h2>
-            <p className="mt-2 max-w-3xl text-[13px] leading-6 text-muted">
+            <p className="mt-1.5 max-w-3xl text-[11px] leading-[1.55] text-white/72">
               {action.body}
             </p>
-            <p className="mt-3 text-[12px] font-bold leading-5 text-primary">
+            <p className="mt-2 text-[10px] font-medium leading-4 text-white/58">
               Why this: {action.reason}
             </p>
           </div>
@@ -323,14 +307,17 @@ function QuickStartRow({ data }: { data: CandidateWorkspaceData }) {
         <Link
           key={choice.id}
           href={choice.href}
-          className="group grid gap-2 rounded-[1.25rem] border border-muted-line bg-surface px-4 py-4 shadow-[0_12px_32px_rgba(27,36,48,0.05)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-muted-line-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+          className="group flex items-center justify-between gap-3 rounded-xl border border-muted-line bg-surface px-3.5 py-3 transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
         >
-          <span className="text-[12px] font-black text-foreground">
-            {choice.title}
+          <span>
+            <span className="block text-[11px] font-semibold text-foreground">
+              {choice.title}
+            </span>
+            <span className="mt-0.5 block text-[10px] text-muted">
+              {choice.label}
+            </span>
           </span>
-          <span className="text-[11px] leading-4 text-muted">
-            {choice.label}
-          </span>
+          <span className="text-[14px] text-muted-subtle transition-transform duration-200 group-hover:translate-x-0.5">→</span>
         </Link>
       ))}
     </section>
@@ -341,25 +328,25 @@ function SavedJobRow({ job }: { job: WorkspaceSavedJob }) {
   return (
     <Link
       href={job.href}
-      className="group grid gap-3 rounded-[1.2rem] border border-muted-line bg-surface-soft p-4 transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+      className="group grid gap-2 rounded-xl border border-muted-line bg-surface-soft p-3.5 transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
     >
       <span className="flex flex-wrap items-start justify-between gap-3">
         <span>
-          <span className="block text-[14px] font-black text-foreground">
+          <span className="block text-[12px] font-semibold text-foreground">
             {job.title}
           </span>
-          <span className="mt-1 block text-[12px] leading-5 text-muted">
+          <span className="mt-0.5 block text-[10px] leading-4 text-muted">
             {job.companyName} / closes {formatDate(job.closesAt)}
           </span>
         </span>
-        <span className="rounded-full bg-accent-surface px-2.5 py-1 text-[10px] font-black text-accent-strong">
+        <span className="rounded-md bg-accent-surface px-2 py-1 text-[9px] font-semibold text-accent-strong">
           {job.statusLabel}
         </span>
       </span>
       {job.warning ? (
-        <span className="text-[11px] leading-4 text-warning">{job.warning}</span>
+        <span className="text-[10px] leading-4 text-warning">{job.warning}</span>
       ) : (
-        <span className="text-[11px] font-bold text-primary">
+        <span className="text-[10px] font-medium text-primary">
           Review, tailor, practise, or open the official apply destination.
         </span>
       )}
@@ -369,13 +356,13 @@ function SavedJobRow({ job }: { job: WorkspaceSavedJob }) {
 
 function SavedJobsPanel({ jobs }: { jobs: WorkspaceSavedJob[] }) {
   return (
-    <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+    <article className="rounded-2xl border border-muted-line bg-surface p-4">
       <SectionHeader
         eyebrow="Saved jobs"
         title="Closing soon or needs action"
         action={{ href: "/saved-jobs", label: "View all" }}
       />
-      <div className="mt-5 grid gap-3">
+      <div className="mt-4 grid gap-2.5">
         {jobs.length > 0 ? (
           jobs.map((job) => <SavedJobRow key={job.id} job={job} />)
         ) : (
@@ -401,33 +388,33 @@ function ApplicationPipeline({
   const latest = applications[0] ?? null;
 
   return (
-    <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+    <article className="rounded-2xl border border-muted-line bg-surface p-4">
       <SectionHeader
         eyebrow="Applications"
         title="Private pipeline"
         action={{ href: "/applications", label: "Open tracker" }}
       />
       {stages.length > 0 ? (
-        <div className="mt-5 grid gap-2">
+        <div className="mt-4 grid gap-2">
           {stages.map((stage) => (
             <div
               key={stage.status}
-              className="flex items-center justify-between rounded-2xl border border-muted-line bg-surface-soft px-4 py-3"
+              className="flex items-center justify-between rounded-xl border border-muted-line bg-surface-soft px-3.5 py-2.5"
             >
-              <span className="text-[13px] font-black text-foreground">
+              <span className="text-[11px] font-semibold text-foreground">
                 {stage.label}
               </span>
-              <span className="rounded-full bg-primary text-white px-2.5 py-1 text-[11px] font-black">
+              <span className="min-w-6 rounded-md bg-primary px-2 py-1 text-center text-[9px] font-semibold text-white tabular-nums">
                 {stage.count}
               </span>
             </div>
           ))}
           {latest ? (
-            <div className="mt-3 rounded-2xl border border-primary/12 bg-primary-soft p-4">
-              <p className="text-[12px] font-black text-primary">
+            <div className="mt-2 rounded-xl border border-primary/12 bg-primary-soft p-3.5">
+              <p className="text-[11px] font-semibold text-primary">
                 Latest target: {latest.targetTitle}
               </p>
-              <p className="mt-1 text-[11px] leading-4 text-muted">
+              <p className="mt-1 text-[10px] leading-4 text-muted">
                 {latest.linkedDocumentTitle
                   ? `Linked CV/resume: ${latest.linkedDocumentTitle}.`
                   : "No tailored document linked yet."}{" "}
@@ -439,7 +426,7 @@ function ApplicationPipeline({
           ) : null}
         </div>
       ) : (
-        <div className="mt-5">
+        <div className="mt-4">
           <EmptyNote
             title="No tracked applications"
             body="Start tracking from a saved public job or a private target. Jiandae never marks an application as applied unless you confirm it."
@@ -460,19 +447,19 @@ function DocumentPanel({
   tailoredVersions: WorkspaceTailoredVersion[];
 }) {
   return (
-    <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+    <article className="rounded-2xl border border-muted-line bg-surface p-4">
       <SectionHeader
         eyebrow="CV & Resume"
         title="Base document and latest versions"
         action={{ href: "/cv-resume", label: "Open workspace" }}
       />
-      <div className="mt-5 grid gap-3">
+      <div className="mt-4 grid gap-2.5">
         {currentDocument ? (
-          <div className="rounded-[1.2rem] border border-muted-line bg-surface-soft p-4">
-            <p className="text-[14px] font-black text-foreground">
+          <div className="rounded-xl border border-muted-line bg-surface-soft p-3.5">
+            <p className="text-[12px] font-semibold text-foreground">
               {currentDocument.title}
             </p>
-            <p className="mt-1 text-[12px] leading-5 text-muted">
+            <p className="mt-1 text-[10px] leading-4 text-muted">
               Current {currentDocument.kind.toLowerCase()} version{" "}
               {currentDocument.currentVersionNumber ?? "unavailable"} with{" "}
               {currentDocument.factCount} allowlisted fact
@@ -492,19 +479,19 @@ function DocumentPanel({
           <Link
             key={version.runId}
             href={version.href}
-            className="rounded-[1.2rem] border border-muted-line bg-surface-soft p-4 transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+            className="rounded-xl border border-muted-line bg-surface-soft p-3.5 transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
           >
             <span className="flex flex-wrap items-start justify-between gap-3">
               <span>
-                <span className="block text-[13px] font-black text-foreground">
+                <span className="block text-[11px] font-semibold text-foreground">
                   {version.roleTitle}
                 </span>
-                <span className="mt-1 block text-[11px] leading-4 text-muted">
+                <span className="mt-0.5 block text-[10px] leading-4 text-muted">
                   {version.companyName ?? "Company not specified"} /{" "}
                   {version.targetLabel}
                 </span>
               </span>
-              <span className="rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-black text-primary">
+              <span className="rounded-md bg-primary-soft px-2 py-1 text-[9px] font-semibold text-primary">
                 {version.statusLabel}
               </span>
             </span>
@@ -525,34 +512,34 @@ function InterviewPanel({
   trend: CandidateWorkspaceData["reportTrend"];
 }) {
   return (
-    <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+    <article className="rounded-2xl border border-muted-line bg-surface p-4">
       <SectionHeader
         eyebrow="Interviews"
         title="Reports and next practice"
         action={{ href: "/reports", label: "View reports" }}
       />
-      <div className="mt-5 grid gap-3">
+      <div className="mt-4 grid gap-2.5">
         {latestReport ? (
-          <div className="rounded-[1.2rem] border border-muted-line bg-surface-soft p-4">
+          <div className="rounded-xl border border-muted-line bg-surface-soft p-3.5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-[14px] font-black text-foreground">
+                <p className="text-[12px] font-semibold text-foreground">
                   {latestReport.targetTitle}
                 </p>
-                <p className="mt-1 text-[12px] leading-5 text-muted">
+                <p className="mt-0.5 text-[10px] leading-4 text-muted">
                   {latestReport.companyName ?? "Company not specified"} /{" "}
                   {latestReport.mode ?? "Mode not set"}
                 </p>
               </div>
-              <span className="rounded-full bg-primary text-white px-2.5 py-1 text-[11px] font-black">
+              <span className="rounded-md bg-primary px-2 py-1 text-[9px] font-semibold text-white tabular-nums">
                 {formatScore(latestReport.score)}
               </span>
             </div>
-            <p className="mt-3 text-[12px] leading-5 text-muted">
+            <p className="mt-2 text-[10px] leading-4 text-muted">
               {latestReport.nextPracticePriority ??
                 "Report coaching is available without presenting a hiring-probability score."}
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {latestReport.reportHref ? (
                 <PrimaryLink href={latestReport.reportHref} subtle>
                   View latest report
@@ -579,22 +566,22 @@ function InterviewPanel({
             <Link
               key={interview.id}
               href={interview.resumeHref}
-              className="rounded-[1.2rem] border border-warning/25 bg-warning-surface p-4 text-warning transition duration-300 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+              className="rounded-xl border border-warning/25 bg-warning-surface p-3.5 text-warning transition duration-200 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
             >
-              <span className="block text-[13px] font-black">
+              <span className="block text-[11px] font-semibold">
                 Resume {interview.targetTitle}
               </span>
-              <span className="mt-1 block text-[11px] leading-4">
+              <span className="mt-0.5 block text-[10px] leading-4">
                 In-progress interviews stay above new practice suggestions.
               </span>
             </Link>
           ))}
 
-        <div className="rounded-[1.2rem] border border-muted-line bg-surface-soft p-4">
-          <p className="text-[12px] font-black text-foreground">
+        <div className="rounded-xl border border-muted-line bg-surface-soft p-3.5">
+          <p className="text-[11px] font-semibold text-foreground">
             {trend.label}
           </p>
-          <p className="mt-1 text-[11px] leading-4 text-muted">
+          <p className="mt-1 text-[10px] leading-4 text-muted">
             {trend.reason}
           </p>
         </div>
@@ -607,18 +594,18 @@ function ActivityRow({ activity }: { activity: WorkspaceActivity }) {
   return (
     <Link
       href={activity.href}
-      className="grid gap-1 rounded-[1.1rem] border border-muted-line bg-surface-soft p-4 transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+      className="grid gap-1 rounded-xl border border-muted-line bg-surface-soft px-3.5 py-3 transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
     >
       <span className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-[13px] font-black text-foreground">
+        <span className="text-[11px] font-semibold text-foreground">
           {activity.title}
         </span>
-        <span className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+        <span className="text-[9px] font-medium text-muted-subtle">
           {activity.actionLabel}
         </span>
       </span>
-      <span className="text-[11px] leading-4 text-muted">{activity.body}</span>
-      <span className="text-[10px] font-bold text-muted-subtle">
+      <span className="text-[10px] leading-4 text-muted">{activity.body}</span>
+      <span className="text-[9px] font-medium text-muted-subtle">
         {formatDate(activity.occurredAt)}
       </span>
     </Link>
@@ -627,9 +614,9 @@ function ActivityRow({ activity }: { activity: WorkspaceActivity }) {
 
 function RecentActivity({ activities }: { activities: WorkspaceActivity[] }) {
   return (
-    <article className="rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel">
+    <article className="rounded-2xl border border-muted-line bg-surface p-4">
       <SectionHeader eyebrow="Activity" title="Recent movement" />
-      <div className="mt-5 grid gap-3">
+      <div className="mt-4 grid gap-2.5">
         {activities.length > 0 ? (
           activities.map((activity) => (
             <ActivityRow key={activity.id} activity={activity} />
@@ -649,11 +636,11 @@ function RecentActivity({ activities }: { activities: WorkspaceActivity[] }) {
 
 function ReturningDashboard({ data }: { data: CandidateWorkspaceData }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <NextBestAction data={data} />
       <QuickStartRow data={data} />
 
-      <section className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+      <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
         <SavedJobsPanel jobs={data.urgentSavedJobs} />
         <ApplicationPipeline
           stages={data.applicationPipeline}
@@ -661,7 +648,7 @@ function ReturningDashboard({ data }: { data: CandidateWorkspaceData }) {
         />
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+      <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
         <DocumentPanel
           currentDocument={data.currentDocument}
           tailoredVersions={data.tailoredVersions}
@@ -686,7 +673,7 @@ async function DashboardBody({
   const data = await dataPromise;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <DashboardHero data={data} />
       {data.isFirstLogin ? (
         <FirstLoginDashboard data={data} />
@@ -709,9 +696,9 @@ export default async function DashboardPage({
   const dataPromise = getDashboardData(user.id);
 
   return (
-    <main className="min-h-[calc(100dvh-86px)] px-4 py-5 text-foreground md:px-6 lg:px-7">
+    <main className="min-h-[calc(100dvh-72px)] px-4 py-4 text-foreground md:px-5 lg:px-6">
       <CheckoutStatusToast status={params.checkout} />
-      <div className="mx-auto max-w-[1220px]">
+      <div className="mx-auto max-w-[1120px]">
         <Suspense fallback={<DashboardBodySkeleton />}>
           <DashboardBody dataPromise={dataPromise} />
         </Suspense>

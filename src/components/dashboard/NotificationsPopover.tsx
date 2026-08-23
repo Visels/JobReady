@@ -68,11 +68,11 @@ export function DashboardNotificationsPopover({
         aria-haspopup="dialog"
         title="Notifications"
         onClick={() => setOpen((current) => !current)}
-        className="relative grid h-10 w-10 place-items-center rounded-full border border-muted-line bg-surface text-[12px] font-black text-primary transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+        className="relative grid h-9 w-9 place-items-center rounded-lg border border-muted-line bg-surface text-[9px] font-semibold text-primary transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
       >
         <span aria-hidden="true">NT</span>
         {unreadCount > 0 ? (
-          <span className="absolute right-2.5 top-2 h-2.5 w-2.5 rounded-full bg-accent" />
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent ring-2 ring-surface" />
         ) : null}
       </button>
 
@@ -80,18 +80,18 @@ export function DashboardNotificationsPopover({
         <section
           role="dialog"
           aria-label="Notifications"
-          className="absolute right-0 top-[calc(100%+10px)] z-40 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-[1.3rem] border border-muted-line bg-surface shadow-[0_24px_70px_rgba(27,36,48,0.14)]"
+          className="absolute right-0 top-[calc(100%+8px)] z-40 w-[min(320px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-muted-line bg-surface shadow-[0_18px_50px_rgba(27,36,48,0.12)]"
         >
           <div className="flex items-center justify-between border-b border-muted-line px-4 py-3">
-            <h2 className="text-[14px] font-black leading-5 text-foreground">
+            <h2 className="text-[12px] font-semibold leading-5 text-foreground">
               Notifications
             </h2>
             {unreadCount > 0 ? (
-              <span className="rounded-full bg-accent-surface px-2 py-1 text-[10px] font-black leading-none text-accent-strong">
+              <span className="rounded-md bg-accent-surface px-2 py-1 text-[9px] font-semibold leading-none text-accent-strong">
                 {unreadCount} new
               </span>
             ) : (
-              <span className="rounded-full bg-primary-soft px-2 py-1 text-[10px] font-black leading-none text-primary">
+              <span className="rounded-md bg-primary-soft px-2 py-1 text-[9px] font-semibold leading-none text-primary">
                 All read
               </span>
             )}
@@ -101,21 +101,21 @@ export function DashboardNotificationsPopover({
               unreadNotifications.map((notification) => (
                 <article
                   key={notification.id}
-                  className="grid grid-cols-[34px_1fr] gap-3 px-4 py-3 transition duration-300 ease-soft hover:bg-surface-soft motion-reduce:transition-none"
+                  className="grid grid-cols-[30px_1fr] gap-2.5 px-4 py-3 transition duration-200 ease-soft hover:bg-surface-soft motion-reduce:transition-none"
                 >
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-primary-soft text-[10px] font-black text-primary">
+                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary-soft text-[8px] font-semibold text-primary">
                     JR
                   </span>
                   <span className="min-w-0">
                     <span className="flex items-center justify-between gap-3">
-                      <span className="truncate text-[13px] font-black leading-5 text-foreground">
+                      <span className="truncate text-[11px] font-semibold leading-5 text-foreground">
                         {notification.title}
                       </span>
-                      <span className="flex-none text-[11px] leading-4 text-muted-subtle">
+                      <span className="flex-none text-[9px] leading-4 text-muted-subtle">
                         {notification.time}
                       </span>
                     </span>
-                    <span className="mt-0.5 block text-[12px] leading-5 text-muted">
+                    <span className="mt-0.5 block text-[10px] leading-4 text-muted">
                       {notification.body}
                     </span>
                   </span>
@@ -123,10 +123,10 @@ export function DashboardNotificationsPopover({
               ))
             ) : (
               <div className="px-4 py-6 text-center">
-                <p className="text-[13px] font-black leading-5 text-foreground">
+                <p className="text-[11px] font-semibold leading-5 text-foreground">
                   No unread notifications
                 </p>
-                <p className="mt-1 text-[12px] leading-5 text-muted">
+                <p className="mt-1 text-[10px] leading-4 text-muted">
                   You are all caught up for now.
                 </p>
               </div>
@@ -139,7 +139,7 @@ export function DashboardNotificationsPopover({
               markAllAsRead();
             }}
             disabled={unreadCount === 0}
-            className="min-h-10 w-full border-t border-muted-line bg-surface px-4 text-[12px] font-black text-primary transition duration-300 ease-soft hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press disabled:cursor-not-allowed disabled:text-muted-subtle motion-reduce:transition-none"
+            className="min-h-9 w-full border-t border-muted-line bg-surface px-4 text-[10px] font-semibold text-primary transition duration-200 ease-soft hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press disabled:cursor-not-allowed disabled:text-muted-subtle motion-reduce:transition-none"
           >
             Mark all as read
           </button>

@@ -137,8 +137,8 @@ const adminItem: NavItem = {
 const pageContexts = [
   {
     match: (pathname: string) => pathname === "/dashboard",
-    title: "Home",
-    kicker: "Private candidate workspace",
+    title: "Workspace",
+    kicker: "Jiandae",
     action: { href: "/interviews/new", label: "New mock interview" },
   },
   {
@@ -285,8 +285,8 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       title={collapsed ? item.label : undefined}
       className={classes(
-        "group flex min-h-11 items-center rounded-xl border text-[13px] font-bold transition duration-300 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none",
-        collapsed ? "justify-center px-2" : "gap-3 px-3",
+        "group flex min-h-10 items-center rounded-lg border text-[11px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none",
+        collapsed ? "justify-center px-2" : "gap-2.5 px-2.5",
         active
           ? "border-white/18 bg-white text-primary shadow-[0_16px_34px_rgba(0,0,0,0.12)]"
           : "border-transparent text-white/78 hover:bg-white/10 hover:text-white",
@@ -295,7 +295,7 @@ function NavLink({
       <span
         aria-hidden="true"
         className={classes(
-          "grid h-7 w-7 flex-none place-items-center rounded-lg border text-[10px] font-black tracking-[-0.02em]",
+          "grid h-6 w-6 flex-none place-items-center rounded-md border text-[8px] font-bold tracking-[-0.01em]",
           active
             ? "border-primary/10 bg-primary text-white"
             : "border-white/12 bg-white/8 text-white/72 group-hover:border-white/22 group-hover:text-white",
@@ -331,14 +331,14 @@ function DesktopSidebar({
   return (
     <aside
       className={classes(
-        "fixed inset-y-0 left-0 z-30 hidden flex-col bg-primary px-3 py-5 text-white shadow-[16px_0_54px_color-mix(in_srgb,var(--color-primary)_20%,transparent)] transition-[width] duration-300 ease-soft motion-reduce:transition-none lg:flex",
-        collapsed ? "w-[78px]" : "w-[238px]",
+        "fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-white/8 bg-primary px-2.5 py-4 text-white transition-[width] duration-300 ease-soft motion-reduce:transition-none lg:flex",
+        collapsed ? "w-[68px]" : "w-[216px]",
       )}
       aria-label="Primary workspace navigation"
     >
       <div
         className={classes(
-          "flex min-h-12 items-center",
+          "flex min-h-10 items-center",
           collapsed ? "justify-center" : "justify-between gap-3 px-1",
         )}
       >
@@ -349,9 +349,9 @@ function DesktopSidebar({
             aria-label="Expand side panel"
             aria-pressed={collapsed}
             title="Expand side panel"
-            className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 transition duration-300 ease-soft hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none"
+            className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 transition duration-200 ease-soft hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none"
           >
-            <BrandMark mode="compact" tone="reversed" markClassName="h-7 w-7" />
+            <BrandMark mode="compact" tone="reversed" markClassName="h-6 w-6" />
           </button>
         ) : (
           <>
@@ -365,7 +365,7 @@ function DesktopSidebar({
                 mode="full"
                 tone="reversed"
                 className="inline-flex min-w-0 items-center"
-                wordmarkClassName="h-8"
+                wordmarkClassName="h-7"
               />
             </Link>
             <button
@@ -374,7 +374,7 @@ function DesktopSidebar({
               aria-label="Collapse side panel"
               aria-pressed={collapsed}
               title="Collapse side panel"
-              className="grid h-9 w-9 flex-none place-items-center rounded-xl border border-white/12 text-[13px] font-black text-white/70 transition duration-300 ease-soft hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none"
+              className="grid h-8 w-8 flex-none place-items-center rounded-lg border border-white/12 text-[10px] font-bold text-white/70 transition duration-200 ease-soft hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none"
             >
               <span aria-hidden="true">{"<<"}</span>
             </button>
@@ -382,8 +382,8 @@ function DesktopSidebar({
         )}
       </div>
 
-      <nav className="mt-8 flex-1 space-y-7">
-        <div className="space-y-1.5">
+      <nav className="mt-6 flex-1 space-y-5">
+        <div className="space-y-1">
           {workspaceItems.map((item) => (
             <NavLink
               key={item.href}
@@ -396,13 +396,13 @@ function DesktopSidebar({
 
         <section>
           {!collapsed ? (
-            <h2 className="px-2 text-[10px] font-black uppercase tracking-badge text-white/52">
+            <h2 className="px-2 text-[9px] font-medium text-white/48">
               Prepare
             </h2>
           ) : (
             <span className="sr-only">Prepare</span>
           )}
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-1.5 space-y-1">
             {prepareItems.map((item) => (
               <NavLink
                 key={item.href}
@@ -417,13 +417,13 @@ function DesktopSidebar({
         {canManageContent ? (
           <section>
             {!collapsed ? (
-              <h2 className="px-2 text-[10px] font-black uppercase tracking-badge text-white/52">
+              <h2 className="px-2 text-[9px] font-medium text-white/48">
                 Operations
               </h2>
             ) : (
               <span className="sr-only">Operations</span>
             )}
-            <div className="mt-2 space-y-1.5">
+            <div className="mt-1.5 space-y-1">
               <NavLink
                 item={adminItem}
                 collapsed={collapsed}
@@ -436,14 +436,14 @@ function DesktopSidebar({
 
       <div className="space-y-3">
         {!collapsed ? (
-          <div className="rounded-2xl border border-white/10 bg-white/8 p-3">
-            <p className="text-[10px] font-black uppercase tracking-badge text-white/52">
+          <div className="rounded-xl border border-white/10 bg-white/7 p-2.5">
+            <p className="text-[9px] font-medium text-white/48">
               Account
             </p>
-            <p className="mt-2 text-[13px] font-bold leading-5 text-white">
+            <p className="mt-1.5 text-[11px] font-semibold leading-4 text-white">
               {planSummary(plan)}
             </p>
-            <p className="mt-1 text-[11px] leading-4 text-white/60">
+            <p className="mt-0.5 text-[9px] leading-4 text-white/58">
               {plan.name}
             </p>
           </div>
@@ -456,11 +456,11 @@ function DesktopSidebar({
           aria-haspopup="dialog"
           title={collapsed ? accountName(user) : undefined}
           className={classes(
-            "flex min-h-12 w-full items-center rounded-2xl border border-white/10 bg-white/8 text-left text-white transition duration-300 ease-soft hover:bg-white/12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none",
+            "flex min-h-10 w-full items-center rounded-xl border border-white/10 bg-white/7 text-left text-white transition duration-200 ease-soft hover:bg-white/12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none",
             collapsed ? "justify-center px-1" : "gap-3 px-2",
           )}
         >
-          <span className="grid h-10 w-10 flex-none place-items-center overflow-hidden rounded-full bg-white/14 text-[14px] font-black ring-1 ring-white/12">
+          <span className="grid h-8 w-8 flex-none place-items-center overflow-hidden rounded-lg bg-white/14 text-[11px] font-semibold ring-1 ring-white/12">
             {user.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -474,10 +474,10 @@ function DesktopSidebar({
           </span>
           {!collapsed ? (
             <span className="min-w-0">
-              <span className="block truncate text-[13px] font-black">
+              <span className="block truncate text-[11px] font-semibold">
                 {accountName(user)}
               </span>
-              <span className="mt-0.5 block truncate text-[11px] text-white/62">
+              <span className="mt-0.5 block truncate text-[9px] text-white/58">
                 {user.email ?? "No email available"}
               </span>
             </span>
@@ -496,7 +496,7 @@ function MobileBottomNav({
   return (
     <nav
       aria-label="Mobile primary navigation"
-      className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 overflow-hidden rounded-[1.35rem] border border-muted-line bg-surface/96 p-1 shadow-[0_18px_52px_rgba(27,36,48,0.16)] backdrop-blur lg:hidden"
+      className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 overflow-hidden rounded-xl border border-muted-line bg-surface/96 p-1 shadow-[0_14px_40px_rgba(27,36,48,0.14)] backdrop-blur lg:hidden"
     >
       {mobileItems.map((item) => {
         const active = item.match(pathname);
@@ -508,7 +508,7 @@ function MobileBottomNav({
             aria-current={active ? "page" : undefined}
             title={item.label}
             className={classes(
-              "flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-center text-[10px] font-black transition duration-300 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none",
+              "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-center text-[9px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none",
               active
                 ? "bg-primary text-white"
                 : "text-muted hover:bg-surface-soft hover:text-primary",
@@ -743,13 +743,13 @@ function WorkspaceTopBar({
   }, [plan]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-muted-line bg-background/88 px-4 py-3 backdrop-blur md:px-6 lg:px-7">
-      <div className="flex min-h-14 items-center justify-between gap-4">
+    <header className="sticky top-0 z-20 border-b border-muted-line bg-background/92 px-4 py-2 backdrop-blur md:px-5 lg:px-6">
+      <div className="flex min-h-12 items-center justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+          <p className="text-[9px] font-medium text-muted-subtle">
             {context.kicker}
           </p>
-          <h1 className="mt-1 truncate text-[22px] font-black tracking-[-0.05em] text-foreground md:text-[26px]">
+          <h1 className="mt-0.5 truncate text-[16px] font-semibold tracking-[-0.025em] text-foreground md:text-[17px]">
             {context.title}
           </h1>
         </div>
@@ -757,7 +757,7 @@ function WorkspaceTopBar({
         <div className="flex items-center gap-2">
           <Link
             href={context.action.href}
-            className="hidden min-h-10 items-center justify-center rounded-full border border-muted-line bg-surface px-4 text-[12px] font-black text-foreground transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none sm:inline-flex"
+            className="hidden min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3.5 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none sm:inline-flex"
           >
             {context.action.label}
           </Link>
@@ -768,7 +768,7 @@ function WorkspaceTopBar({
             aria-label="Open account and more menu"
             aria-haspopup="dialog"
             title="Account and more"
-            className="grid h-10 w-10 place-items-center overflow-hidden rounded-full border border-muted-line bg-surface text-[13px] font-black text-primary shadow-[0_10px_26px_rgba(27,36,48,0.08)] transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+            className="grid h-9 w-9 place-items-center overflow-hidden rounded-lg border border-muted-line bg-surface text-[11px] font-semibold text-primary transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
           >
             {user.image ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -952,7 +952,7 @@ export function AppShell({
       <div
         className={classes(
           "min-h-[100dvh] bg-background pb-24 transition-[padding] duration-300 ease-soft motion-reduce:transition-none lg:pb-0",
-          collapsed ? "lg:pl-[78px]" : "lg:pl-[238px]",
+          collapsed ? "lg:pl-[68px]" : "lg:pl-[216px]",
         )}
       >
         <WorkspaceTopBar
