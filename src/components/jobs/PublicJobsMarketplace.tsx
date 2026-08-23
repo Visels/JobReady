@@ -1145,11 +1145,11 @@ export function JobsPagination({
 
 export function NonAffiliationNotice({ job }: { job: PublicJobSummary }) {
   return (
-    <aside className="rounded-[1.5rem] border border-[#d9cbb8] bg-[#fffaf3] p-5 text-sm leading-6 text-[#52605b]">
-      <p className="font-black uppercase tracking-[0.14em] text-[#173a32]">
+    <aside className="rounded-xl border border-[#e0e6e2] bg-white p-6 text-sm leading-6 text-[#5d6b66] shadow-[0_14px_44px_rgba(19,55,43,0.025)] md:p-8">
+      <p className="font-semibold text-[#111b18]">
         Non-affiliation notice
       </p>
-      <p className="mt-2">
+      <p className="mt-2 max-w-[76ch]">
         Jiandae is not affiliated with {job.companyName} unless explicitly
         stated. We review public information to help candidates prepare, but
         applications are completed only on the official destination shown here.
@@ -1387,20 +1387,20 @@ export function DetailSection({
 
 export function JobSourcePanel({ job }: { job: PublicJobDetail }) {
   return (
-    <section className="rounded-[2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6">
-      <h2 className="text-2xl font-black tracking-[-0.04em] text-[#071512]">
+    <section className="rounded-xl border border-[#e0e6e2] bg-white p-6 shadow-[0_14px_44px_rgba(19,55,43,0.025)] md:p-8">
+      <h2 className="text-xl font-bold tracking-[-0.025em] text-[#111b18]">
         Source and verification
       </h2>
-      <dl className="mt-5 grid gap-3 text-sm md:grid-cols-2">
-        <div>
-          <dt className="font-bold uppercase tracking-[0.14em] text-[#7c6d5e]">
+      <dl className="mt-6 grid gap-x-8 gap-y-6 text-sm sm:grid-cols-2">
+        <div className="border-l-2 border-[#dbe7e1] pl-4">
+          <dt className="text-[#66736f]">
             Source
           </dt>
-          <dd className="mt-1 font-bold text-[#173a32]">
+          <dd className="mt-1 font-semibold text-[#15221e]">
             {job.sourceUrl ? (
               <a
                 href={job.sourceUrl}
-                className="underline decoration-[#d7a84f] underline-offset-4"
+                className="underline decoration-[#7ca595] underline-offset-4 transition hover:text-[#00533f]"
               >
                 {job.sourceName}
               </a>
@@ -1409,27 +1409,27 @@ export function JobSourcePanel({ job }: { job: PublicJobDetail }) {
             )}
           </dd>
         </div>
-        <div>
-          <dt className="font-bold uppercase tracking-[0.14em] text-[#7c6d5e]">
+        <div className="border-l-2 border-[#dbe7e1] pl-4">
+          <dt className="text-[#66736f]">
             Application destination
           </dt>
-          <dd className="mt-1 font-bold text-[#173a32]">
+          <dd className="mt-1 font-semibold text-[#15221e]">
             {job.applicationDestinationHost}
           </dd>
         </div>
-        <div>
-          <dt className="font-bold uppercase tracking-[0.14em] text-[#7c6d5e]">
+        <div className="border-l-2 border-[#dbe7e1] pl-4">
+          <dt className="text-[#66736f]">
             Source published
           </dt>
-          <dd className="mt-1 font-bold text-[#173a32]">
+          <dd className="mt-1 font-semibold text-[#15221e]">
             {formatDate(job.sourcePublishedAt)}
           </dd>
         </div>
-        <div>
-          <dt className="font-bold uppercase tracking-[0.14em] text-[#7c6d5e]">
+        <div className="border-l-2 border-[#dbe7e1] pl-4">
+          <dt className="text-[#66736f]">
             Last verified
           </dt>
-          <dd className="mt-1 font-bold text-[#173a32]">
+          <dd className="mt-1 font-semibold text-[#15221e]">
             {formatDate(job.lastVerifiedAt)}
           </dd>
         </div>
@@ -1441,76 +1441,42 @@ export function JobSourcePanel({ job }: { job: PublicJobDetail }) {
 export function JobsLoadingShell({ detail = false }: { detail?: boolean }) {
   if (detail) {
     return (
-      <main className="min-h-viewport bg-[radial-gradient(circle_at_18%_8%,rgba(215,168,79,0.2),transparent_28%),radial-gradient(circle_at_84%_6%,rgba(0,83,63,0.14),transparent_30%),#f7efe5] px-5 py-6 text-[#071512] md:px-9">
-        <div className="mx-auto max-w-[1180px] animate-pulse">
-          <div className="h-16 rounded-md border border-[#d9cbb8] bg-white/80" />
-
-          <div className="mb-6 mt-6 flex items-center gap-2">
-            <div className="h-4 w-12 rounded-full bg-[#e4d7c6]" />
-            <div className="h-4 w-2 rounded-full bg-[#e4d7c6]" />
-            <div className="h-4 w-28 rounded-full bg-[#e4d7c6]" />
+      <main className="min-h-viewport bg-[#f8faf8] px-4 pb-16 pt-5 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1280px] animate-pulse">
+          <div className="flex items-center justify-between border-b border-[#e1e7e3] pb-5">
+            <div className="h-4 w-24 rounded bg-[#dfe7e2]" />
+            <div className="flex gap-5"><div className="h-4 w-16 rounded bg-[#dfe7e2]" /><div className="h-4 w-12 rounded bg-[#dfe7e2]" /></div>
           </div>
 
-          <header className="relative overflow-hidden rounded-[2.2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-10">
-            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-[#d7a84f]/20 blur-3xl" />
-            <div className="relative max-w-4xl">
-              <div className="h-4 w-48 rounded-full bg-[#d7c4aa]" />
-              <div className="mt-6 h-24 max-w-4xl rounded-[1.5rem] bg-[#e4d7c6] md:h-32" />
-              <div className="mt-6 h-7 w-80 max-w-full rounded-full bg-[#e4d7c6]" />
-              <div className="mt-6 grid max-w-3xl gap-3">
-                <div className="h-5 rounded-full bg-[#eadfce]" />
-                <div className="h-5 w-5/6 rounded-full bg-[#eadfce]" />
+          <header className="mt-6 rounded-xl border border-[#e0e6e2] bg-white p-6 shadow-[0_14px_44px_rgba(19,55,43,0.045)] md:p-8">
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0 flex-1">
+                <div className="h-6 w-20 rounded-md bg-[#e3ebe6]" />
+                <div className="mt-4 h-12 w-[min(38rem,85%)] rounded-md bg-[#dfe7e2] md:h-14" />
+                <div className="mt-4 h-5 w-72 max-w-[80%] rounded bg-[#e7ece9]" />
               </div>
+              <div className="h-20 w-20 shrink-0 rounded-lg bg-[#e3ebe6]" />
             </div>
+            <div className="mt-8 grid gap-5 border-t border-[#e8ece9] pt-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => <div key={index} className="flex gap-3"><div className="h-5 w-5 rounded bg-[#dce6e0]" /><div className="flex-1"><div className="h-4 w-3/4 rounded bg-[#dfe7e2]" /><div className="mt-2 h-3 w-1/2 rounded bg-[#edf1ee]" /></div></div>)}
+            </div>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row"><div className="h-12 w-full rounded-md bg-[#d7e3dd] sm:w-44" /><div className="h-12 w-full rounded-md border border-[#d7e3dd] bg-[#f3f6f4] sm:w-52" /></div>
           </header>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+          <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div className="grid gap-6">
-              <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_16px_48px_rgba(21,35,29,0.05)]">
-                <div className="h-7 w-44 rounded-full bg-[#e4d7c6]" />
-                <div className="mt-6 grid gap-3">
-                  <div className="h-5 rounded-full bg-[#eadfce]" />
-                  <div className="h-5 rounded-full bg-[#eadfce]" />
-                  <div className="h-5 w-4/5 rounded-full bg-[#eadfce]" />
-                </div>
-                <div className="mt-6 grid gap-3 md:grid-cols-2">
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <div key={index} className="h-20 rounded-2xl bg-[#f8efe2]" />
-                  ))}
-                </div>
-              </section>
-
-              {Array.from({ length: 4 }).map((_, index) => (
-                <section
-                  key={index}
-                  className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_16px_48px_rgba(21,35,29,0.05)]"
-                >
-                  <div className="h-7 w-56 rounded-full bg-[#e4d7c6]" />
-                  <div className="mt-5 grid gap-3">
-                    <div className="h-14 rounded-2xl bg-[#fffaf3]" />
-                    <div className="h-14 rounded-2xl bg-[#fffaf3]" />
-                    <div className="h-14 w-11/12 rounded-2xl bg-[#fffaf3]" />
-                  </div>
-                </section>
-              ))}
+              <article className="rounded-xl border border-[#e0e6e2] bg-white p-6 shadow-[0_14px_44px_rgba(19,55,43,0.035)] md:p-8">
+                <div className="flex gap-7 border-b border-[#e2e8e4] pb-4"><div className="h-4 w-24 rounded bg-[#d7e3dd]" /><div className="h-4 w-20 rounded bg-[#e7ece9]" /><div className="h-4 w-24 rounded bg-[#e7ece9]" /></div>
+                <div className="pt-7"><div className="h-7 w-40 rounded bg-[#dfe7e2]" /><div className="mt-5 grid gap-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className={`h-4 rounded bg-[#e9eeeb] ${index === 4 ? "w-3/4" : "w-full"}`} />)}</div></div>
+                {Array.from({ length: 3 }).map((_, sectionIndex) => <div key={sectionIndex} className="mt-8 border-t border-[#e5eae7] pt-8"><div className="h-7 w-48 rounded bg-[#dfe7e2]" /><div className="mt-5 grid gap-3">{Array.from({ length: 4 }).map((_, index) => <div key={index} className={`ml-5 h-4 rounded bg-[#e9eeeb] ${index === 3 ? "w-2/3" : "w-5/6"}`} />)}</div></div>)}
+                <div className="mt-9 h-24 rounded-lg bg-[#eef4f0]" />
+              </article>
+              {Array.from({ length: 3 }).map((_, index) => <section key={index} className="rounded-xl border border-[#e0e6e2] bg-white p-6 md:p-8"><div className="h-6 w-44 rounded bg-[#dfe7e2]" /><div className="mt-6 grid gap-4 sm:grid-cols-2"><div className="h-12 rounded bg-[#edf1ee]" /><div className="h-12 rounded bg-[#edf1ee]" /></div></section>)}
             </div>
 
-            <aside className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_20px_70px_rgba(21,35,29,0.08)] lg:sticky lg:top-6 lg:self-start">
-              <div className="h-7 w-28 rounded-full bg-[#d7c4aa]" />
-              <div className="mt-5 h-8 w-44 rounded-full bg-[#e4d7c6]" />
-              <div className="mt-4 grid gap-2">
-                <div className="h-4 rounded-full bg-[#eadfce]" />
-                <div className="h-4 w-4/5 rounded-full bg-[#eadfce]" />
-              </div>
-              <div className="mt-5 grid gap-3">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="h-12 rounded-full bg-[#fff4d6]" />
-                ))}
-              </div>
-              <div className="mt-6 grid gap-3">
-                <div className="h-20 rounded-2xl bg-[#f8efe2]" />
-                <div className="h-20 rounded-2xl bg-[#f8efe2]" />
-              </div>
+            <aside className="grid gap-6 lg:sticky lg:top-6">
+              <section className="rounded-xl border border-[#e0e6e2] bg-white p-6"><div className="h-6 w-40 rounded bg-[#dfe7e2]" /><div className="mt-5 flex gap-4"><div className="h-20 w-20 rounded-lg bg-[#e3ebe6]" /><div className="flex-1 pt-2"><div className="h-4 w-28 rounded bg-[#dfe7e2]" /><div className="mt-3 h-3 w-20 rounded bg-[#edf1ee]" /></div></div><div className="mt-5 h-4 w-full rounded bg-[#e9eeeb]" /><div className="mt-3 h-4 w-4/5 rounded bg-[#e9eeeb]" /></section>
+              <section className="rounded-xl border border-[#e0e6e2] bg-white p-6"><div className="h-6 w-32 rounded bg-[#dfe7e2]" /><div className="mt-5 grid gap-3">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="h-12 rounded-md bg-[#edf2ef]" />)}</div><div className="mt-6 grid gap-3 border-t border-[#e5eae7] pt-5"><div className="h-16 rounded-md bg-[#f3f6f4]" /><div className="h-16 rounded-md bg-[#f3f6f4]" /></div></section>
             </aside>
           </div>
         </div>
