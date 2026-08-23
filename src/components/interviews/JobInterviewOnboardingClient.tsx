@@ -65,7 +65,7 @@ function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <p className="text-[12px] font-semibold leading-5 text-danger" role="alert">
+    <p className="text-[10px] font-medium leading-4 text-danger" role="alert">
       {message}
     </p>
   );
@@ -108,16 +108,16 @@ function SearchableSelect({
   const errorId = `${id}-error`;
 
   return (
-    <div className="grid gap-2">
+    <div className="grid gap-1.5">
       <label
         htmlFor={`${id}-search`}
-        className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173a32]"
+        className="text-[11px] font-semibold text-foreground"
       >
         {label}
         {required ? <span className="text-danger"> *</span> : null}
       </label>
       {helper ? (
-        <p id={helperId} className="text-[13px] leading-5 text-[#5f6b67]">
+        <p id={helperId} className="text-[10px] leading-4 text-muted">
           {helper}
         </p>
       ) : null}
@@ -129,7 +129,7 @@ function SearchableSelect({
         onChange={(event) => setQuery(event.target.value)}
         placeholder={`Search ${label.toLowerCase()}`}
         aria-describedby={helper ? helperId : undefined}
-        className="h-11 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-[14px] font-semibold text-[#071512] outline-none transition duration-300 ease-soft placeholder:text-[#8a8075] focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15 disabled:cursor-not-allowed disabled:bg-[#f4efe7]"
+        className="h-9 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-surface-soft"
       />
       <select
         value={value}
@@ -138,7 +138,7 @@ function SearchableSelect({
         aria-invalid={Boolean(error)}
         aria-describedby={classes(helper ? helperId : null, error ? errorId : null)}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 py-3 text-[14px] font-bold text-[#071512] outline-none transition duration-300 ease-soft focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15 disabled:cursor-not-allowed disabled:bg-[#f4efe7]"
+        className="min-h-10 rounded-lg border border-muted-line bg-surface px-3 py-2 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-surface-soft"
       >
         {allowEmpty ? <option value="">{placeholder}</option> : null}
         {selectOptions.map((option) => (
@@ -148,7 +148,7 @@ function SearchableSelect({
         ))}
       </select>
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[#d8cbb9] bg-[#fffaf3] px-4 py-3 text-[13px] font-semibold text-[#6a5b49]">
+        <p className="rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2 text-[10px] font-medium text-muted">
           {emptyText}
         </p>
       ) : null}
@@ -179,10 +179,10 @@ function RadioCard({
   return (
     <label
       className={classes(
-        "group relative min-h-32 cursor-pointer rounded-[1.6rem] border bg-white p-5 transition duration-300 ease-soft focus-within:ring-4 focus-within:ring-[#00533f]/15",
+        "group relative min-h-[98px] cursor-pointer rounded-xl border bg-surface p-3.5 transition duration-200 ease-soft focus-within:ring-2 focus-within:ring-primary/15",
         checked
-          ? "border-[#00533f] shadow-[0_18px_48px_rgba(0,83,63,0.12)]"
-          : "border-[#d8cbb9] hover:-translate-y-0.5 hover:border-[#bca875]",
+          ? "border-primary bg-primary-soft/60"
+          : "border-muted-line hover:border-muted-line-strong hover:bg-surface-soft",
         disabled ? "cursor-not-allowed opacity-55" : null,
       )}
     >
@@ -198,14 +198,14 @@ function RadioCard({
       <span
         aria-hidden="true"
         className={classes(
-          "absolute right-5 top-5 h-4 w-4 rounded-full border transition duration-300",
-          checked ? "border-[#00533f] bg-[#00533f]" : "border-[#b9a996]",
+          "absolute right-3.5 top-3.5 h-3.5 w-3.5 rounded-full border transition duration-200",
+          checked ? "border-primary bg-primary" : "border-muted-line-strong",
         )}
       />
-      <span className="block pr-8 text-[16px] font-black leading-5 text-[#071512]">
+      <span className="block pr-7 text-[12px] font-semibold leading-4 text-foreground">
         {title}
       </span>
-      <span className="mt-3 block text-[13px] leading-5 text-[#52605b]">
+      <span className="mt-1.5 block text-[10px] leading-[1.5] text-muted">
         {body}
       </span>
     </label>
@@ -214,15 +214,15 @@ function RadioCard({
 
 function LoadingShell() {
   return (
-    <div className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_52px_rgba(21,35,29,0.06)]">
-      <div className="grid gap-4">
-        <div className="h-5 w-44 rounded-full skeleton-shimmer" />
-        <div className="h-16 rounded-[1.4rem] skeleton-shimmer" />
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="h-40 rounded-[1.4rem] skeleton-shimmer" />
-          <div className="h-40 rounded-[1.4rem] skeleton-shimmer" />
+    <div className="rounded-2xl border border-muted-line bg-surface p-4">
+      <div className="grid gap-3">
+        <div className="h-4 w-36 rounded-md skeleton-shimmer" />
+        <div className="h-10 rounded-lg skeleton-shimmer" />
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="h-28 rounded-xl skeleton-shimmer" />
+          <div className="h-28 rounded-xl skeleton-shimmer" />
         </div>
-        <div className="h-24 rounded-[1.4rem] skeleton-shimmer" />
+        <div className="h-20 rounded-xl skeleton-shimmer" />
       </div>
     </div>
   );
@@ -473,17 +473,17 @@ export function JobInterviewOnboardingClient({
   if (!draftReady) return <LoadingShell />;
 
   return (
-    <form onSubmit={submit} className="grid gap-6">
-      <div className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6">
+    <form onSubmit={submit} className="grid gap-4">
+      <div className="rounded-2xl border border-muted-line bg-surface p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
+            <p className="text-[10px] font-semibold text-primary">
               Step 1
             </p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#071512]">
+            <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
               Choose your interview path
             </h2>
-            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#52605b]">
+            <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
               Start from a saved public job, a private target, or a standalone
               company and role. Jobs and CVs stay optional.
             </p>
@@ -491,15 +491,15 @@ export function JobInterviewOnboardingClient({
           <button
             type="button"
             onClick={resetDraft}
-            className="rounded-full border border-[#d9cbb8] px-4 py-2 text-[12px] font-black uppercase tracking-[0.14em] text-[#52605b] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#00533f] hover:text-[#00533f] active:scale-press"
+            className="rounded-lg border border-muted-line px-3 py-2 text-[10px] font-semibold text-muted transition duration-200 ease-soft hover:border-primary hover:text-primary active:scale-press"
           >
             Reset draft
           </button>
         </div>
 
-        <fieldset className="mt-5">
+        <fieldset className="mt-4">
           <legend className="sr-only">Interview entry path</legend>
-          <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr_1fr]">
+          <div className="grid gap-3 lg:grid-cols-[1.1fr_1fr_1fr]">
             <RadioCard
               name="entry-path"
               value="standalone"
@@ -530,7 +530,7 @@ export function JobInterviewOnboardingClient({
         </fieldset>
 
         {draft.entryPath === "public_job" ? (
-          <div className="mt-5 grid gap-4 rounded-[1.6rem] border border-[#eadfce] bg-[#fffaf3] p-4">
+          <div className="mt-4 grid gap-3 rounded-xl border border-muted-line bg-surface-soft p-3.5">
             <SearchableSelect
               label="Public job"
               helper="Search by title, company, market, role, location, source, or application host."
@@ -550,11 +550,11 @@ export function JobInterviewOnboardingClient({
               error={fieldErrors.publicJobPostingVersionId}
             />
             {publicTarget ? (
-              <div className="rounded-[1.3rem] border border-[#d7a84f]/50 bg-white px-4 py-3 text-[13px] leading-5 text-[#52605b]">
-                <p className="font-black uppercase tracking-[0.14em] text-[#6c4b00]">
+              <div className="rounded-lg border border-accent/35 bg-surface px-3 py-2.5 text-[10px] leading-4 text-muted">
+                <p className="font-semibold text-accent-strong">
                   Trustworthy prefill
                 </p>
-                <p className="mt-2">
+                <p className="mt-1.5">
                   {publicTarget.prefillSourceLabel} Selected context:
                   {" "}
                   {publicTarget.companyLabel}, {publicTarget.marketLabel},{" "}
@@ -570,7 +570,7 @@ export function JobInterviewOnboardingClient({
         ) : null}
 
         {draft.entryPath === "private_job" ? (
-          <div className="mt-5 grid gap-4 rounded-[1.6rem] border border-[#eadfce] bg-[#fffaf3] p-4">
+          <div className="mt-4 grid gap-3 rounded-xl border border-muted-line bg-surface-soft p-3.5">
             <SearchableSelect
               label="Private target"
               helper="Search your private saved targets by role, company, market, or requirements."
@@ -590,11 +590,11 @@ export function JobInterviewOnboardingClient({
               error={fieldErrors.privateJobTargetVersionId}
             />
             {privateTarget ? (
-              <div className="rounded-[1.3rem] border border-[#d7a84f]/50 bg-white px-4 py-3 text-[13px] leading-5 text-[#52605b]">
-                <p className="font-black uppercase tracking-[0.14em] text-[#6c4b00]">
+              <div className="rounded-lg border border-accent/35 bg-surface px-3 py-2.5 text-[10px] leading-4 text-muted">
+                <p className="font-semibold text-accent-strong">
                   Private prefill
                 </p>
-                <p className="mt-2">
+                <p className="mt-1.5">
                   This uses your private target version {privateTarget.versionNumber}.
                   If a field was missing, the role controls below provide the
                   fallback used for the session.
@@ -605,19 +605,19 @@ export function JobInterviewOnboardingClient({
         ) : null}
       </div>
 
-      <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6">
-        <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
+      <section className="rounded-2xl border border-muted-line bg-surface p-4">
+        <p className="text-[10px] font-semibold text-primary">
           Required setup
         </p>
-        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#071512]">
+        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
           Market, role, seniority
         </h2>
-        <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#52605b]">
+        <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
           You choose familiar job language. Jiandae maps it to reviewed
           interview plans internally, without asking you to configure rubrics.
         </p>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <SearchableSelect
             label="Market"
             helper="English-first setup for Kenya launch content."
@@ -629,11 +629,11 @@ export function JobInterviewOnboardingClient({
             error={fieldErrors.marketId}
           />
 
-          <fieldset className="grid gap-3">
-            <legend className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173a32]">
+          <fieldset className="grid gap-2.5">
+            <legend className="text-[11px] font-semibold text-foreground">
               Company
             </legend>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               <RadioCard
                 name="company-mode"
                 value="listed"
@@ -668,10 +668,10 @@ export function JobInterviewOnboardingClient({
               error={fieldErrors.companyId}
             />
           ) : (
-            <div className="grid gap-2 rounded-[1.5rem] border border-[#d7a84f]/50 bg-[#fffaf3] p-4">
+            <div className="grid gap-1.5 rounded-xl border border-accent/35 bg-surface-soft p-3.5">
               <label
                 htmlFor="other-company-name"
-                className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173a32]"
+                className="text-[11px] font-semibold text-foreground"
               >
                 Other company name
               </label>
@@ -683,9 +683,9 @@ export function JobInterviewOnboardingClient({
                   patchDraft({ otherCompanyName: event.target.value })
                 }
                 placeholder="Example: Nairobi fintech, county agency, NGO"
-                className="h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-[14px] font-semibold text-[#071512] outline-none transition duration-300 ease-soft placeholder:text-[#8a8075] focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+                className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:ring-2 focus:ring-primary/15"
               />
-              <p className="text-[13px] leading-5 text-[#5f6b67]">
+              <p className="text-[10px] leading-4 text-muted">
                 If we do not have reviewed company-specific content, the session
                 uses the selected market, role, seniority, and industry-style
                 questions. The company name is stored as a client label only.
@@ -739,17 +739,17 @@ export function JobInterviewOnboardingClient({
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6">
-        <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
+      <section className="rounded-2xl border border-muted-line bg-surface p-4">
+        <p className="text-[10px] font-semibold text-primary">
           Practice shape
         </p>
-        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#071512]">
+        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
           Focus, mode, duration
         </h2>
 
-        <fieldset className="mt-5">
+        <fieldset className="mt-4">
           <legend className="sr-only">Interview focus</legend>
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-3 lg:grid-cols-3">
             <RadioCard
               name="focus-mode"
               value="recommended"
@@ -789,9 +789,9 @@ export function JobInterviewOnboardingClient({
           </div>
         </fieldset>
 
-        <div className="mt-5 grid gap-5 md:grid-cols-3">
-          <label className="grid gap-2">
-            <span className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173a32]">
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <label className="grid gap-1.5">
+            <span className="text-[11px] font-semibold text-foreground">
               Mode
             </span>
             <select
@@ -802,15 +802,15 @@ export function JobInterviewOnboardingClient({
                     .value as InterviewOnboardingDraft["interviewMode"],
                 })
               }
-              className="h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-[14px] font-bold text-[#071512] outline-none transition duration-300 ease-soft focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+              className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="text">Text interview</option>
               <option value="voice">Voice interview</option>
             </select>
           </label>
 
-          <label className="grid gap-2">
-            <span className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173a32]">
+          <label className="grid gap-1.5">
+            <span className="text-[11px] font-semibold text-foreground">
               Duration
             </span>
             <select
@@ -818,7 +818,7 @@ export function JobInterviewOnboardingClient({
               onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                 patchDraft({ durationMinutes: Number(event.target.value) })
               }
-              className="h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-[14px] font-bold text-[#071512] outline-none transition duration-300 ease-soft focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+              className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               {[15, 25, 30, 45, 60].map((minutes) => (
                 <option key={minutes} value={minutes}>
@@ -828,18 +828,18 @@ export function JobInterviewOnboardingClient({
             </select>
           </label>
 
-          <label className="grid gap-2">
-            <span className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173a32]">
+          <label className="grid gap-1.5">
+            <span className="text-[11px] font-semibold text-foreground">
               Language
             </span>
             <select
               value={draft.language}
               onChange={() => patchDraft({ language: "en" })}
-              className="h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-[14px] font-bold text-[#071512] outline-none transition duration-300 ease-soft focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+              className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="en">English</option>
             </select>
-            <span className="text-[12px] leading-5 text-[#5f6b67]">
+            <span className="text-[10px] leading-4 text-muted">
               More languages can be added after the English-first launch.
             </span>
           </label>
@@ -848,31 +848,31 @@ export function JobInterviewOnboardingClient({
 
       <section
         className={classes(
-          "rounded-[2rem] border bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] transition duration-300 md:p-6",
-          setupComplete ? "border-[#d9cbb8]" : "border-[#eadfce] opacity-80",
+          "rounded-2xl border bg-surface p-4 transition duration-200",
+          setupComplete ? "border-muted-line" : "border-muted-line opacity-75",
         )}
       >
-        <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
+        <p className="text-[10px] font-semibold text-primary">
           Optional personalization
         </p>
-        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#071512]">
+        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
           CV/resume context
         </h2>
-        <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#52605b]">
+        <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
           This appears after required setup and never blocks interview creation.
           There is no upload here.
         </p>
 
         {!setupComplete ? (
-          <p className="mt-4 rounded-[1.4rem] border border-dashed border-[#d8cbb9] bg-[#fffaf3] px-4 py-3 text-[13px] font-semibold text-[#6a5b49]">
+          <p className="mt-3 rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2.5 text-[10px] font-medium text-muted">
             Complete market, role, seniority, and any selected target first.
             You can still skip CV.
           </p>
         ) : null}
 
-        <fieldset className="mt-5" disabled={!setupComplete}>
+        <fieldset className="mt-4" disabled={!setupComplete}>
           <legend className="sr-only">CV personalization choice</legend>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             <RadioCard
               name="cv-choice"
               value="skip"
@@ -907,7 +907,7 @@ export function JobInterviewOnboardingClient({
         {setupComplete &&
         draft.candidateDocumentChoice === "use" &&
         options.candidateDocuments.length > 0 ? (
-          <div className="mt-5 grid gap-4 rounded-[1.6rem] border border-[#eadfce] bg-[#fffaf3] p-4">
+          <div className="mt-4 grid gap-3 rounded-xl border border-muted-line bg-surface-soft p-3.5">
             <SearchableSelect
               label="CV/resume version"
               helper="Choose one already parsed version. Uploading belongs to the documents flow, not this setup."
@@ -925,31 +925,31 @@ export function JobInterviewOnboardingClient({
               error={fieldErrors.candidateDocumentVersionId}
             />
             {cvDocument ? (
-              <div className="rounded-[1.4rem] border border-[#d7a84f]/50 bg-white p-4 text-[13px] leading-5 text-[#52605b]">
-                <p className="font-black uppercase tracking-[0.14em] text-[#6c4b00]">
+              <div className="rounded-lg border border-accent/35 bg-surface p-3 text-[10px] leading-4 text-muted">
+                <p className="font-semibold text-accent-strong">
                   Exactly what will be used
                 </p>
-                <p className="mt-2">
+                <p className="mt-1.5">
                   Jiandae will use up to 10 structured facts from this version:
                   fact labels, skill names, confirmation status, evidence type,
                   and short source excerpts. It will not use raw file text,
                   private storage objects, other documents, or upload metadata.
                 </p>
                 {cvDocument.facts.length > 0 ? (
-                  <ul className="mt-3 grid gap-2">
+                  <ul className="mt-2.5 grid gap-1.5">
                     {cvDocument.facts.map((fact) => (
                       <li
                         key={fact.id}
-                        className="rounded-2xl border border-[#eadfce] bg-[#fffaf3] px-3 py-2"
+                        className="rounded-lg border border-muted-line bg-surface-soft px-3 py-2"
                       >
-                        <span className="font-bold text-[#173a32]">
+                        <span className="font-semibold text-foreground">
                           {fact.label}
                         </span>
                         {fact.skillName ? (
                           <span> / {fact.skillName}</span>
                         ) : null}
                         {fact.sourceExcerpt ? (
-                          <span className="block text-[#697671]">
+                          <span className="block text-muted">
                             {fact.sourceExcerpt}
                           </span>
                         ) : null}
@@ -957,7 +957,7 @@ export function JobInterviewOnboardingClient({
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-3 rounded-2xl border border-dashed border-[#d8cbb9] bg-[#fffaf3] px-3 py-2 font-semibold text-[#6a5b49]">
+                  <p className="mt-2.5 rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2 font-medium text-muted">
                     This document has no allowlisted facts yet. Skip CV for now.
                   </p>
                 )}
@@ -967,29 +967,29 @@ export function JobInterviewOnboardingClient({
         ) : null}
 
         {setupComplete && options.candidateDocuments.length === 0 ? (
-          <p className="mt-5 rounded-[1.4rem] border border-dashed border-[#d8cbb9] bg-[#fffaf3] px-4 py-3 text-[13px] font-semibold text-[#6a5b49]">
+          <p className="mt-4 rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2.5 text-[10px] font-medium text-muted">
             No parsed CV/resume is available yet. Choose Skip CV and start from
             the job setup.
           </p>
         ) : null}
       </section>
 
-      <section className="rounded-[2rem] border border-[#173a32] bg-[#071512] p-5 text-white shadow-[0_24px_70px_rgba(7,21,18,0.18)] md:p-6">
-        <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+      <section className="rounded-2xl border border-primary bg-primary p-4 text-white">
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#d7a84f]">
+            <p className="text-[10px] font-semibold text-white/58">
               Review
             </p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-0.04em]">
+            <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em]">
               {focusModeText(draft.focusMode)} / {draft.durationMinutes} minutes
             </h2>
-            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-white/72">
+            <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-white/70">
               Submitting creates one valid job-interview session, reserves one
               interview credit, persists the selected question set, and routes
               you to preparation.
             </p>
             {draft.companyId ? null : (
-              <p className="mt-3 rounded-2xl border border-[#d7a84f]/40 bg-[#d7a84f]/10 px-4 py-3 text-[13px] leading-5 text-[#ffe8ae]">
+              <p className="mt-2.5 rounded-lg border border-accent/35 bg-accent/10 px-3 py-2.5 text-[10px] leading-4 text-accent-soft">
                 Other Company is active. Company-specific content will fall back
                 to reviewed role and industry-style coverage.
               </p>
@@ -997,7 +997,7 @@ export function JobInterviewOnboardingClient({
             {formError ? (
               <p
                 role="alert"
-                className="mt-4 rounded-2xl border border-[#f7c9c6] bg-[#fff1ef] px-4 py-3 text-[13px] font-bold text-[#9a2218]"
+                className="mt-3 rounded-lg border border-danger/25 bg-danger-surface px-3 py-2.5 text-[10px] font-semibold text-danger"
               >
                 {formError}
               </p>
@@ -1006,7 +1006,7 @@ export function JobInterviewOnboardingClient({
               {statusText}
             </p>
             {statusText ? (
-              <p className="mt-3 text-[13px] font-semibold text-white/72">
+              <p className="mt-2.5 text-[10px] font-medium text-white/70">
                 {statusText}
               </p>
             ) : null}
@@ -1015,7 +1015,7 @@ export function JobInterviewOnboardingClient({
           <button
             type="submit"
             disabled={pending}
-            className="inline-flex min-h-14 min-w-[220px] items-center justify-center rounded-full bg-[#d7a84f] px-7 text-[13px] font-black uppercase tracking-[0.16em] text-[#071512] shadow-[0_18px_44px_rgba(215,168,79,0.22)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#e6b94c] focus:outline-none focus:ring-4 focus:ring-[#d7a84f]/25 active:scale-press disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex min-h-10 min-w-[180px] items-center justify-center rounded-lg bg-accent px-4 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/30 active:scale-press disabled:cursor-not-allowed disabled:opacity-70"
           >
             {pending ? "Creating setup" : "Create interview setup"}
           </button>

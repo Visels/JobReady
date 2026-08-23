@@ -55,41 +55,38 @@ export default async function InterviewOnboardingPage({
   );
 
   return (
-    <main className="min-h-[calc(100dvh-40px)] bg-[radial-gradient(circle_at_12%_7%,rgba(215,168,79,0.22),transparent_27%),radial-gradient(circle_at_92%_4%,rgba(0,83,63,0.14),transparent_30%),#f7efe5] px-4 py-5 text-[#071512] md:px-7">
-      <div className="mx-auto grid max-w-[1180px] gap-7">
-        <header className="relative overflow-hidden rounded-[2.2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-9">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#d7a84f]/20 blur-3xl" />
-          <div className="pointer-events-none absolute bottom-0 left-12 h-56 w-56 rounded-full bg-[#00533f]/10 blur-3xl" />
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_330px] lg:items-end">
+    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-4 text-foreground md:px-5 lg:px-6">
+      <div className="mx-auto grid max-w-[1040px] gap-4">
+        <header className="border-b border-muted-line pb-5 pt-1">
+          <div className="grid gap-4 lg:grid-cols-[1fr_280px] lg:items-end">
             <div>
-              <p className="text-[13px] font-black uppercase tracking-[0.2em] text-[#956615]">
+              <p className="text-[10px] font-semibold text-primary">
                 Job interview practice
               </p>
-              <h1 className="mt-5 max-w-4xl text-[clamp(2.55rem,6vw,5.8rem)] font-black leading-[0.9] tracking-[-0.075em] text-[#071512] text-balance">
-                Set up the interview without learning our scoring taxonomy.
+              <h1 className="mt-1.5 max-w-3xl text-[clamp(1.8rem,3.2vw,2.8rem)] font-semibold leading-[1.04] tracking-[-0.04em] text-foreground text-balance">
+                Set up your mock interview
               </h1>
-              <p className="mt-6 max-w-3xl text-[17px] leading-8 text-[#52605b] md:text-[19px]">
-                Pick the market, company, role, seniority, mode, and optional
-                CV context. Jiandae turns that into a reviewed preparation
-                plan and keeps jobs and CVs optional.
+              <p className="mt-2.5 max-w-[64ch] text-[12px] leading-[1.6] text-muted">
+                Choose the role, seniority, interview format, and optional CV
+                context. You can start without attaching a job or document.
               </p>
             </div>
-            <aside className="rounded-[1.6rem] border border-[#eadfce] bg-white/82 p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)]">
-              <p className="text-[12px] font-black uppercase tracking-[0.16em] text-[#00533f]">
-                Launch guardrails
+            <aside className="rounded-xl border border-muted-line bg-surface px-4 py-3">
+              <p className="text-[10px] font-semibold text-foreground">
+                Setup notes
               </p>
-              <dl className="mt-4 grid gap-3 text-[13px] leading-5 text-[#52605b]">
-                <div>
-                  <dt className="font-black text-[#173a32]">Language</dt>
-                  <dd>English first for the Kenya launch.</dd>
+              <dl className="mt-2 grid gap-1.5 text-[10px] leading-4 text-muted">
+                <div className="flex justify-between gap-3">
+                  <dt>Language</dt>
+                  <dd className="font-semibold text-foreground">English</dd>
                 </div>
-                <div>
-                  <dt className="font-black text-[#173a32]">Job required</dt>
-                  <dd>No. Public jobs and private targets are optional.</dd>
+                <div className="flex justify-between gap-3">
+                  <dt>Job required</dt>
+                  <dd className="font-semibold text-foreground">No</dd>
                 </div>
-                <div>
-                  <dt className="font-black text-[#173a32]">CV required</dt>
-                  <dd>No. Skip CV is always available.</dd>
+                <div className="flex justify-between gap-3">
+                  <dt>CV required</dt>
+                  <dd className="font-semibold text-foreground">No</dd>
                 </div>
               </dl>
             </aside>

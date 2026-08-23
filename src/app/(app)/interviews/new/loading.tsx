@@ -1,21 +1,21 @@
 export default function InterviewOnboardingLoading() {
   return (
-    <main className="min-h-[calc(100dvh-40px)] bg-[#f7efe5] px-4 py-5 text-[#071512] md:px-7">
-      <div className="mx-auto grid max-w-[1180px] gap-7">
-        <section className="rounded-[2.2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-9">
-          <div className="h-4 w-52 rounded-full skeleton-shimmer" />
-          <div className="mt-6 h-24 max-w-4xl rounded-[2rem] skeleton-shimmer" />
-          <div className="mt-5 h-7 max-w-3xl rounded-full skeleton-shimmer" />
+    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-4 text-foreground md:px-5 lg:px-6">
+      <div className="mx-auto grid max-w-[1040px] gap-4">
+        <section className="border-b border-muted-line pb-5 pt-1">
+          <div className="h-3 w-36 rounded-md skeleton-shimmer" />
+          <div className="mt-2 h-9 max-w-xl rounded-lg skeleton-shimmer" />
+          <div className="mt-3 h-4 max-w-2xl rounded-md skeleton-shimmer" />
         </section>
-        <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_52px_rgba(21,35,29,0.06)]">
-          <div className="grid gap-4">
-            <div className="h-5 w-44 rounded-full skeleton-shimmer" />
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="h-32 rounded-[1.5rem] skeleton-shimmer" />
-              <div className="h-32 rounded-[1.5rem] skeleton-shimmer" />
-              <div className="h-32 rounded-[1.5rem] skeleton-shimmer" />
+        <section className="rounded-2xl border border-muted-line bg-surface p-4">
+          <div className="grid gap-3">
+            <div className="h-4 w-36 rounded-md skeleton-shimmer" />
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="h-24 rounded-xl skeleton-shimmer" />
+              <div className="h-24 rounded-xl skeleton-shimmer" />
+              <div className="h-24 rounded-xl skeleton-shimmer" />
             </div>
-            <div className="h-52 rounded-[1.5rem] skeleton-shimmer" />
+            <div className="h-40 rounded-xl skeleton-shimmer" />
           </div>
         </section>
       </div>
