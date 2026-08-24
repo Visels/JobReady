@@ -3,6 +3,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import {
+  BarChart3,
+  Bookmark,
+  BookOpen,
+  BriefcaseBusiness,
+  ClipboardList,
+  FileText,
+  Home,
+  MessageSquareText,
+  ShieldCheck,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { DashboardNotificationsPopover } from "@/components/dashboard/NotificationsPopover";
 import { BrandMark } from "@/components/ui/BrandMark";
@@ -16,7 +28,7 @@ const SIDEBAR_STORAGE_KEY = "jobready.workspace.sidebar-collapsed.v1";
 
 type NavItem = {
   label: string;
-  shortLabel: string;
+  icon: LucideIcon;
   href: string;
   match: (pathname: string) => boolean;
 };
@@ -30,26 +42,26 @@ type AccountItem = {
 const workspaceItems: NavItem[] = [
   {
     label: "Home",
-    shortLabel: "HM",
+    icon: Home,
     href: "/dashboard",
     match: (pathname) => pathname === "/dashboard",
   },
   {
     label: "Find Jobs",
-    shortLabel: "JB",
+    icon: BriefcaseBusiness,
     href: "/find-jobs",
     match: (pathname) =>
       pathname.startsWith("/find-jobs") || pathname.startsWith("/jobs"),
   },
   {
     label: "Saved Jobs",
-    shortLabel: "SV",
+    icon: Bookmark,
     href: "/saved-jobs",
     match: (pathname) => pathname.startsWith("/saved-jobs"),
   },
   {
     label: "Applications",
-    shortLabel: "AP",
+    icon: ClipboardList,
     href: "/applications",
     match: (pathname) => pathname.startsWith("/applications"),
   },
@@ -58,25 +70,25 @@ const workspaceItems: NavItem[] = [
 const prepareItems: NavItem[] = [
   {
     label: "Mock Interviews",
-    shortLabel: "MI",
+    icon: MessageSquareText,
     href: "/interviews/new",
     match: (pathname) => pathname.startsWith("/interviews"),
   },
   {
     label: "CV & Resume",
-    shortLabel: "CV",
+    icon: FileText,
     href: "/cv-resume",
     match: (pathname) => pathname.startsWith("/cv-resume"),
   },
   {
     label: "Reports & Progress",
-    shortLabel: "RP",
+    icon: BarChart3,
     href: "/reports",
     match: (pathname) => pathname.startsWith("/reports"),
   },
   {
     label: "Career Resources",
-    shortLabel: "CR",
+    icon: BookOpen,
     href: "/career-resources",
     match: (pathname) => pathname.startsWith("/career-resources"),
   },
@@ -129,7 +141,7 @@ const accountItems: AccountItem[] = [
 
 const adminItem: NavItem = {
   label: "Admin",
-  shortLabel: "AD",
+  icon: ShieldCheck,
   href: "/admin",
   match: (pathname) => pathname.startsWith("/admin"),
 };
@@ -277,6 +289,7 @@ function NavLink({
   pathname: string;
 }) {
   const active = item.match(pathname);
+  const Icon = item.icon;
 
   return (
     <Link
@@ -295,13 +308,13 @@ function NavLink({
       <span
         aria-hidden="true"
         className={classes(
-          "grid h-6 w-6 flex-none place-items-center rounded-md border text-[8px] font-bold tracking-[-0.01em]",
+          "grid h-6 w-6 flex-none place-items-center rounded-md border",
           active
             ? "border-primary/10 bg-primary text-white"
             : "border-white/12 bg-white/8 text-white/72 group-hover:border-white/22 group-hover:text-white",
         )}
       >
-        {item.shortLabel}
+        <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
       </span>
       {!collapsed ? <span className="truncate">{item.label}</span> : null}
       {collapsed ? <span className="sr-only">{item.label}</span> : null}
@@ -500,6 +513,7 @@ function MobileBottomNav({
     >
       {mobileItems.map((item) => {
         const active = item.match(pathname);
+        const Icon = item.icon;
 
         return (
           <Link
@@ -517,13 +531,13 @@ function MobileBottomNav({
             <span
               aria-hidden="true"
               className={classes(
-                "grid h-5 min-w-5 place-items-center rounded-md border px-1 text-[8px] tracking-[-0.02em]",
+                "grid h-5 w-5 place-items-center rounded-md border",
                 active
                   ? "border-white/18 bg-white/12 text-white"
                   : "border-muted-line bg-surface text-muted",
               )}
             >
-              {item.shortLabel}
+              <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
             </span>
             <span>{item.label}</span>
           </Link>
