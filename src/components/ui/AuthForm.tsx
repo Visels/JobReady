@@ -47,6 +47,14 @@ function GoogleIcon() {
   );
 }
 
+function LinkedInIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 rounded-[0.18rem]">
+      <path fill="#0A66C2" d="M21.2 0H2.8A2.8 2.8 0 0 0 0 2.8v18.4A2.8 2.8 0 0 0 2.8 24h18.4a2.8 2.8 0 0 0 2.8-2.8V2.8A2.8 2.8 0 0 0 21.2 0ZM7.1 20.4H3.5V9h3.6v11.4ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm15.1 13h-3.6v-5.6c0-1.3 0-3.1-1.9-3.1s-2.2 1.5-2.2 3v5.7H9.1V9h3.5v1.6h.1c.5-.9 1.7-1.9 3.4-1.9 3.7 0 4.3 2.4 4.3 5.5v6.2Z" />
+    </svg>
+  );
+}
+
 function normalizeReturnPath(value?: string) {
   if (value === "/interview/new") return "/interviews/new";
   if (value === "/practice") return "/dashboard";
@@ -202,7 +210,7 @@ export function AuthForm({
     }
   }
 
-  async function signInWithGoogle() {
+  async function signInWithProvider(provider: "google" | "linkedin_oidc") {
     setLoading(true);
     setError("");
     setNotice("");
@@ -210,20 +218,20 @@ export function AuthForm({
     try {
       const supabase = createBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
+        provider,
         options: {
           redirectTo: callbackUrl(returnPath),
         },
       });
 
       if (error) {
-        console.error("Could not start Google sign in.", error);
-        setError("Could not start Google sign in.");
+        console.error(`Could not start ${provider} sign in.`, error);
+        setError(`Could not start ${provider === "google" ? "Google" : "LinkedIn"} sign in.`);
         setLoading(false);
       }
     } catch (error) {
-      console.error("Could not start Google sign in.", error);
-      setError("Could not start Google sign in.");
+      console.error(`Could not start ${provider} sign in.`, error);
+      setError(`Could not start ${provider === "google" ? "Google" : "LinkedIn"} sign in.`);
       setLoading(false);
     }
   }
@@ -317,28 +325,33 @@ export function AuthForm({
         </form>
       ) : (
         <>
-          {!isSignup ? (
-            <>
-              <button
-                type="button"
-                onClick={signInWithGoogle}
-                disabled={loading}
-                className="mt-8 inline-flex h-14 w-full items-center justify-center gap-4 rounded-[0.8rem] border border-[#c7d1cd] bg-white px-5 text-[0.95rem] font-semibold text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <GoogleIcon />
-                Continue with Google
-              </button>
-              <div className="my-5 flex items-center gap-5">
-                <div className="h-px flex-1 bg-[#d5dce1]" />
-                <span className="text-sm font-medium text-[#59657a]">
-                  or continue with email
-                </span>
-                <div className="h-px flex-1 bg-[#d5dce1]" />
-              </div>
-            </>
-          ) : null}
+          <div className="mt-[clamp(1.4rem,3vh,2.25rem)] grid gap-3">
+            <button
+              type="button"
+              onClick={() => signInWithProvider("google")}
+              disabled={loading}
+              className="relative inline-flex h-14 w-full items-center justify-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-14 text-[0.95rem] font-semibold text-[#172333] shadow-[0_3px_10px_rgba(12,38,30,0.05)] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="absolute left-5"><GoogleIcon /></span>
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => signInWithProvider("linkedin_oidc")}
+              disabled={loading}
+              className="relative inline-flex h-14 w-full items-center justify-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-14 text-[0.95rem] font-semibold text-[#172333] shadow-[0_3px_10px_rgba(12,38,30,0.05)] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="absolute left-5"><LinkedInIcon /></span>
+              Continue with LinkedIn
+            </button>
+          </div>
+          <div className="my-5 flex items-center gap-5">
+            <div className="h-px flex-1 bg-[#d5dce1]" />
+            <span className="text-sm font-medium text-[#59657a]">or continue with email</span>
+            <div className="h-px flex-1 bg-[#d5dce1]" />
+          </div>
 
-          <form onSubmit={submit} className={`${isSignup ? "mt-8" : ""} space-y-[clamp(0.75rem,1.8vh,1rem)]`}>
+          <form onSubmit={submit} className="space-y-[clamp(0.75rem,1.8vh,1rem)]">
             {isSignup ? (
               <div>
                 <label htmlFor="auth-name" className="block text-sm font-bold text-[#172333]">

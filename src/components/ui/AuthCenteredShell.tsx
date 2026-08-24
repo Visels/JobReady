@@ -11,7 +11,10 @@ export function AuthCenteredShell({
 }) {
   return (
     <main className="flex h-dvh overflow-hidden bg-[#f4f5f2] p-2 text-[#071512] sm:p-3">
-      <div className="mx-auto grid h-full min-h-0 w-full max-w-[1560px] overflow-hidden rounded-[1.55rem] bg-white shadow-[0_24px_80px_rgba(7,42,32,0.12)] lg:grid-cols-[45%_55%]">
+      <div className="mx-auto grid h-full min-h-0 w-full max-w-[1560px] overflow-hidden rounded-[1.55rem] bg-white shadow-[0_24px_80px_rgba(7,42,32,0.12)] lg:grid-cols-[53%_47%]">
+        <section className="relative hidden min-w-0 overflow-hidden lg:block">
+          <AuthImagePanel />
+        </section>
         <section className="auth-scroll-region flex min-h-0 min-w-0 flex-col overflow-hidden px-6 py-5 sm:px-10 sm:py-7 lg:px-[clamp(3rem,5.2vw,5.75rem)] lg:py-7">
           <div className="flex items-center justify-between lg:justify-end">
             <Link
@@ -25,14 +28,11 @@ export function AuthCenteredShell({
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-center py-5 lg:py-3">
-            <div className="mx-auto w-full max-w-[480px]">
+            <div className="mx-auto w-full max-w-[500px]">
               {children}
               {footer}
             </div>
           </div>
-        </section>
-        <section className="relative hidden min-w-0 overflow-hidden lg:block">
-          <AuthImagePanel />
         </section>
       </div>
     </main>
