@@ -63,17 +63,17 @@ function toneForJob(job: WorkspaceSavedJob) {
 
 function SavedJobCard({ job }: { job: WorkspaceSavedJob }) {
   return (
-    <article className="rounded-[1.45rem] border border-muted-line bg-surface-soft p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <article className="rounded-xl border border-muted-line bg-surface-soft p-3.5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <WorkspaceBadge tone={toneForJob(job)}>{job.statusLabel}</WorkspaceBadge>
-          <h2 className="mt-3 text-[22px] font-black tracking-[-0.05em] text-foreground">
+          <h2 className="mt-2 text-[14px] font-semibold tracking-[-0.02em] text-foreground">
             {job.title}
           </h2>
-          <p className="mt-2 text-[13px] font-bold text-muted">
+          <p className="mt-1 text-[10px] font-medium text-muted">
             {job.companyName} / closes {formatWorkspaceDate(job.closesAt)}
           </p>
-          <p className="mt-2 max-w-2xl text-[12px] leading-5 text-muted">
+          <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
             {job.warning ??
               "This saved job can be used for CV/resume tailoring, interview practice, or application tracking."}
           </p>
@@ -116,13 +116,13 @@ export default async function SavedJobsPage({
           eyebrow="Filters"
           title="Use detailed filters here, not on the dashboard"
         />
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           {filterOptions.map((option) => (
             <Link
               key={option.value}
               href={`/saved-jobs?state=${option.value}`}
               aria-current={state === option.value ? "page" : undefined}
-              className={`rounded-full border px-4 py-2 text-[12px] font-black transition duration-300 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none ${
+              className={`rounded-lg border px-3 py-2 text-[10px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none ${
                 state === option.value
                   ? "border-primary bg-primary text-white"
                   : "border-muted-line bg-surface text-foreground hover:bg-surface-soft"
@@ -133,7 +133,7 @@ export default async function SavedJobsPage({
           ))}
         </div>
 
-        <div className="mt-6 grid gap-3">
+        <div className="mt-4 grid gap-2.5">
           {jobs.length > 0 ? (
             jobs.map((job) => <SavedJobCard key={job.id} job={job} />)
           ) : (

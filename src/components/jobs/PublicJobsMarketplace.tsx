@@ -706,7 +706,13 @@ function interviewOnboardingHref(slug: string, applicationId?: string | null) {
   return `/interviews/new?${params.toString()}`;
 }
 
-function AvailabilityBadge({ job }: { job: PublicJobSummary }) {
+function AvailabilityBadge({
+  job,
+  compact = false,
+}: {
+  job: PublicJobSummary;
+  compact?: boolean;
+}) {
   const tone =
     job.availability === "closing_soon"
       ? "border-[#d7a84f]/60 bg-[#fff4d6] text-[#6c4b00]"
@@ -716,7 +722,7 @@ function AvailabilityBadge({ job }: { job: PublicJobSummary }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] ${tone}`}
+      className={`inline-flex border font-semibold ${compact ? "rounded-md px-2 py-1 text-[9px]" : "rounded-full px-3 py-1 text-xs uppercase tracking-[0.14em]"} ${tone}`}
     >
       {publicJobStatusLabel(job.availability)}
     </span>
@@ -728,19 +734,31 @@ function SelectField({
   name,
   value,
   options,
+  compact = false,
 }: {
   label: string;
   name: string;
   value?: string;
   options: Array<{ value: string; label: string }>;
+  compact?: boolean;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-bold text-[#173a32]">
+    <label
+      className={
+        compact
+          ? "grid gap-1.5 text-[10px] font-semibold text-foreground"
+          : "grid gap-2 text-sm font-bold text-[#173a32]"
+      }
+    >
       {label}
       <select
         name={name}
         defaultValue={value ?? ""}
-        className="h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-sm font-semibold text-[#27312d] outline-none transition focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+        className={
+          compact
+            ? "h-9 rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-medium text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+            : "h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-sm font-semibold text-[#27312d] outline-none transition focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+        }
       >
         <option value="">Any</option>
         {options.map((option) => (
@@ -844,27 +862,33 @@ export function JobsFilterForm({
   options,
   action = "/jobs",
   resetHref = "/jobs",
+  compact = false,
 }: {
   filters: PublicJobsSearchFilters;
   options: PublicJobFilterOptions;
   action?: string;
   resetHref?: string;
+  compact?: boolean;
 }) {
   return (
     <form
       action={action}
       data-analytics-event="job_search_submit"
       data-analytics-product="jobs"
-      className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6"
+      className={
+        compact
+          ? "rounded-2xl border border-muted-line bg-surface p-4"
+          : "rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6"
+      }
     >
-      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-        <label className="grid gap-2 text-sm font-bold text-[#173a32]">
+      <div className={`grid lg:grid-cols-[1.4fr_1fr_1fr_1fr] ${compact ? "gap-3" : "gap-4"}`}>
+        <label className={compact ? "grid gap-1.5 text-[10px] font-semibold text-foreground" : "grid gap-2 text-sm font-bold text-[#173a32]"}>
           Search
           <input
             name="q"
             defaultValue={filters.q ?? ""}
             placeholder="Title, company, skill, or keyword"
-            className="h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-sm font-semibold text-[#27312d] outline-none transition placeholder:text-[#8a8075] focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
+            className={compact ? "h-9 rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-medium text-foreground outline-none transition placeholder:text-muted-subtle focus:border-primary focus:ring-2 focus:ring-primary/15" : "h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-sm font-semibold text-[#27312d] outline-none transition placeholder:text-[#8a8075] focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"}
           />
         </label>
         <SelectField
@@ -872,58 +896,65 @@ export function JobsFilterForm({
           name="company"
           value={filters.company}
           options={options.companies}
+          compact={compact}
         />
         <SelectField
           label="Role"
           name="role"
           value={filters.role}
           options={options.roles}
+          compact={compact}
         />
         <SelectField
           label="Location"
           name="location"
           value={filters.location}
           options={options.locations}
+          compact={compact}
         />
       </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-4">
+      <div className={`mt-3 grid md:grid-cols-4 ${compact ? "gap-3" : "gap-4"}`}>
         <SelectField
           label="Workplace"
           name="workplace"
           value={filters.workplace}
           options={options.workplaces}
+          compact={compact}
         />
         <SelectField
           label="Employment"
           name="employment"
           value={filters.employment}
           options={options.employmentTypes}
+          compact={compact}
         />
         <SelectField
           label="Seniority"
           name="seniority"
           value={filters.seniority}
           options={options.seniorities}
+          compact={compact}
         />
         <SelectField
           label="Closing date"
           name="closing"
           value={filters.closing}
           options={options.closingWindows}
+          compact={compact}
         />
       </div>
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className={`${compact ? "mt-3 gap-2" : "mt-5 gap-3"} flex flex-col sm:flex-row sm:items-center`}>
         <button
           type="submit"
-          className="rounded-full bg-[#00533f] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_18px_40px_rgba(0,83,63,0.22)] transition hover:-translate-y-0.5 hover:bg-[#063c31] focus:outline-none focus:ring-4 focus:ring-[#00533f]/20"
+          className={compact ? "min-h-9 rounded-lg bg-primary px-3.5 text-[10px] font-semibold text-white transition hover:bg-primary/92 focus:outline-none focus:ring-2 focus:ring-primary/20" : "rounded-full bg-[#00533f] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_18px_40px_rgba(0,83,63,0.22)] transition hover:-translate-y-0.5 hover:bg-[#063c31] focus:outline-none focus:ring-4 focus:ring-[#00533f]/20"}
         >
           Search jobs
         </button>
         <Link
           href={resetHref}
-          className="rounded-full border border-[#d9cbb8] px-6 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#173a32] transition hover:border-[#00533f] hover:text-[#00533f]"
+          className={compact ? "min-h-9 rounded-lg border border-muted-line px-3.5 text-center text-[10px] font-semibold leading-9 text-foreground transition hover:border-primary hover:text-primary" : "rounded-full border border-[#d9cbb8] px-6 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#173a32] transition hover:border-[#00533f] hover:text-[#00533f]"}
         >
           Reset filters
         </Link>
@@ -943,12 +974,12 @@ export function JobCard({
     job.availability === "active" || job.availability === "closing_soon";
 
   return (
-    <article className="group relative overflow-hidden rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_54px_rgba(21,35,29,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#bca875] md:p-7">
-      <div className="absolute right-6 top-6 h-10 w-10 rounded-full border border-[#d7a84f]/50 bg-[#fff7e1]" />
+    <article className={authenticated ? "group relative overflow-hidden rounded-xl border border-muted-line bg-surface p-4 transition duration-200 hover:border-muted-line-strong" : "group relative overflow-hidden rounded-[2rem] border border-[#d9cbb8] bg-white p-6 shadow-[0_18px_54px_rgba(21,35,29,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#bca875] md:p-7"}>
+      {!authenticated ? <div className="absolute right-6 top-6 h-10 w-10 rounded-full border border-[#d7a84f]/50 bg-[#fff7e1]" /> : null}
       <div className="relative">
-        <div className="flex flex-wrap items-center gap-3">
-          <AvailabilityBadge job={job} />
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#6f756f]">
+        <div className={`flex flex-wrap items-center ${authenticated ? "gap-2" : "gap-3"}`}>
+          <AvailabilityBadge job={job} compact={authenticated} />
+          <span className={authenticated ? "text-[9px] font-medium text-muted-subtle" : "text-xs font-bold uppercase tracking-[0.14em] text-[#6f756f]"}>
             Verified {formatDate(job.lastVerifiedAt)}
           </span>
         </div>
@@ -956,60 +987,60 @@ export function JobCard({
           href={job.detailHref}
           data-analytics-event="job_view_click"
           data-analytics-source="job_card"
-          className="mt-5 block"
+          className={authenticated ? "mt-2.5 block" : "mt-5 block"}
         >
-          <h2 className="max-w-3xl text-3xl font-black leading-[1.02] tracking-[-0.05em] text-[#071512] transition group-hover:text-[#00533f]">
+          <h2 className={authenticated ? "max-w-3xl text-[16px] font-semibold leading-5 tracking-[-0.025em] text-foreground transition group-hover:text-primary" : "max-w-3xl text-3xl font-black leading-[1.02] tracking-[-0.05em] text-[#071512] transition group-hover:text-[#00533f]"}>
             {job.title}
           </h2>
         </Link>
-        <p className="mt-3 text-base font-bold text-[#173a32]">
+        <p className={authenticated ? "mt-1 text-[10px] font-semibold text-foreground" : "mt-3 text-base font-bold text-[#173a32]"}>
           {job.companyName} / {job.roleName}
         </p>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-[#52605b]">
+        <p className={authenticated ? "mt-2 max-w-3xl text-[10px] leading-4 text-muted" : "mt-4 max-w-3xl text-base leading-7 text-[#52605b]"}>
           {job.descriptionExcerpt}
         </p>
 
-        <dl className="mt-6 grid gap-3 text-sm md:grid-cols-4">
-          <div className="rounded-2xl bg-[#f8efe2] p-4">
-            <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+        <dl className={authenticated ? "mt-3 grid gap-2 text-[9px] sm:grid-cols-2 md:grid-cols-4" : "mt-6 grid gap-3 text-sm md:grid-cols-4"}>
+          <div className={authenticated ? "rounded-lg bg-surface-soft p-2.5" : "rounded-2xl bg-[#f8efe2] p-4"}>
+            <dt className={authenticated ? "font-medium text-muted-subtle" : "font-bold uppercase tracking-[0.12em] text-[#7c6d5e]"}>
               Location
             </dt>
-            <dd className="mt-1 font-black text-[#173a32]">
+            <dd className={authenticated ? "mt-0.5 font-semibold text-foreground" : "mt-1 font-black text-[#173a32]"}>
               {job.location ?? job.marketName}
             </dd>
           </div>
-          <div className="rounded-2xl bg-[#f8efe2] p-4">
-            <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+          <div className={authenticated ? "rounded-lg bg-surface-soft p-2.5" : "rounded-2xl bg-[#f8efe2] p-4"}>
+            <dt className={authenticated ? "font-medium text-muted-subtle" : "font-bold uppercase tracking-[0.12em] text-[#7c6d5e]"}>
               Workplace
             </dt>
-            <dd className="mt-1 font-black text-[#173a32]">
+            <dd className={authenticated ? "mt-0.5 font-semibold text-foreground" : "mt-1 font-black text-[#173a32]"}>
               {publicJobEnumLabel(job.workplace)}
             </dd>
           </div>
-          <div className="rounded-2xl bg-[#f8efe2] p-4">
-            <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+          <div className={authenticated ? "rounded-lg bg-surface-soft p-2.5" : "rounded-2xl bg-[#f8efe2] p-4"}>
+            <dt className={authenticated ? "font-medium text-muted-subtle" : "font-bold uppercase tracking-[0.12em] text-[#7c6d5e]"}>
               Employment
             </dt>
-            <dd className="mt-1 font-black text-[#173a32]">
+            <dd className={authenticated ? "mt-0.5 font-semibold text-foreground" : "mt-1 font-black text-[#173a32]"}>
               {publicJobEnumLabel(job.employmentType)}
             </dd>
           </div>
-          <div className="rounded-2xl bg-[#f8efe2] p-4">
-            <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+          <div className={authenticated ? "rounded-lg bg-surface-soft p-2.5" : "rounded-2xl bg-[#f8efe2] p-4"}>
+            <dt className={authenticated ? "font-medium text-muted-subtle" : "font-bold uppercase tracking-[0.12em] text-[#7c6d5e]"}>
               Closes
             </dt>
-            <dd className="mt-1 font-black text-[#173a32]">
+            <dd className={authenticated ? "mt-0.5 font-semibold text-foreground" : "mt-1 font-black text-[#173a32]"}>
               {formatDate(job.closesAt)}
             </dd>
           </div>
         </dl>
 
         {job.skills.length > 0 ? (
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className={authenticated ? "mt-3 flex flex-wrap gap-1.5" : "mt-5 flex flex-wrap gap-2"}>
             {job.skills.map((skill) => (
               <span
                 key={skill}
-                className="rounded-full border border-[#d9cbb8] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#52605b]"
+                className={authenticated ? "rounded-md border border-muted-line px-2 py-1 text-[8px] font-medium text-muted" : "rounded-full border border-[#d9cbb8] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#52605b]"}
               >
                 {skill}
               </span>
@@ -1017,10 +1048,10 @@ export function JobCard({
           </div>
         ) : null}
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className={authenticated ? "mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap" : "mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap"}>
           <Link
             href={job.detailHref}
-            className="rounded-full border border-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"
+            className={authenticated ? "min-h-8 rounded-lg border border-primary px-2.5 text-center text-[10px] font-semibold leading-8 text-primary transition hover:bg-primary hover:text-white" : "rounded-full border border-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#00533f] transition hover:bg-[#00533f] hover:text-white"}
           >
             View details
           </Link>
@@ -1029,7 +1060,7 @@ export function JobCard({
               href={job.applyHref}
               data-analytics-event="job_apply_click"
               data-analytics-source="job_card"
-              className="rounded-full bg-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-white transition hover:bg-[#063c31]"
+              className={authenticated ? "min-h-8 rounded-lg bg-primary px-2.5 text-center text-[10px] font-semibold leading-8 text-white transition hover:bg-primary/92" : "rounded-full bg-[#00533f] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-white transition hover:bg-[#063c31]"}
             >
               Apply on official site
             </a>
@@ -1040,7 +1071,7 @@ export function JobCard({
                 type="submit"
                 data-analytics-event="job_save_click"
                 data-analytics-source="job_card"
-                className="w-full rounded-full bg-[#fff4d6] px-5 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#6c4b00] transition hover:bg-[#ffe5a3]"
+                className="min-h-8 w-full rounded-lg bg-accent-surface px-2.5 text-center text-[10px] font-semibold text-accent-strong transition hover:bg-accent-soft"
               >
                 Save job
               </button>
@@ -1064,28 +1095,30 @@ export function JobCard({
 export function JobsEmptyState({
   filters,
   basePath = "/jobs",
+  compact = false,
 }: {
   filters: PublicJobsSearchFilters;
   basePath?: string;
+  compact?: boolean;
 }) {
   const hasFilters = buildPublicJobsHref(filters, {}, basePath) !== basePath;
 
   return (
-    <section className="rounded-[2rem] border border-dashed border-[#cbbba6] bg-[#fffaf3] p-8 text-center">
-      <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#956615]">
+    <section className={compact ? "rounded-xl border border-dashed border-muted-line bg-surface-soft p-5 text-center" : "rounded-[2rem] border border-dashed border-[#cbbba6] bg-[#fffaf3] p-8 text-center"}>
+      <p className={compact ? "text-[9px] font-semibold text-muted-subtle" : "text-sm font-bold uppercase tracking-[0.18em] text-[#956615]"}>
         No active verified jobs found
       </p>
-      <h2 className="mt-4 text-3xl font-black tracking-[-0.05em] text-[#071512]">
+      <h2 className={compact ? "mt-1.5 text-[15px] font-semibold tracking-[-0.02em] text-foreground" : "mt-4 text-3xl font-black tracking-[-0.05em] text-[#071512]"}>
         Try a wider search.
       </h2>
-      <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#52605b]">
+      <p className={compact ? "mx-auto mt-1.5 max-w-2xl text-[10px] leading-4 text-muted" : "mx-auto mt-4 max-w-2xl text-base leading-7 text-[#52605b]"}>
         Active search only includes published jobs with a reviewed official
         application destination and a future closing date.
       </p>
       {hasFilters ? (
         <Link
           href={basePath}
-          className="mt-6 inline-flex rounded-full bg-[#00533f] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white"
+          className={compact ? "mt-3 inline-flex min-h-9 items-center rounded-lg bg-primary px-3.5 text-[10px] font-semibold text-white" : "mt-6 inline-flex rounded-full bg-[#00533f] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white"}
         >
           Clear filters
         </Link>
@@ -1097,6 +1130,7 @@ export function JobsEmptyState({
 export function JobsPagination({
   result,
   basePath = "/jobs",
+  compact = false,
 }: {
   result: {
     filters: PublicJobsSearchFilters;
@@ -1106,15 +1140,16 @@ export function JobsPagination({
     hasNextPage: boolean;
   };
   basePath?: string;
+  compact?: boolean;
 }) {
   if (result.totalPages <= 1) return null;
 
   return (
     <nav
       aria-label="Jobs pagination"
-      className="mt-8 flex flex-col gap-3 rounded-[2rem] border border-[#d9cbb8] bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+      className={compact ? "mt-4 flex flex-col gap-2 rounded-xl border border-muted-line bg-surface p-3 sm:flex-row sm:items-center sm:justify-between" : "mt-8 flex flex-col gap-3 rounded-[2rem] border border-[#d9cbb8] bg-white p-4 sm:flex-row sm:items-center sm:justify-between"}
     >
-      <p className="text-sm font-bold text-[#52605b]">
+      <p className={compact ? "text-[10px] font-medium text-muted" : "text-sm font-bold text-[#52605b]"}>
         Page {result.page} of {result.totalPages}
       </p>
       <div className="flex gap-3">
@@ -1123,7 +1158,7 @@ export function JobsPagination({
             href={buildPublicJobsHref(result.filters, {
               page: result.page - 1,
             }, basePath)}
-            className="rounded-full border border-[#d9cbb8] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#173a32]"
+            className={compact ? "min-h-8 rounded-lg border border-muted-line px-3 text-[10px] font-semibold leading-8 text-foreground" : "rounded-full border border-[#d9cbb8] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#173a32]"}
           >
             Previous
           </Link>
@@ -1133,7 +1168,7 @@ export function JobsPagination({
             href={buildPublicJobsHref(result.filters, {
               page: result.page + 1,
             }, basePath)}
-            className="rounded-full bg-[#00533f] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-white"
+            className={compact ? "min-h-8 rounded-lg bg-primary px-3 text-[10px] font-semibold leading-8 text-white" : "rounded-full bg-[#00533f] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-white"}
           >
             Next
           </Link>

@@ -67,8 +67,8 @@ function ApplicationCard({
   application: WorkspaceApplication;
 }) {
   return (
-    <article className="rounded-[1.45rem] border border-muted-line bg-surface-soft p-5">
-      <div className="grid gap-5 xl:grid-cols-[1fr_auto]">
+    <article className="rounded-xl border border-muted-line bg-surface-soft p-3.5">
+      <div className="grid gap-3 xl:grid-cols-[1fr_auto]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <WorkspaceBadge tone={statusTone(application.status)}>
@@ -78,29 +78,29 @@ function ApplicationCard({
               <WorkspaceBadge tone="warning">Needs review</WorkspaceBadge>
             ) : null}
           </div>
-          <h2 className="mt-3 text-[22px] font-black tracking-[-0.05em] text-foreground">
+          <h2 className="mt-2 text-[14px] font-semibold tracking-[-0.02em] text-foreground">
             {application.targetTitle}
           </h2>
-          <p className="mt-2 text-[13px] font-bold text-muted">
+          <p className="mt-1 text-[10px] font-medium text-muted">
             {application.companyName ?? "Company not specified"} / updated{" "}
             {formatWorkspaceDate(application.updatedAt)}
           </p>
-          <div className="mt-4 grid gap-2 text-[12px] leading-5 text-muted">
+          <div className="mt-3 grid gap-1.5 text-[10px] leading-4 text-muted sm:grid-cols-2">
             <p>
               Next action:{" "}
-              <span className="font-black text-foreground">
+              <span className="font-semibold text-foreground">
                 {formatWorkspaceDate(application.nextActionAt)}
               </span>
             </p>
             <p>
               Applied date:{" "}
-              <span className="font-black text-foreground">
+              <span className="font-semibold text-foreground">
                 {formatWorkspaceDate(application.appliedAt)}
               </span>
             </p>
             <p>
               Linked CV/resume:{" "}
-              <span className="font-black text-foreground">
+              <span className="font-semibold text-foreground">
                 {application.linkedDocumentTitle ??
                   (application.linkedTailoredVersionId
                     ? `Version ${application.linkedTailoredVersionId}`
@@ -109,13 +109,13 @@ function ApplicationCard({
             </p>
             <p>
               Linked interview:{" "}
-              <span className="font-black text-foreground">
+              <span className="font-semibold text-foreground">
                 {application.linkedInterviewId ?? "None yet"}
               </span>
             </p>
           </div>
           {application.warning ? (
-            <p className="mt-4 rounded-2xl border border-warning/25 bg-warning-surface p-3 text-[12px] leading-5 text-warning">
+            <p className="mt-3 rounded-lg border border-warning/25 bg-warning-surface p-2.5 text-[10px] leading-4 text-warning">
               {application.warning}
             </p>
           ) : null}
@@ -171,13 +171,13 @@ export default async function ApplicationsPage({
           eyebrow="Filters"
           title="Status, target, and date filters belong here"
         />
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           {statuses.map((item) => (
             <Link
               key={item}
               href={`/applications?status=${item}`}
               aria-current={status === item ? "page" : undefined}
-              className={`rounded-full border px-4 py-2 text-[12px] font-black transition duration-300 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none ${
+              className={`rounded-lg border px-3 py-2 text-[10px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none ${
                 status === item
                   ? "border-primary bg-primary text-white"
                   : "border-muted-line bg-surface text-foreground hover:bg-surface-soft"
@@ -188,7 +188,7 @@ export default async function ApplicationsPage({
           ))}
         </div>
 
-        <div className="mt-6 grid gap-3">
+        <div className="mt-4 grid gap-2.5">
           {applications.length > 0 ? (
             applications.map((application) => (
               <ApplicationCard

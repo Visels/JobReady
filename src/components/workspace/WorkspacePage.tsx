@@ -24,24 +24,24 @@ export function WorkspacePageFrame({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-[calc(100dvh-86px)] px-4 py-5 text-foreground md:px-6 lg:px-7">
-      <div className="mx-auto max-w-[1220px]">
-        <header className="mb-5 flex flex-col gap-4 rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel md:p-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+    <main className="min-h-[calc(100dvh-64px)] px-4 py-4 text-foreground md:px-5 lg:px-6">
+      <div className="mx-auto max-w-[1120px]">
+        <header className="mb-4 flex flex-col gap-3 border-b border-muted-line pb-5 pt-1 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-[10px] font-semibold text-primary">
               {eyebrow}
             </p>
-            <h1 className="mt-2 text-[clamp(2rem,4vw,3.7rem)] font-black leading-[0.95] tracking-[-0.065em] text-foreground text-balance">
+            <h1 className="mt-1.5 text-[clamp(1.8rem,3.2vw,2.8rem)] font-semibold leading-[1.04] tracking-[-0.04em] text-foreground text-balance">
               {title}
             </h1>
-            <p className="mt-3 max-w-3xl text-[14px] leading-6 text-muted">
+            <p className="mt-2.5 max-w-[68ch] text-[11px] leading-[1.6] text-muted">
               {body}
             </p>
           </div>
           {action ? (
             <Link
               href={action.href}
-              className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-[12px] font-black text-white shadow-[0_14px_32px_color-mix(in_srgb,var(--color-primary)_18%,transparent)] transition duration-300 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+              className="inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3.5 text-[11px] font-semibold text-white transition duration-200 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
             >
               {action.label}
             </Link>
@@ -62,7 +62,7 @@ export function WorkspaceCard({
 }) {
   return (
     <section
-      className={`rounded-[1.7rem] border border-muted-line bg-surface p-5 shadow-panel ${className}`}
+      className={`rounded-2xl border border-muted-line bg-surface p-4 ${className}`}
     >
       {children}
     </section>
@@ -79,19 +79,19 @@ export function WorkspaceSectionTitle({
   action?: { href: string; label: string };
 }) {
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex items-start justify-between gap-3">
       <div>
-        <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+        <p className="text-[10px] font-semibold text-muted-subtle">
           {eyebrow}
         </p>
-        <h2 className="mt-1 text-[20px] font-black tracking-[-0.04em] text-foreground">
+        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
           {title}
         </h2>
       </div>
       {action ? (
         <Link
           href={action.href}
-          className="rounded-full border border-muted-line bg-surface px-3 py-2 text-[11px] font-black text-foreground transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+          className="rounded-lg border border-muted-line bg-surface px-2.5 py-1.5 text-[10px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
         >
           {action.label}
         </Link>
@@ -112,12 +112,12 @@ export function WorkspaceEmptyState({
   label: string;
 }) {
   return (
-    <div className="rounded-[1.35rem] border border-dashed border-muted-line bg-surface-soft p-6">
-      <p className="text-[15px] font-black text-foreground">{title}</p>
-      <p className="mt-2 max-w-2xl text-[13px] leading-6 text-muted">{body}</p>
+    <div className="rounded-xl border border-dashed border-muted-line bg-surface-soft p-4">
+      <p className="text-[12px] font-semibold text-foreground">{title}</p>
+      <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">{body}</p>
       <Link
         href={href}
-        className="mt-5 inline-flex min-h-10 items-center justify-center rounded-full border border-muted-line bg-surface px-4 text-[12px] font-black text-foreground transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+        className="mt-3 inline-flex min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
       >
         {label}
       </Link>
@@ -143,7 +143,7 @@ export function WorkspaceBadge({
 
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-black leading-none ${className}`}
+      className={`inline-flex rounded-md px-2 py-1 text-[9px] font-semibold leading-none ${className}`}
     >
       {children}
     </span>
@@ -160,7 +160,7 @@ export function WorkspaceTextLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-9 items-center justify-center rounded-full border border-muted-line bg-surface px-3 text-[11px] font-black text-foreground transition duration-300 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+      className="inline-flex min-h-8 items-center justify-center rounded-lg border border-muted-line bg-surface px-2.5 text-[10px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
     >
       {children}
     </Link>
