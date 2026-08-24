@@ -1,6 +1,4 @@
-import Image from "next/image";
-import { ChartNoAxesCombined, FileText, Mic, Star } from "lucide-react";
-import authLady from "../../../public/marketing/auth_lady.png";
+import { ChartNoAxesCombined, FileText, Mic } from "lucide-react";
 import { BrandMark } from "@/components/ui/BrandMark";
 
 const benefits = [
@@ -13,10 +11,9 @@ export function AuthImagePanel() {
   return (
     <aside className="auth-showcase relative isolate h-full min-h-0 overflow-hidden bg-[#00492f] text-white">
       <div className="auth-showcase-glow absolute inset-0" aria-hidden="true" />
-      <div className="auth-africa-pattern absolute right-[-5%] top-[9%] h-[43%] w-[48%] opacity-80" aria-hidden="true" />
       <div className="relative z-10 flex h-full flex-col px-[clamp(2.4rem,4.5vw,5rem)] py-[clamp(2rem,3.6vh,3.25rem)]">
         <BrandMark tone="reversed" className="inline-flex w-fit items-center text-white" wordmarkClassName="h-[clamp(2.4rem,4.5vh,3.7rem)]" />
-        <div className="mt-[clamp(2.4rem,6vh,5.5rem)] max-w-[34rem]">
+        <div className="my-auto max-w-[34rem] py-8">
           <h2 className="text-balance text-[clamp(2.4rem,3.15vw,4rem)] font-bold leading-[1.04] tracking-[-0.05em] text-white">
             Prepare today.
             <span className="block">Get <span className="text-[#f5b913]">hired</span> tomorrow.</span>
@@ -38,17 +35,9 @@ export function AuthImagePanel() {
             ))}
           </ul>
         </div>
-        <div className="absolute inset-x-0 bottom-0 z-[-1] h-[64%]">
-          <Image src={authLady} alt="Professional preparing for an interview on her laptop" fill priority sizes="(min-width: 1024px) 53vw, 0px" className="object-contain object-right-bottom" />
-          <div className="absolute inset-x-0 bottom-0 h-[22%] bg-gradient-to-t from-[#003d29] to-transparent" aria-hidden="true" />
-        </div>
-        <blockquote className="mt-auto mb-[clamp(1rem,2.5vh,2rem)] w-[min(19rem,45%)] rounded-xl border border-[#dcb312]/45 bg-[#053e2e]/80 px-5 py-4 shadow-[0_20px_50px_rgba(0,30,20,0.24)] backdrop-blur-md">
-          <div className="flex gap-1 text-[#f5b913]" aria-label="5 out of 5 stars">
-            {Array.from({ length: 5 }).map((_, index) => <Star key={index} className="h-4 w-4 fill-current" strokeWidth={1.4} aria-hidden="true" />)}
-          </div>
-          <p className="mt-3 text-[0.83rem] font-medium leading-5 text-white/92">Jiandae helped me gain confidence and ace my interview.</p>
-          <cite className="mt-2 block text-[0.78rem] font-medium not-italic text-[#d7e8df]">— Sharon M., Nairobi</cite>
-        </blockquote>
+        <p className="max-w-[31rem] border-t border-white/15 pt-5 text-[0.82rem] font-medium leading-5 text-white/62">
+          Private by design. Your interview practice and career documents stay securely in your workspace.
+        </p>
       </div>
     </aside>
   );

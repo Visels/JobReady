@@ -330,19 +330,23 @@ export function AuthForm({
               type="button"
               onClick={() => signInWithProvider("google")}
               disabled={loading}
-              className="relative inline-flex h-14 w-full items-center justify-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-14 text-[0.95rem] font-semibold text-[#172333] shadow-[0_3px_10px_rgba(12,38,30,0.05)] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-14 w-full items-center justify-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-5 text-[0.95rem] font-semibold text-[#172333] shadow-[0_3px_10px_rgba(12,38,30,0.05)] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <span className="absolute left-5"><GoogleIcon /></span>
-              Continue with Google
+              <span className="inline-flex items-center justify-center gap-4">
+                <GoogleIcon />
+                Continue with Google
+              </span>
             </button>
             <button
               type="button"
               onClick={() => signInWithProvider("linkedin_oidc")}
               disabled={loading}
-              className="relative inline-flex h-14 w-full items-center justify-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-14 text-[0.95rem] font-semibold text-[#172333] shadow-[0_3px_10px_rgba(12,38,30,0.05)] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-14 w-full items-center justify-center rounded-[0.8rem] border border-[#cbd4d1] bg-white px-5 text-[0.95rem] font-semibold text-[#172333] shadow-[0_3px_10px_rgba(12,38,30,0.05)] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <span className="absolute left-5"><LinkedInIcon /></span>
-              Continue with LinkedIn
+              <span className="inline-flex items-center justify-center gap-4">
+                <LinkedInIcon />
+                Continue with LinkedIn
+              </span>
             </button>
           </div>
           <div className="my-5 flex items-center gap-5">

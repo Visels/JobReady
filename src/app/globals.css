@@ -170,13 +170,6 @@ summary::-webkit-details-marker {
   opacity: 0.05;
 }
 
-.auth-africa-pattern {
-  background-image: radial-gradient(circle, #e0b51b 0 2px, transparent 2.4px);
-  background-size: 12px 12px;
-  clip-path: polygon(14% 0, 73% 5%, 100% 30%, 91% 51%, 77% 56%, 72% 92%, 58% 100%, 45% 78%, 34% 65%, 19% 59%, 0 34%);
-  mask-image: linear-gradient(135deg, #000 30%, transparent 92%);
-}
-
 .auth-scroll-region {
   scrollbar-width: none;
   -ms-overflow-style: none;
