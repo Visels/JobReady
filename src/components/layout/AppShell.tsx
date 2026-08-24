@@ -11,7 +11,7 @@ import {
   ClipboardList,
   FileText,
   Home,
-  MessageSquareText,
+  Mic,
   ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -69,8 +69,8 @@ const workspaceItems: NavItem[] = [
 
 const prepareItems: NavItem[] = [
   {
-    label: "Mock Interviews",
-    icon: MessageSquareText,
+    label: "Mock Interview",
+    icon: Mic,
     href: "/interviews/new",
     match: (pathname) => pathname.startsWith("/interviews"),
   },
@@ -298,7 +298,7 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       title={collapsed ? item.label : undefined}
       className={classes(
-        "group flex min-h-10 items-center rounded-lg border text-[11px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none",
+        "group flex min-h-10 items-center rounded-lg border text-[12px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none",
         collapsed ? "justify-center px-2" : "gap-2.5 px-2.5",
         active
           ? "border-white/18 bg-white text-primary shadow-[0_16px_34px_rgba(0,0,0,0.12)]"
@@ -308,13 +308,13 @@ function NavLink({
       <span
         aria-hidden="true"
         className={classes(
-          "grid h-6 w-6 flex-none place-items-center rounded-md border",
+          "grid h-7 w-7 flex-none place-items-center rounded-md border",
           active
             ? "border-primary/10 bg-primary text-white"
             : "border-white/12 bg-white/8 text-white/72 group-hover:border-white/22 group-hover:text-white",
         )}
       >
-        <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+        <Icon className="h-4 w-4" strokeWidth={2.2} />
       </span>
       {!collapsed ? <span className="truncate">{item.label}</span> : null}
       {collapsed ? <span className="sr-only">{item.label}</span> : null}
@@ -522,7 +522,7 @@ function MobileBottomNav({
             aria-current={active ? "page" : undefined}
             title={item.label}
             className={classes(
-              "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-center text-[9px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none",
+              "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-center text-[10px] font-semibold transition duration-200 ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none",
               active
                 ? "bg-primary text-white"
                 : "text-muted hover:bg-surface-soft hover:text-primary",
@@ -531,13 +531,13 @@ function MobileBottomNav({
             <span
               aria-hidden="true"
               className={classes(
-                "grid h-5 w-5 place-items-center rounded-md border",
+                "grid h-6 w-6 place-items-center rounded-md border",
                 active
                   ? "border-white/18 bg-white/12 text-white"
                   : "border-muted-line bg-surface text-muted",
               )}
             >
-              <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+              <Icon className="h-4 w-4" strokeWidth={2.2} />
             </span>
             <span>{item.label}</span>
           </Link>
