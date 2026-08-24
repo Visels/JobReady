@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/ui/AuthForm";
-import { AuthCenteredShell } from "@/components/ui/AuthCenteredShell";
 import {
   AuthLegalFootnote,
+  AuthScreenShell,
 } from "@/components/ui/AuthScreenShell";
 import { getCurrentUser } from "@/lib/auth";
 import { normalizeAuthReturnPath } from "@/lib/auth-redirect";
@@ -32,14 +32,11 @@ export default async function LoginPage({
   }
 
   return (
-    <AuthCenteredShell
-      footer={
-        <AuthLegalFootnote
-          action={initialMode === "signup" ? "creating an account" : "signing in"}
-        />
-      }
+    <AuthScreenShell
+      showDefaultNavigation={false}
+      footer={initialMode === "signup" ? <AuthLegalFootnote action="creating an account" /> : undefined}
     >
       <AuthForm callbackUrl={callbackUrl} initialMode={initialMode} />
-    </AuthCenteredShell>
+    </AuthScreenShell>
   );
 }

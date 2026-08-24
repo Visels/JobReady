@@ -32,9 +32,11 @@ export function AuthLegalFootnote({
 export function AuthScreenShell({
   children,
   footer,
+  showDefaultNavigation = true,
 }: {
   children: React.ReactNode;
   footer?: React.ReactNode;
+  showDefaultNavigation?: boolean;
 }) {
   return (
     <main className="min-h-viewport bg-[#fffdf9] text-[#071512] lg:h-dvh lg:overflow-hidden">
@@ -45,7 +47,7 @@ export function AuthScreenShell({
 
         <section className="flex min-h-viewport flex-col bg-[#fffdf9] px-5 py-5 md:px-8 lg:min-h-0">
           <div className="mx-auto flex min-h-0 w-full max-w-[650px] flex-1 flex-col">
-            <div className="flex items-center justify-between">
+            <div className={`items-center justify-between ${showDefaultNavigation ? "flex" : "hidden lg:flex lg:invisible"}`}>
               <Link
                 href="/"
                 className="inline-flex items-center gap-2 text-sm font-bold text-[#071512] transition duration-300 ease-soft hover:text-[#00533f]"

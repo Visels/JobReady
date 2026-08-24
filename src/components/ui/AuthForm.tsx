@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   Eye,
   EyeOff,
   Loader2,
@@ -91,6 +92,7 @@ export function AuthForm({
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [signInStep, setSignInStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -243,6 +245,106 @@ export function AuthForm({
     setNotice("");
     setPassword("");
     setConfirmPassword("");
+    setSignInStep(1);
+  }
+
+  function continueToPassword(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setNotice("");
+    setSignInStep(2);
+  }
+
+  if (!isSignup && !showForgotPassword) {
+    return (
+      <div className="w-full">
+        <div className="mb-[clamp(3rem,9vh,6rem)] flex items-center justify-between gap-5 lg:fixed lg:left-[calc(45%+2rem)] lg:right-8 lg:top-5 lg:z-10">
+          {signInStep === 1 ? (
+            <Link
+              href="/"
+              aria-label="Back to home"
+              className="grid h-11 w-11 place-items-center rounded-lg border border-[#ccd6d2] bg-white text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#00533f]/15"
+            >
+              <ArrowLeft className="h-5 w-5" strokeWidth={1.8} />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setSignInStep(1);
+                setPassword("");
+                setError("");
+              }}
+              className="inline-flex h-11 items-center gap-2 rounded-lg border border-[#ccd6d2] bg-white px-3 font-bold text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#00533f]/15"
+            >
+              <ArrowLeft className="h-5 w-5" strokeWidth={1.8} />
+              Back
+            </button>
+          )}
+          {signInStep === 1 ? (
+            <p className="text-right text-sm font-medium text-[#51615c]">
+              Don&apos;t have an account?{" "}
+              <button type="button" onClick={() => selectMode("signup")} className="font-bold text-[#00533f] hover:underline">
+                Sign up instead
+              </button>
+            </p>
+          ) : null}
+        </div>
+
+        <p className="text-sm font-bold text-[#00533f]">Step {signInStep} of 2</p>
+        <h1 className="mt-3 text-[clamp(2.25rem,4vh,3rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#071512]">
+          {signInStep === 1 ? "Let’s get you signed in" : "Enter your password"}
+        </h1>
+        <p className="mt-3 text-[1rem] font-medium leading-6 text-[#5c6880]">
+          {signInStep === 1 ? "Enter your email to continue." : "Welcome back! Please enter your password."}
+        </p>
+
+        {signInStep === 1 ? (
+          <>
+            <form onSubmit={continueToPassword} className="mt-8 space-y-5">
+              <div>
+                <label htmlFor="signin-email" className="block text-sm font-bold text-[#172333]">Email address</label>
+                <div className={fieldShellClass}>
+                  <Mail className="mr-3 h-5 w-5 flex-none text-[#5f6b7d]" strokeWidth={1.8} />
+                  <input id="signin-email" value={email} onChange={(event) => setEmail(event.target.value)} className={inputClass} type="email" autoComplete="email" placeholder="you@example.com" required autoFocus />
+                </div>
+              </div>
+              <button type="submit" className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-[#00533f] px-6 text-[0.95rem] font-bold text-white transition duration-300 ease-soft hover:bg-[#043b30] active:scale-press focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#00533f]/20">Continue</button>
+            </form>
+            <div className="my-5 flex items-center gap-5"><div className="h-px flex-1 bg-[#d5dce1]" /><span className="text-sm font-medium text-[#59657a]">or</span><div className="h-px flex-1 bg-[#d5dce1]" /></div>
+            <div className="grid gap-3">
+              <button type="button" onClick={() => signInWithProvider("google")} disabled={loading} className="relative inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7] disabled:opacity-60"><span className="absolute left-4"><GoogleIcon /></span>Continue with Google</button>
+              <button type="button" onClick={() => signInWithProvider("linkedin_oidc")} disabled={loading} className="relative inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7] disabled:opacity-60"><span className="absolute left-4"><LinkedInIcon /></span>Continue with LinkedIn</button>
+              <Link href={`/magic-link?callbackUrl=${encodeURIComponent(returnPath)}`} className="relative inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7]"><Mail className="absolute left-4 h-5 w-5" strokeWidth={1.8} />Send me a magic link</Link>
+            </div>
+            <p className="mx-auto mt-7 max-w-md text-center text-[0.82rem] font-medium leading-5 text-[#667385]">By continuing, you agree to our <Link href="/terms" className="font-bold text-[#00533f] hover:underline">Terms and Conditions</Link> and <Link href="/privacy" className="font-bold text-[#00533f] hover:underline">Privacy Policy</Link>.</p>
+          </>
+        ) : (
+          <form onSubmit={submit} className="mt-8 space-y-5">
+            <div className="flex h-14 items-center rounded-lg border border-[#ccd6d2] bg-white px-4">
+              <Mail className="mr-3 h-5 w-5 text-[#5f6b7d]" strokeWidth={1.8} />
+              <span className="min-w-0 flex-1 truncate font-semibold text-[#172333]">{email}</span>
+              <button type="button" onClick={() => setSignInStep(1)} className="font-bold text-[#00533f] hover:underline">Change</button>
+            </div>
+            <div>
+              <label htmlFor="signin-password" className="block text-sm font-bold text-[#172333]">Password</label>
+              <div className={fieldShellClass}>
+                <Lock className="mr-3 h-5 w-5 text-[#5f6b7d]" strokeWidth={1.8} />
+                <input id="signin-password" value={password} onChange={(event) => setPassword(event.target.value)} className={inputClass} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Enter your password" required autoFocus />
+                <button type="button" onClick={() => setShowPassword((current) => !current)} className="grid h-8 w-8 place-items-center text-[#6f7a8c]" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <label className="flex items-center gap-2.5 text-sm font-semibold text-[#4b596b]"><input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} className="h-[1.15rem] w-[1.15rem] accent-[#00533f]" />Remember me</label>
+              <button type="button" onClick={() => setShowForgotPassword(true)} className="text-sm font-bold text-[#00533f] hover:underline">Forgot password?</button>
+            </div>
+            {error ? <p className="rounded-lg bg-[#fde5ea] px-4 py-2 text-sm font-semibold text-[#b3263a]" role="alert">{error}</p> : null}
+            <button type="submit" disabled={loading} className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#00533f] px-6 font-bold text-white transition hover:bg-[#043b30] disabled:opacity-60">{loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}{loading ? "Signing in" : "Sign in"}</button>
+            <p className="text-center text-sm font-medium text-[#51615c]">Don&apos;t have an account? <button type="button" onClick={() => selectMode("signup")} className="font-bold text-[#00533f] hover:underline">Create account</button></p>
+          </form>
+        )}
+      </div>
+    );
   }
 
   return (
