@@ -246,10 +246,7 @@ export function AuthForm({
   }
 
   return (
-    <div
-      className="reveal-up w-full"
-      data-auth-scroll={showForgotPassword || isSignup ? "true" : undefined}
-    >
+    <div className="reveal-up w-full">
       <div>
         <h1 className="text-[clamp(2.25rem,4vh,3rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#0b2b22]">
           {showForgotPassword
