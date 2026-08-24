@@ -282,7 +282,7 @@ export function AuthForm({
             </button>
           )}
           {signInStep === 1 ? (
-            <p className="text-right text-[1rem] font-medium text-[#51615c]">
+            <p className="text-right text-[1.08rem] font-medium text-[#51615c]">
               Don&apos;t have an account?{" "}
               <button type="button" onClick={() => selectMode("signup")} className="font-bold text-[#00533f] hover:underline">
                 Sign up instead
@@ -346,7 +346,23 @@ export function AuthForm({
   }
 
   return (
-    <div className="reveal-up w-full">
+    <div
+      className={`w-full ${
+        isSignup
+          ? "auth-scroll-region lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto lg:px-1 lg:py-2"
+          : "reveal-up"
+      }`}
+    >
+      {isSignup ? (
+        <button
+          type="button"
+          onClick={() => selectMode("signin")}
+          aria-label="Back to login"
+          className="mb-8 grid h-11 w-11 place-items-center rounded-lg border border-[#ccd6d2] bg-white text-[#172333] transition duration-300 ease-soft hover:border-[#8fa79d] hover:bg-[#fbfaf7] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#00533f]/15 lg:fixed lg:left-[calc(49%+2.5rem)] lg:top-7 lg:z-10 lg:mb-0"
+        >
+          <ArrowLeft className="h-5 w-5" strokeWidth={1.8} />
+        </button>
+      ) : null}
       <div>
         <h1 className="text-[clamp(2.25rem,4vh,3rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#0b2b22]">
           {showForgotPassword

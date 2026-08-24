@@ -1,5 +1,5 @@
 import Image from "next/image";
-import leftPanel from "../../../public/marketing/left_panel.png";
+import leftPanel from "../../../public/marketing/left_panel.webp";
 
 export function AuthImagePanel() {
   return (
