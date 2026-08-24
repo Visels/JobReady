@@ -258,7 +258,7 @@ export function AuthForm({
   if (!isSignup && !showForgotPassword) {
     return (
       <div className="w-full">
-        <div className="mb-[clamp(3rem,9vh,6rem)] flex items-center justify-between gap-5 lg:fixed lg:left-[calc(45%+2rem)] lg:right-8 lg:top-5 lg:z-10">
+        <div className="mb-[clamp(3rem,9vh,6rem)] flex items-center justify-between gap-5 lg:fixed lg:left-[calc(49%+2.5rem)] lg:right-10 lg:top-7 lg:z-10">
           {signInStep === 1 ? (
             <Link
               href="/"
@@ -282,7 +282,7 @@ export function AuthForm({
             </button>
           )}
           {signInStep === 1 ? (
-            <p className="text-right text-sm font-medium text-[#51615c]">
+            <p className="text-right text-[1rem] font-medium text-[#51615c]">
               Don&apos;t have an account?{" "}
               <button type="button" onClick={() => selectMode("signup")} className="font-bold text-[#00533f] hover:underline">
                 Sign up instead
@@ -291,8 +291,7 @@ export function AuthForm({
           ) : null}
         </div>
 
-        <p className="text-sm font-bold text-[#00533f]">Step {signInStep} of 2</p>
-        <h1 className="mt-3 text-[clamp(2.25rem,4vh,3rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#071512]">
+        <h1 className="text-[clamp(2.25rem,4vh,3rem)] font-bold leading-[1.02] tracking-[-0.05em] text-[#071512]">
           {signInStep === 1 ? "Let’s get you signed in" : "Enter your password"}
         </h1>
         <p className="mt-3 text-[1rem] font-medium leading-6 text-[#5c6880]">
@@ -313,9 +312,8 @@ export function AuthForm({
             </form>
             <div className="my-5 flex items-center gap-5"><div className="h-px flex-1 bg-[#d5dce1]" /><span className="text-sm font-medium text-[#59657a]">or</span><div className="h-px flex-1 bg-[#d5dce1]" /></div>
             <div className="grid gap-3">
-              <button type="button" onClick={() => signInWithProvider("google")} disabled={loading} className="relative inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7] disabled:opacity-60"><span className="absolute left-4"><GoogleIcon /></span>Continue with Google</button>
-              <button type="button" onClick={() => signInWithProvider("linkedin_oidc")} disabled={loading} className="relative inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7] disabled:opacity-60"><span className="absolute left-4"><LinkedInIcon /></span>Continue with LinkedIn</button>
-              <Link href={`/magic-link?callbackUrl=${encodeURIComponent(returnPath)}`} className="relative inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7]"><Mail className="absolute left-4 h-5 w-5" strokeWidth={1.8} />Send me a magic link</Link>
+              <button type="button" onClick={() => signInWithProvider("google")} disabled={loading} className="inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7] disabled:opacity-60"><span className="inline-flex items-center justify-center gap-3"><GoogleIcon />Continue with Google</span></button>
+              <button type="button" onClick={() => signInWithProvider("linkedin_oidc")} disabled={loading} className="inline-flex h-12 items-center justify-center rounded-lg border border-[#ccd6d2] bg-white px-5 font-semibold text-[#172333] transition hover:border-[#8fa79d] hover:bg-[#fbfaf7] disabled:opacity-60"><span className="inline-flex items-center justify-center gap-3"><LinkedInIcon />Continue with LinkedIn</span></button>
             </div>
             <p className="mx-auto mt-7 max-w-md text-center text-[0.82rem] font-medium leading-5 text-[#667385]">By continuing, you agree to our <Link href="/terms" className="font-bold text-[#00533f] hover:underline">Terms and Conditions</Link> and <Link href="/privacy" className="font-bold text-[#00533f] hover:underline">Privacy Policy</Link>.</p>
           </>

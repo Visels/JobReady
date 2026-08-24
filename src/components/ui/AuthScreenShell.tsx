@@ -39,13 +39,13 @@ export function AuthScreenShell({
   showDefaultNavigation?: boolean;
 }) {
   return (
-    <main className="min-h-viewport bg-[#fffdf9] text-[#071512] lg:h-dvh lg:overflow-hidden">
-      <div className="grid min-h-viewport lg:h-full lg:grid-cols-[45%_55%]">
+    <main className="flex min-h-viewport bg-[#f4f5f2] p-2 text-[#071512] sm:p-3 lg:h-dvh lg:overflow-hidden">
+      <div className="mx-auto grid min-h-[calc(100dvh-1rem)] w-full overflow-hidden rounded-[1.55rem] bg-white shadow-[0_24px_80px_rgba(7,42,32,0.12)] sm:min-h-[calc(100dvh-1.5rem)] lg:h-full lg:min-h-0 lg:grid-cols-[49%_51%]">
         <section className="relative hidden overflow-hidden border-r border-[#e6dfd5] bg-[#f7f3ec] lg:block">
           <AuthImagePanel />
         </section>
 
-        <section className="flex min-h-viewport flex-col bg-[#fffdf9] px-5 py-5 md:px-8 lg:min-h-0">
+        <section className="flex min-h-[calc(100dvh-1rem)] flex-col bg-[#fffdf9] px-5 py-5 sm:min-h-[calc(100dvh-1.5rem)] md:px-8 lg:min-h-0">
           <div className="mx-auto flex min-h-0 w-full max-w-[650px] flex-1 flex-col">
             <div className={`items-center justify-between ${showDefaultNavigation ? "flex" : "hidden lg:flex lg:invisible"}`}>
               <Link
