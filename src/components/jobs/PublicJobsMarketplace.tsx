@@ -37,6 +37,12 @@ function personalActionHref(slug: string, intent: string) {
   return `/login?callbackUrl=${encodeURIComponent(`/jobs/${slug}?intent=${intent}`)}`;
 }
 
+function tailoringHref(slug: string, applicationId?: string | null) {
+  const params = new URLSearchParams({ job: slug });
+  if (applicationId) params.set("applicationId", applicationId);
+  return `/cv-resume?${params.toString()}`;
+}
+
 function candidateDestinationHref(href: string, authenticated: boolean) {
   if (authenticated) return href;
   return `/login?callbackUrl=${encodeURIComponent(href)}`;
@@ -1299,9 +1305,9 @@ export function JobDetailActionPanelContent({
         ) : null}
         <Link
           href={
-            authenticated && personalState.applicationId
-              ? `/jobs/${job.slug}?intent=tailor&applicationId=${encodeURIComponent(personalState.applicationId)}`
-              : personalActionHref(job.slug, "tailor")
+            authenticated
+              ? tailoringHref(job.slug, personalState.applicationId)
+              : `/login?callbackUrl=${encodeURIComponent(tailoringHref(job.slug))}`
           }
           data-analytics-event="tailoring_start_click"
           data-analytics-source="job_detail_panel"

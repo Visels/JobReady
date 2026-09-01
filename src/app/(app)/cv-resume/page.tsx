@@ -10,8 +10,10 @@ import {
   WorkspaceTextLink,
   formatWorkspaceDate,
 } from "@/components/workspace/WorkspacePage";
+import { CvResumeBuilder } from "@/components/cv/CvResumeBuilder";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardData } from "@/lib/dashboard";
+import { searchPublicJobs } from "@/lib/jobs";
 import { generateSEO } from "@/lib/seo";
 import type {
   WorkspaceDocument,
@@ -19,7 +21,7 @@ import type {
 } from "@/types/dashboard";
 
 type CvResumePageProps = {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; job?: string; applicationId?: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -131,7 +133,10 @@ export default async function CvResumePage({
   const activeView = views.some((view) => view.value === params.view)
     ? (params.view ?? "all")
     : "all";
-  const data = await getDashboardData(user.id);
+  const [data, publicJobs] = await Promise.all([
+    getDashboardData(user.id),
+    searchPublicJobs({ searchParams: { pageSize: "12" } }),
+  ]);
   const documents =
     activeView === "tailored" || activeView === "needs-review"
       ? []
@@ -149,10 +154,41 @@ export default async function CvResumePage({
     <WorkspacePageFrame
       eyebrow="Documents"
       title="Keep base CVs and tailored versions separate."
-      body="The workspace shows secure document history and target-linked tailoring outputs. Upload and full tailoring UI remain their own flow; jobs and interviews stay usable without a CV."
+      body="Create a base CV/resume, tailor it to a public job or private role target, review every suggested edit, and export private DOCX/PDF versions."
       action={{ href: "/find-jobs", label: "Choose a target" }}
     >
-      <WorkspaceCard>
+      <CvResumeBuilder
+        documents={data.documents
+          .filter((document) => document.currentVersionId)
+          .map((document) => ({
+            id: document.id,
+            title: document.title,
+            kind: document.kind,
+            currentVersionId: document.currentVersionId!,
+            currentVersionNumber: document.currentVersionNumber,
+            factCount: document.factCount,
+          }))}
+        publicTargets={publicJobs.jobs.map((job) => ({
+          versionId: job.versionId,
+          slug: job.slug,
+          title: job.title,
+          companyName: job.companyName,
+          detailHref: job.detailHref,
+          closesAt: job.closesAt.toISOString(),
+        }))}
+        existingRuns={data.tailoredVersions.map((version) => ({
+          runId: version.runId,
+          roleTitle: version.roleTitle,
+          companyName: version.companyName,
+          status: version.status,
+          statusLabel: version.statusLabel,
+          exportFormats: version.exportFormats,
+        }))}
+        initialPublicJobSlug={params.job}
+        initialApplicationId={params.applicationId}
+      />
+
+      <WorkspaceCard className="mt-4">
         <WorkspaceSectionTitle
           eyebrow="Filters"
           title="Document and tailoring history"

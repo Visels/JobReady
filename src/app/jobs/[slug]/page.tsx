@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   ArrowLeft,
   Bookmark,
@@ -176,6 +176,14 @@ export default async function JobDetailPage({
   const jobPostingJsonLd = buildJobPostingJsonLd(job);
   const applyUnavailable = query?.apply === "unavailable";
   const intent = query?.intent;
+
+  if (intent === "tailor" && personalState.isAuthenticated) {
+    const params = new URLSearchParams({ job: job.slug });
+    if (personalState.applicationId) {
+      params.set("applicationId", personalState.applicationId);
+    }
+    redirect(`/cv-resume?${params.toString()}`);
+  }
 
   return (
     <main className="min-h-viewport bg-[#f8faf8] px-4 pb-16 pt-5 text-[#111b18] sm:px-6 lg:px-8">
