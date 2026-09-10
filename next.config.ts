@@ -41,6 +41,7 @@ if (missingSupabaseEnv.length > 0) {
 }
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: { "/api/cv/export": ["./public/fonts/cv/*.ttf"] },
   trailingSlash: false,
   images: {
     remotePatterns: [

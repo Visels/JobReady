@@ -571,6 +571,15 @@ function provider() {
   return selected;
 }
 
+/** Shared text client for features outside the legacy interview workflow. */
+export function getTextGenerationClient() {
+  const name = process.env.LLM_PROVIDER || "azure-foundry";
+  if (name === "azure-foundry" || name === "azure-openai") return { client: azureFoundryClient(), model: azureModel(), provider: name };
+  if (name === "openai") return { client: directOpenAiClient(), model: directOpenAiModel(), provider: name };
+  if (name === "deepseek") return { client: deepseekClient(), model: deepseekModel(), provider: name };
+  throw new Error("The configured text provider is unavailable.");
+}
+
 export function generateNextQuestion(
   context: InterviewContext,
   history: Message[],

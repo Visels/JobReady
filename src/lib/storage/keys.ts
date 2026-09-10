@@ -14,6 +14,7 @@ const PURPOSE_PREFIX: Record<StorageBucketRole, string> = {
 };
 
 const EXTENSIONS_BY_CONTENT_TYPE: Record<string, string> = {
+  "application/json": "json",
   "application/pdf": "pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
     "docx",

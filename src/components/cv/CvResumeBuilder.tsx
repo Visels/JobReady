@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { CV_DOCUMENT_SAVED_EVENT, type CvSavedDocumentDetail } from "@/lib/cv/contracts";
 import type { ReactNode } from "react";
 import {
   Check,
@@ -283,6 +284,17 @@ export function CvResumeBuilder({
   );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    function onDocumentSaved(event: Event) {
+      const option = (event as CustomEvent<CvSavedDocumentDetail>).detail;
+      const previous = documentOptions.find((document) => document.id === option.id);
+      setDocumentOptions((current) => [option, ...current.filter((document) => document.id !== option.id)]);
+      setSelectedDocumentVersionId((current) => !current || current === previous?.currentVersionId ? option.currentVersionId : current);
+    }
+    window.addEventListener(CV_DOCUMENT_SAVED_EVENT, onDocumentSaved);
+    return () => window.removeEventListener(CV_DOCUMENT_SAVED_EVENT, onDocumentSaved);
+  }, [documentOptions]);
 
   const structuredText = useMemo(
     () =>

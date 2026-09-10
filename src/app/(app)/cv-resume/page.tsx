@@ -11,6 +11,7 @@ import {
   formatWorkspaceDate,
 } from "@/components/workspace/WorkspacePage";
 import { CvResumeBuilder } from "@/components/cv/CvResumeBuilder";
+import { CvEditor } from "@/components/cv/CvEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardData } from "@/lib/dashboard";
 import { searchPublicJobs } from "@/lib/jobs";
@@ -21,7 +22,12 @@ import type {
 } from "@/types/dashboard";
 
 type CvResumePageProps = {
-  searchParams: Promise<{ view?: string; job?: string; applicationId?: string }>;
+  searchParams: Promise<{
+    view?: string;
+    job?: string;
+    applicationId?: string;
+    document?: string;
+  }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -73,8 +79,10 @@ function BaseDocumentCard({ document }: { document: WorkspaceDocument }) {
             {formatWorkspaceDate(document.updatedAt)}
           </p>
         </div>
-        <WorkspaceTextLink href="/interviews/new">
-          Use in interview
+        <WorkspaceTextLink
+          href={`/cv-resume?document=${encodeURIComponent(document.id)}`}
+        >
+          Edit CV
         </WorkspaceTextLink>
       </div>
     </article>
@@ -117,7 +125,9 @@ function TailoredVersionCard({
         </div>
         <div className="flex flex-wrap gap-2 lg:justify-end">
           <WorkspaceTextLink href={version.href}>View target</WorkspaceTextLink>
-          <WorkspaceTextLink href="/find-jobs">Choose another target</WorkspaceTextLink>
+          <WorkspaceTextLink href="/find-jobs">
+            Choose another target
+          </WorkspaceTextLink>
         </div>
       </div>
     </article>
@@ -153,40 +163,59 @@ export default async function CvResumePage({
   return (
     <WorkspacePageFrame
       eyebrow="Documents"
-      title="Keep base CVs and tailored versions separate."
-      body="Create a base CV/resume, tailor it to a public job or private role target, review every suggested edit, and export private DOCX/PDF versions."
-      action={{ href: "/find-jobs", label: "Choose a target" }}
+      title="A CV that sounds like you."
+      body="Build your CV, refine it with AI, and make every word your own. Save your progress and download whenever you're ready."
     >
-      <CvResumeBuilder
+      <CvEditor
+        key={params.document ?? "new-cv"}
         documents={data.documents
           .filter((document) => document.currentVersionId)
-          .map((document) => ({
-            id: document.id,
-            title: document.title,
-            kind: document.kind,
-            currentVersionId: document.currentVersionId!,
-            currentVersionNumber: document.currentVersionNumber,
-            factCount: document.factCount,
-          }))}
-        publicTargets={publicJobs.jobs.map((job) => ({
-          versionId: job.versionId,
-          slug: job.slug,
-          title: job.title,
-          companyName: job.companyName,
-          detailHref: job.detailHref,
-          closesAt: job.closesAt.toISOString(),
-        }))}
-        existingRuns={data.tailoredVersions.map((version) => ({
-          runId: version.runId,
-          roleTitle: version.roleTitle,
-          companyName: version.companyName,
-          status: version.status,
-          statusLabel: version.statusLabel,
-          exportFormats: version.exportFormats,
-        }))}
-        initialPublicJobSlug={params.job}
-        initialApplicationId={params.applicationId}
+          .map((document) => ({ id: document.id, title: document.title }))}
+        initialDocumentId={params.document}
       />
+
+      <details
+        className="mt-5 rounded-xl border border-muted-line bg-surface"
+        open={Boolean(params.job || params.applicationId) || undefined}
+      >
+        <summary className="cursor-pointer px-5 py-4 text-[13px] font-semibold text-foreground">
+          Tailor a saved CV to a specific job
+        </summary>
+        <p className="px-5 pb-4 text-[12px] leading-5 text-muted">
+          Compare your experience with a role&apos;s requirements and review
+          suggested changes.
+        </p>
+        <CvResumeBuilder
+          documents={data.documents
+            .filter((document) => document.currentVersionId)
+            .map((document) => ({
+              id: document.id,
+              title: document.title,
+              kind: document.kind,
+              currentVersionId: document.currentVersionId!,
+              currentVersionNumber: document.currentVersionNumber,
+              factCount: document.factCount,
+            }))}
+          publicTargets={publicJobs.jobs.map((job) => ({
+            versionId: job.versionId,
+            slug: job.slug,
+            title: job.title,
+            companyName: job.companyName,
+            detailHref: job.detailHref,
+            closesAt: job.closesAt.toISOString(),
+          }))}
+          existingRuns={data.tailoredVersions.map((version) => ({
+            runId: version.runId,
+            roleTitle: version.roleTitle,
+            companyName: version.companyName,
+            status: version.status,
+            statusLabel: version.statusLabel,
+            exportFormats: version.exportFormats,
+          }))}
+          initialPublicJobSlug={params.job}
+          initialApplicationId={params.applicationId}
+        />
+      </details>
 
       <WorkspaceCard className="mt-4">
         <WorkspaceSectionTitle
