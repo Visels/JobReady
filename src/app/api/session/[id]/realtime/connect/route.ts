@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createOpenAiRealtimeCall, getOpenAiRealtimeConfig } from "@/lib/ai-config";
 import { assembleInterviewPrompt } from "@/lib/prompt/assembleInterviewPrompt";
 import { prisma } from "@/lib/prisma";
 import { requireOwnedSession, requireUser } from "@/lib/session-guards";
@@ -9,44 +10,6 @@ export const runtime = "nodejs";
 
 const LIVE_INTERVIEW_OPENING =
   "Good morning. What brings you in today?";
-
-function azureRealtimeConfig() {
-  const rawEndpoint = process.env.AZURE_OPENAI_REALTIME_ENDPOINT;
-  if (!rawEndpoint) return null;
-
-  const url = new URL(rawEndpoint);
-  const generalEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
-  const generalEndpointMatches = (() => {
-    if (!generalEndpoint) return false;
-    try {
-      return new URL(generalEndpoint).hostname === url.hostname;
-    } catch {
-      return false;
-    }
-  })();
-  const apiKey =
-    process.env.AZURE_OPENAI_REALTIME_API_KEY ||
-    (generalEndpointMatches ? process.env.AZURE_OPENAI_API_KEY : undefined);
-
-  if (!apiKey) return null;
-
-  const deploymentFromQuery = url.searchParams.get("model") || undefined;
-  url.pathname = "/openai/v1/realtime/calls";
-  url.search = "";
-
-  const clientSecretsUrl = new URL(url);
-  clientSecretsUrl.pathname = "/openai/v1/realtime/client_secrets";
-
-  return {
-    callsUrl: url.toString(),
-    clientSecretsUrl: clientSecretsUrl.toString(),
-    apiKey,
-    deployment:
-      process.env.AZURE_OPENAI_REALTIME_DEPLOYMENT ||
-      deploymentFromQuery ||
-      "gpt-realtime-2.1-mini",
-  };
-}
 
 function buildVisaSpecificRealtimeInstructions(session: {
   visaType: { name: string; category?: { slug: string } | null };
@@ -107,12 +70,14 @@ export async function POST(
   const { user, response } = await requireUser();
   if (!user) return response;
 
-  const azureRealtime = azureRealtimeConfig();
-  if (!azureRealtime) {
+  let realtimeConfig: ReturnType<typeof getOpenAiRealtimeConfig>;
+  try {
+    realtimeConfig = getOpenAiRealtimeConfig();
+  } catch {
     return NextResponse.json(
       {
         error:
-          "Set AZURE_OPENAI_REALTIME_API_KEY to the key for the Azure resource used by AZURE_OPENAI_REALTIME_ENDPOINT.",
+          "AI interviews are not configured yet. Set the shared OPENAI_API_KEY.",
       },
       { status: 503 },
     );
@@ -142,7 +107,7 @@ export async function POST(
     realtimeInterview = await prisma.realtimeInterview.create({
       data: {
         sessionId: id,
-        model: azureRealtime.deployment,
+        model: realtimeConfig.model,
         voice: officerVoice,
         openingQuestion: LIVE_INTERVIEW_OPENING,
         events: { create: { sequence: 0, type: "legacy_session_attached" } },
@@ -222,7 +187,7 @@ export async function POST(
 
   const session = {
       type: "realtime",
-      model: azureRealtime.deployment,
+      model: realtimeConfig.model,
       instructions,
       tools: [
         {
@@ -273,8 +238,7 @@ export async function POST(
         input: {
           transcription: {
             model:
-              process.env.AZURE_OPENAI_REALTIME_TRANSCRIPTION_MODEL ||
-              "gpt-4o-mini-transcribe",
+              realtimeConfig.transcriptionModel,
             language: "en",
           },
           turn_detection: {
@@ -292,70 +256,21 @@ export async function POST(
       },
     };
 
-  const secretResponse = await fetch(azureRealtime.clientSecretsUrl, {
-    method: "POST",
-    headers: {
-      "api-key": azureRealtime.apiKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ session }),
-    cache: "no-store",
-  });
-  const secretBody = await secretResponse.text();
-
-  if (!secretResponse.ok) {
-    console.error("Azure OpenAI Realtime client secret failed", {
-      sessionId: id,
-      status: secretResponse.status,
-      body: secretBody,
-    });
+  let realtimeResponse: Response;
+  try {
+    realtimeResponse = await createOpenAiRealtimeCall(realtimeConfig.apiKey, sdp, session);
+  } catch {
     return NextResponse.json(
-      { error: "Could not authorize the live interviewer." },
+      { error: "Could not connect to the live interviewer. Please try again." },
       { status: 502 },
     );
   }
-
-  const clientSecret = (() => {
-    try {
-      const parsed = JSON.parse(secretBody) as {
-        value?: string;
-        client_secret?: { value?: string };
-      };
-      return parsed.value || parsed.client_secret?.value || "";
-    } catch {
-      return "";
-    }
-  })();
-
-  if (!clientSecret) {
-    console.error("Azure OpenAI Realtime returned no client secret", {
-      sessionId: id,
-    });
-    return NextResponse.json(
-      { error: "Azure did not return a live interview token." },
-      { status: 502 },
-    );
-  }
-
-  const realtimeResponse = await fetch(
-    azureRealtime.callsUrl,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${clientSecret}`,
-        "Content-Type": "application/sdp",
-      },
-      body: sdp,
-      cache: "no-store",
-    },
-  );
   const body = await realtimeResponse.text();
 
   if (!realtimeResponse.ok) {
-    console.error("Azure OpenAI Realtime connection failed", {
+    console.error("OpenAI Realtime connection failed", {
       sessionId: id,
       status: realtimeResponse.status,
-      body,
     });
     return NextResponse.json(
       { error: "Could not start the live interviewer." },
@@ -369,7 +284,7 @@ export async function POST(
       where: { id: realtimeInterview.id },
       data: {
         status: "active",
-        model: azureRealtime.deployment,
+        model: realtimeConfig.model,
         voice: officerVoice,
         startedAt: realtimeInterview.startedAt ?? connectedAt,
       },
@@ -385,6 +300,6 @@ export async function POST(
 
   return new Response(body, {
     status: 200,
-    headers: { "Content-Type": "application/sdp" },
+    headers: { "Content-Type": "application/sdp", "Cache-Control": "private, no-store" },
   });
 }

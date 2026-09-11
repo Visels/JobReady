@@ -321,7 +321,7 @@ async function main() {
       modality: "audio",
     },
   });
-  assert.equal(scenarioAModelUsage.provider, "azure-openai-realtime");
+  assert.equal(scenarioAModelUsage.provider, "openai-realtime");
   assert.equal(scenarioAModelUsage.audioSeconds, 242);
   assert.ok(scenarioAModelUsage.requestIdHash);
   const scenarioAReport =

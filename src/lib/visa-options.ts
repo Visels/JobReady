@@ -161,8 +161,8 @@ export function getOfficerRealtimeVoice(difficulty?: string | null) {
   const normalizedDifficulty = normalizeOfficerDifficulty(difficulty);
   const environmentVoice =
     process.env[
-      `AZURE_OPENAI_REALTIME_VOICE_${normalizedDifficulty.toUpperCase()}`
+      `OPENAI_REALTIME_VOICE_${normalizedDifficulty.toUpperCase()}`
     ];
 
-  return environmentVoice || officerRealtimeVoices[normalizedDifficulty];
+  return environmentVoice || process.env.OPENAI_REALTIME_VOICE || officerRealtimeVoices[normalizedDifficulty];
 }

@@ -1,3 +1,4 @@
+import { getOpenAiRealtimeModel } from "@/lib/ai-config";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -46,8 +47,7 @@ export async function POST(
       data: {
         sessionId: id,
         model:
-          process.env.AZURE_OPENAI_REALTIME_DEPLOYMENT ||
-          "gpt-realtime-2.1-mini",
+          getOpenAiRealtimeModel(),
         voice: getOfficerRealtimeVoice(owned.interviewSession.difficulty),
         openingQuestion: parsed.data.openingQuestion,
         status: "active",

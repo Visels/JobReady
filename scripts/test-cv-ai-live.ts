@@ -37,8 +37,8 @@ async function main() {
               const content = await readFile(args.path, "utf8");
               return {
                 contents: content.replace(
-                  'console.error("CV request failed.", error instanceof Error ? error.name : "UnknownError");',
-                  'console.error("CV request failed.", error instanceof Error ? error.message.replace(/https?:[^ ]+/g, "[provider endpoint]") : "UnknownError");',
+                  'error instanceof Error ? error.name : "UnknownError"',
+                  'error instanceof Error ? error.message.replace(/https?:[^ ]+/g, "[provider endpoint]") : "UnknownError"',
                 ),
                 loader: "ts",
               };

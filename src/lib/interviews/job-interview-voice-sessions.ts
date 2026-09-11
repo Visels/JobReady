@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { OPENAI_REALTIME_PROVIDER } from "@/lib/ai-config";
 import {
   Prisma,
   type CreditLedgerEntry,
@@ -22,7 +23,6 @@ import {
 } from "./job-interview-voice-session-contracts";
 
 const VOICE_SESSION_SCHEMA_VERSION = "job-interview-voice-session.task20.v1";
-const REALTIME_PROVIDER = "azure-openai-realtime";
 
 type VoiceSessionErrorCode =
   | "invalid_input"
@@ -52,20 +52,6 @@ type ServiceInput = {
   prisma?: PrismaClient;
   now?: () => Date;
 };
-
-export type AzureJobRealtimeConfig = {
-  provider: typeof REALTIME_PROVIDER;
-  callsUrl: string;
-  clientSecretsUrl: string;
-  apiKey: string;
-  deployment: string;
-  voice: string;
-  transcriptionModel: string | null;
-};
-
-export type AzureJobRealtimeConfigResult =
-  | { ok: true; config: AzureJobRealtimeConfig }
-  | { ok: false; error: string };
 
 const voiceSessionInclude = {
   market: true,
@@ -365,86 +351,6 @@ function providerUsageAudioSeconds(
   return usage?.audioSeconds ?? durationSecondsValue;
 }
 
-function getDeploymentFromEndpoint(url: URL) {
-  return (
-    url.searchParams.get("model") ??
-    url.searchParams.get("deployment") ??
-    undefined
-  );
-}
-
-export function resolveAzureJobRealtimeConfig(
-  env: NodeJS.ProcessEnv = process.env,
-): AzureJobRealtimeConfigResult {
-  const rawEndpoint = env.AZURE_OPENAI_REALTIME_ENDPOINT;
-  if (!rawEndpoint) {
-    return {
-      ok: false,
-      error:
-        "Set AZURE_OPENAI_REALTIME_ENDPOINT to the Azure OpenAI Realtime endpoint.",
-    };
-  }
-
-  let endpoint: URL;
-  try {
-    endpoint = new URL(rawEndpoint);
-  } catch {
-    return {
-      ok: false,
-      error: "AZURE_OPENAI_REALTIME_ENDPOINT must be a valid URL.",
-    };
-  }
-
-  const generalEndpoint = env.AZURE_OPENAI_ENDPOINT;
-  const generalEndpointMatches = (() => {
-    if (!generalEndpoint) return false;
-    try {
-      return new URL(generalEndpoint).hostname === endpoint.hostname;
-    } catch {
-      return false;
-    }
-  })();
-  const apiKey =
-    env.AZURE_OPENAI_REALTIME_API_KEY ||
-    (generalEndpointMatches ? env.AZURE_OPENAI_API_KEY : undefined);
-  if (!apiKey) {
-    return {
-      ok: false,
-      error:
-        "Set AZURE_OPENAI_REALTIME_API_KEY, or point AZURE_OPENAI_ENDPOINT at the same resource and set AZURE_OPENAI_API_KEY.",
-    };
-  }
-
-  const deployment =
-    env.AZURE_OPENAI_REALTIME_DEPLOYMENT || getDeploymentFromEndpoint(endpoint);
-  if (!deployment) {
-    return {
-      ok: false,
-      error:
-        "Set AZURE_OPENAI_REALTIME_DEPLOYMENT, or include ?model=YOUR_REALTIME_DEPLOYMENT in AZURE_OPENAI_REALTIME_ENDPOINT.",
-    };
-  }
-
-  endpoint.pathname = "/openai/v1/realtime/calls";
-  endpoint.search = "";
-
-  const clientSecretsUrl = new URL(endpoint);
-  clientSecretsUrl.pathname = "/openai/v1/realtime/client_secrets";
-
-  return {
-    ok: true,
-    config: {
-      provider: REALTIME_PROVIDER,
-      callsUrl: endpoint.toString(),
-      clientSecretsUrl: clientSecretsUrl.toString(),
-      apiKey,
-      deployment,
-      voice: env.AZURE_OPENAI_REALTIME_VOICE || "alloy",
-      transcriptionModel: env.AZURE_OPENAI_REALTIME_TRANSCRIPTION_MODEL || null,
-    },
-  };
-}
-
 export class JobInterviewVoiceSessionService {
   private readonly prisma: PrismaClient;
   private readonly now: () => Date;
@@ -733,7 +639,7 @@ export class JobInterviewVoiceSessionService {
             interviewSessionId: sessionId,
             productAction: "interview",
             preparationMode: "voice",
-            provider: REALTIME_PROVIDER,
+            provider: OPENAI_REALTIME_PROVIDER,
             model: realtime.model,
             operation: "realtime_session",
             modality: "audio",

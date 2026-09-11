@@ -1,5 +1,6 @@
 import type { Message } from "@prisma/client";
-import OpenAI, { AzureOpenAI } from "openai";
+import type OpenAI from "openai";
+import { getOpenAiClient, getOpenAiTextModel, OPENAI_PROVIDER } from "@/lib/ai-config";
 import { z } from "zod";
 import { formatHistory } from "@/lib/context";
 import {
@@ -50,108 +51,6 @@ interface LlmProvider {
   generateFinalReport(
     session: InterviewPromptSession & { messages: Message[] },
   ): Promise<FinalReport>;
-}
-
-type ChatClient = OpenAI | AzureOpenAI;
-
-type AzureConfig = {
-  endpoint: string;
-  deployment: string;
-  apiVersion: string;
-};
-
-function directOpenAiClient() {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is required for interview generation.");
-  }
-
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
-
-function deepseekClient() {
-  if (!process.env.DEEPSEEK_API_KEY) {
-    throw new Error("DEEPSEEK_API_KEY is required for DeepSeek.");
-  }
-
-  return new OpenAI({
-    apiKey: process.env.DEEPSEEK_API_KEY,
-    baseURL: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
-  });
-}
-
-function normalizeAzureConfig(): AzureConfig {
-  const rawEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
-  const envDeployment = process.env.AZURE_OPENAI_DEPLOYMENT;
-  const envApiVersion = process.env.AZURE_OPENAI_API_VERSION;
-
-  if (!rawEndpoint) {
-    throw new Error("AZURE_OPENAI_ENDPOINT is required for Azure AI Foundry.");
-  }
-
-  try {
-    const url = new URL(rawEndpoint);
-    const deploymentFromUrl = url.pathname.match(
-      /\/deployments\/([^/]+)\/?/,
-    )?.[1];
-    const apiVersionFromUrl = url.searchParams.get("api-version") ?? undefined;
-
-    return {
-      endpoint: `${url.origin}/`,
-      deployment: envDeployment || deploymentFromUrl || "",
-      apiVersion: normalizeAzureApiVersion(
-        envApiVersion || apiVersionFromUrl || "2025-01-01-preview",
-      ),
-    };
-  } catch {
-    return {
-      endpoint: rawEndpoint,
-      deployment: envDeployment || "",
-      apiVersion: normalizeAzureApiVersion(
-        envApiVersion || "2025-01-01-preview",
-      ),
-    };
-  }
-}
-
-function normalizeAzureApiVersion(apiVersion: string) {
-  if (apiVersion === "2024-07-18") {
-    throw new Error(
-      'AZURE_OPENAI_API_VERSION="2024-07-18" is the GPT-4o mini model version, not an Azure OpenAI API version. Use the api-version from your Azure endpoint URL, for example "2025-01-01-preview".',
-    );
-  }
-
-  return apiVersion;
-}
-
-function azureFoundryClient() {
-  if (!process.env.AZURE_OPENAI_API_KEY) {
-    throw new Error("AZURE_OPENAI_API_KEY is required for Azure AI Foundry.");
-  }
-
-  const config = normalizeAzureConfig();
-
-  if (!config.deployment) {
-    throw new Error("AZURE_OPENAI_DEPLOYMENT is required for Azure AI Foundry.");
-  }
-
-  return new AzureOpenAI({
-    apiKey: process.env.AZURE_OPENAI_API_KEY,
-    endpoint: config.endpoint,
-    deployment: config.deployment,
-    apiVersion: config.apiVersion,
-  });
-}
-
-function azureModel() {
-  return normalizeAzureConfig().deployment || "gpt-4o-mini";
-}
-
-function directOpenAiModel() {
-  return process.env.OPENAI_MODEL || "gpt-4o-mini";
-}
-
-function deepseekModel() {
-  return process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
 }
 
 function fallbackQuestionPrompt(question: string): QuestionPrompt {
@@ -400,7 +299,7 @@ function sanitizeReport(value: FinalReport): FinalReport {
 
 class OpenAiCompatibleProvider implements LlmProvider {
   constructor(
-    private readonly createClient: () => ChatClient,
+    private readonly createClient: () => OpenAI,
     private readonly modelName: () => string,
   ) {}
 
@@ -435,7 +334,7 @@ class OpenAiCompatibleProvider implements LlmProvider {
 
     if (!parsed.success) {
       console.error("Malformed question prompt from LLM", {
-        provider: process.env.LLM_PROVIDER || "azure-foundry",
+        provider: OPENAI_PROVIDER,
         raw,
         issues: parsed.error.issues,
       });
@@ -485,7 +384,7 @@ class OpenAiCompatibleProvider implements LlmProvider {
 
     if (!parsed.success) {
       console.error("Malformed answer evaluation from LLM", {
-        provider: process.env.LLM_PROVIDER || "azure-foundry",
+        provider: OPENAI_PROVIDER,
         raw,
         issues: parsed.error.issues,
       });
@@ -547,44 +446,18 @@ class OpenAiCompatibleProvider implements LlmProvider {
   }
 }
 
-const providers: Record<string, LlmProvider> = {
-  "azure-foundry": new OpenAiCompatibleProvider(
-    azureFoundryClient,
-    azureModel,
-  ),
-  "azure-openai": new OpenAiCompatibleProvider(
-    azureFoundryClient,
-    azureModel,
-  ),
-  deepseek: new OpenAiCompatibleProvider(deepseekClient, deepseekModel),
-  openai: new OpenAiCompatibleProvider(directOpenAiClient, directOpenAiModel),
-};
+const interviewProvider = new OpenAiCompatibleProvider(getOpenAiClient, getOpenAiTextModel);
 
-function provider() {
-  const providerName = process.env.LLM_PROVIDER || "azure-foundry";
-  const selected = providers[providerName];
-
-  if (!selected) {
-    throw new Error(`Unsupported LLM provider: ${providerName}`);
-  }
-
-  return selected;
-}
-
-/** Shared text client for features outside the legacy interview workflow. */
+/** CV editing and interviews share the same key and text model. */
 export function getTextGenerationClient() {
-  const name = process.env.LLM_PROVIDER || "azure-foundry";
-  if (name === "azure-foundry" || name === "azure-openai") return { client: azureFoundryClient(), model: azureModel(), provider: name };
-  if (name === "openai") return { client: directOpenAiClient(), model: directOpenAiModel(), provider: name };
-  if (name === "deepseek") return { client: deepseekClient(), model: deepseekModel(), provider: name };
-  throw new Error("The configured text provider is unavailable.");
+  return { client: getOpenAiClient(), model: getOpenAiTextModel(), provider: OPENAI_PROVIDER };
 }
 
 export function generateNextQuestion(
   context: InterviewContext,
   history: Message[],
 ) {
-  return provider().generateNextQuestion(context, history);
+  return interviewProvider.generateNextQuestion(context, history);
 }
 
 export function evaluateAnswer(
@@ -592,11 +465,11 @@ export function evaluateAnswer(
   context: InterviewContext,
   history: Message[],
 ) {
-  return provider().evaluateAnswer(answer, context, history);
+  return interviewProvider.evaluateAnswer(answer, context, history);
 }
 
 export function generateFinalReport(
   session: InterviewPromptSession & { messages: Message[] },
 ) {
-  return provider().generateFinalReport(session);
+  return interviewProvider.generateFinalReport(session);
 }

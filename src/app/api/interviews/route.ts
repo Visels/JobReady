@@ -1,3 +1,4 @@
+import { getOpenAiRealtimeModel } from "@/lib/ai-config";
 import { NextResponse } from "next/server";
 import { isFeatureEnabled } from "@/config/public";
 import { createInterviewSchema } from "@/lib/api-schemas";
@@ -98,8 +99,7 @@ export async function POST(request: Request) {
         realtimeInterview: {
           create: {
             model:
-              process.env.AZURE_OPENAI_REALTIME_DEPLOYMENT ||
-              "gpt-realtime-2.1-mini",
+              getOpenAiRealtimeModel(),
             voice: getOfficerRealtimeVoice(parsed.data.difficulty),
             openingQuestion: LIVE_INTERVIEW_OPENING,
             events: {

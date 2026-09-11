@@ -73,16 +73,11 @@ export async function POST(request: Request) {
     const completion = await config.client.chat.completions.create(
       {
         model: config.model,
-        ...(config.provider === "deepseek"
-          ? { max_tokens: 3_000 }
-          : { max_completion_tokens: 3_000 }),
-        response_format:
-          config.provider === "deepseek"
-            ? { type: "json_object" }
-            : {
-                type: "json_schema",
-                json_schema: { name: "cv_revision", strict: true, schema },
-              },
+        max_completion_tokens: 3_000,
+        response_format: {
+          type: "json_schema",
+          json_schema: { name: "cv_revision", strict: true, schema },
+        },
         messages: [
           {
             role: "system",

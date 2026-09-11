@@ -5,6 +5,9 @@ import { buildR2StorageConfig } from "@/lib/storage/r2-config";
 import { CvDraftError, CvDraftService } from "./draft-service";
 
 export function cvDraftService() {
+  if (![process.env.R2_ACCOUNT_ID, process.env.R2_ACCESS_KEY_ID, process.env.R2_SECRET_ACCESS_KEY].every((value) => value?.trim())) {
+    throw new CvDraftError(503, "Document storage isn't configured yet. Your edits are still in this tab, and you can download a copy.");
+  }
   const config = buildR2StorageConfig();
   return new CvDraftService({
     storage: new CloudflareR2ObjectStorage(config),

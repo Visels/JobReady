@@ -13,6 +13,14 @@ import {
 
 type SaveStatus =
   "loading" | "saved" | "unsaved" | "saving" | "error" | "conflict";
+
+function rememberDocument(id: string | null) {
+  if (window.location.pathname !== "/cv-resume") return;
+  const url = new URL(window.location.href);
+  if (id) url.searchParams.set("document", id);
+  else url.searchParams.delete("document");
+  window.history.replaceState(window.history.state, "", url);
+}
 export async function cvRequest<T>(
   url: string,
   init?: RequestInit,
@@ -68,6 +76,7 @@ export function useCvDraft(
       setReady(true);
       setStatus("saved");
       setError(null);
+      rememberDocument(versionId ? id : null);
     },
     [],
   );
@@ -109,6 +118,7 @@ export function useCvDraft(
           });
           current.current.versionId = result.versionId;
           current.current.savedText = text;
+          rememberDocument(documentId);
           setDocuments((options) => [
             { id: documentId, title: draft.title.trim() || "Untitled CV" },
             ...options.filter((option) => option.id !== documentId),

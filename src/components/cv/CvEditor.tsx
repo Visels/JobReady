@@ -238,7 +238,7 @@ export function CvEditor({
           </label>
           <button
             className="cv-button cv-new"
-            disabled={!editor.ready}
+            disabled={editor.status === "loading"}
             onClick={() => {
               setRemoved(null);
               void editor.create();
@@ -257,7 +257,7 @@ export function CvEditor({
             {
               {
                 loading: "Opening CV…",
-                saved: "All changes saved",
+                saved: editor.documents.some((option) => option.id === editor.documentId) ? "All changes saved" : "Start writing",
                 unsaved: "Unsaved changes",
                 saving: "Saving…",
                 error: "Not saved",

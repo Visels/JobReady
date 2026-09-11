@@ -1,3 +1,4 @@
+import { OPENAI_PROVIDER } from "@/lib/ai-config";
 import type { Message } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { answerSchema } from "@/lib/api-schemas";
@@ -142,7 +143,7 @@ export async function POST(
 
     console.error("Failed to prepare interview turn", {
       sessionId: id,
-      provider: process.env.LLM_PROVIDER || "azure-foundry",
+      provider: OPENAI_PROVIDER,
       error,
     });
 

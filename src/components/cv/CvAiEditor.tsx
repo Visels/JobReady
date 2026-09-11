@@ -141,6 +141,7 @@ export function CvAiEditor({
         <label className="cv-field">
           <span>What would you like to change?</span>
           <textarea
+            aria-label="What would you like to change?"
             rows={4}
             maxLength={1500}
             value={instruction}

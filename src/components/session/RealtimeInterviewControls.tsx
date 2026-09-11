@@ -652,7 +652,7 @@ export function RealtimeInterviewControls({
       return;
     }
     if (event.type === "error" || event.type === "session.error") {
-      // Recoverable Azure protocol errors are not useful to the candidate.
+      // Recoverable realtime protocol errors are not useful to the candidate.
       // Connection and microphone failures are handled separately.
       return;
     }

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import {
   getJobInterviewSessionParamsSchema,
   JobInterviewVoiceSessionService,
-  resolveAzureJobRealtimeConfig,
 } from "@/lib/interviews";
+import { createOpenAiRealtimeCall, getOpenAiRealtimeConfig } from "@/lib/ai-config";
 import { requireUser } from "@/lib/session-guards";
 import { jsonJobInterviewError } from "../../../route-utils";
 
@@ -12,18 +12,6 @@ export const dynamic = "force-dynamic";
 
 const service = new JobInterviewVoiceSessionService();
 
-function clientSecretValue(raw: string) {
-  try {
-    const parsed = JSON.parse(raw) as {
-      value?: string;
-      client_secret?: { value?: string };
-    };
-    return parsed.value || parsed.client_secret?.value || "";
-  } catch {
-    return "";
-  }
-}
-
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
@@ -31,10 +19,12 @@ export async function POST(
   const { user, response } = await requireUser();
   if (!user) return response;
 
-  const realtimeConfig = resolveAzureJobRealtimeConfig();
-  if (!realtimeConfig.ok) {
+  let realtimeConfig: ReturnType<typeof getOpenAiRealtimeConfig>;
+  try {
+    realtimeConfig = getOpenAiRealtimeConfig();
+  } catch {
     return NextResponse.json(
-      { error: realtimeConfig.error, code: "realtime_unavailable" },
+      { error: "AI interviews are not configured yet. Set the shared OPENAI_API_KEY.", code: "realtime_unavailable" },
       { status: 503 },
     );
   }
@@ -54,8 +44,8 @@ export async function POST(
     const prepared = await service.prepareConnection({
       userId: user.id,
       sessionId: id,
-      model: realtimeConfig.config.deployment,
-      voice: realtimeConfig.config.voice,
+      model: realtimeConfig.model,
+      voice: realtimeConfig.voice,
     });
     const audioInput: Record<string, unknown> = {
       turn_detection: {
@@ -67,16 +57,16 @@ export async function POST(
         interrupt_response: true,
       },
     };
-    if (realtimeConfig.config.transcriptionModel) {
+    if (realtimeConfig.transcriptionModel) {
       audioInput.transcription = {
-        model: realtimeConfig.config.transcriptionModel,
+        model: realtimeConfig.transcriptionModel,
         language: prepared.state.session.language,
       };
     }
 
     const session = {
       type: "realtime",
-      model: realtimeConfig.config.deployment,
+      model: realtimeConfig.model,
       instructions: prepared.instructions,
       tools: [
         {
@@ -122,61 +112,18 @@ export async function POST(
       audio: {
         input: audioInput,
         output: {
-          voice: realtimeConfig.config.voice,
+          voice: realtimeConfig.voice,
         },
       },
     };
 
-    const secretResponse = await fetch(realtimeConfig.config.clientSecretsUrl, {
-      method: "POST",
-      headers: {
-        "api-key": realtimeConfig.config.apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ session }),
-      cache: "no-store",
-    });
-    const secretBody = await secretResponse.text();
-
-    if (!secretResponse.ok) {
-      console.error("Azure OpenAI job voice client secret failed", {
-        sessionId: id,
-        status: secretResponse.status,
-        body: secretBody,
-      });
-      return NextResponse.json(
-        { error: "Could not authorize the voice interviewer." },
-        { status: 502 },
-      );
-    }
-
-    const clientSecret = clientSecretValue(secretBody);
-    if (!clientSecret) {
-      console.error("Azure OpenAI job voice returned no client secret", {
-        sessionId: id,
-      });
-      return NextResponse.json(
-        { error: "Azure did not return a voice interview token." },
-        { status: 502 },
-      );
-    }
-
-    const realtimeResponse = await fetch(realtimeConfig.config.callsUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${clientSecret}`,
-        "Content-Type": "application/sdp",
-      },
-      body: sdp,
-      cache: "no-store",
-    });
+    const realtimeResponse = await createOpenAiRealtimeCall(realtimeConfig.apiKey, sdp, session);
     const body = await realtimeResponse.text();
 
     if (!realtimeResponse.ok) {
-      console.error("Azure OpenAI job voice connection failed", {
+      console.error("OpenAI job voice connection failed", {
         sessionId: id,
         status: realtimeResponse.status,
-        body,
       });
       return NextResponse.json(
         { error: "Could not start the voice interviewer." },
@@ -190,6 +137,7 @@ export async function POST(
       status: 200,
       headers: {
         "Content-Type": "application/sdp",
+        "Cache-Control": "private, no-store",
         "X-Jiandae-Voice-Limit-Seconds": String(
           prepared.durationLimitSeconds,
         ),
