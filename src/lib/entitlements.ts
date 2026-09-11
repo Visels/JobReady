@@ -1,5 +1,6 @@
 import { Prisma, type CreditLedgerEntry } from "@prisma/client";
 import { publicProductConfig } from "@/config/public";
+import { FREE_SESSION_ALLOWANCE } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 
 export type LedgerProductActionName = "interview" | "tailoring";
@@ -439,6 +440,34 @@ export async function grantEntitlement(input: GrantEntitlementInput) {
     async (tx) => grantEntitlementInTransaction(tx, input),
     { timeout: 15000 },
   );
+}
+
+export async function ensureStarterInterviewEntitlement(input: {
+  userId: string;
+  now?: Date;
+}) {
+  if (FREE_SESSION_ALLOWANCE <= 0) return;
+
+  const idempotencyKey = `starter-diagnostic:${input.userId}:interview`;
+  const existing = await prisma.creditLedgerEntry.findUnique({
+    where: { idempotencyKey },
+    select: { id: true },
+  });
+  if (existing) return;
+
+  const now = input.now ?? new Date();
+  await grantEntitlement({
+    userId: input.userId,
+    productAction: "interview",
+    units: FREE_SESSION_ALLOWANCE,
+    idempotencyKey,
+    expiresAt: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
+    metadata: {
+      source: "starter_diagnostic",
+      plan: "starter-diagnostic",
+      lifecycle: "free_signup_allowance",
+    },
+  });
 }
 
 export async function reserveEntitlement(input: ReservationInput) {

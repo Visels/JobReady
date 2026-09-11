@@ -6,6 +6,7 @@ import {
   hasTransactionalEmailConfig,
   sendWelcomeEmail,
 } from "@/lib/email";
+import { ensureStarterInterviewEntitlement } from "@/lib/entitlements";
 import { FREE_SESSION_ALLOWANCE } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -163,6 +164,8 @@ export async function syncAppUser(authUser: SupabaseUser) {
       image: profile.image ?? undefined,
     },
   });
+
+  await ensureStarterInterviewEntitlement({ userId: user.id });
 
   await createResendContactIfNeeded(user);
   await sendWelcomeEmailIfNeeded(user);
