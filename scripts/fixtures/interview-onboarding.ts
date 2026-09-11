@@ -1,0 +1,163 @@
+import type { InterviewOnboardingOptions } from "../../src/lib/interviews/interview-onboarding-contracts";
+
+const entity = (id: string, label: string, slug = id) => ({
+  id,
+  label,
+  slug,
+  description: null,
+  searchText: label.toLowerCase(),
+});
+
+export function interviewOnboardingFixture(): InterviewOnboardingOptions {
+  return {
+    defaults: {
+      marketId: "ke",
+      companyId: "safaricom",
+      roleFamilyId: "product",
+      jobRoleId: "pm",
+      seniorityLevelId: "mid",
+      focusMode: "recommended",
+      interviewMode: "text",
+      durationMinutes: 30,
+      language: "en",
+    },
+    markets: [
+      {
+        ...entity("ke", "Kenya", "kenya"),
+        isoCode: "KE",
+        currencyCode: "KES",
+        timezone: "Africa/Nairobi",
+      },
+      {
+        ...entity("ug", "Uganda", "uganda"),
+        isoCode: "UG",
+        currencyCode: "UGX",
+        timezone: "Africa/Kampala",
+      },
+    ],
+    companies: [
+      {
+        ...entity("safaricom", "Safaricom"),
+        marketId: "ke",
+        industryLabel: "Telecommunications",
+        careersUrl: null,
+        confidence: "high",
+        reviewedAt: null,
+      },
+      {
+        ...entity("kcb", "KCB Group"),
+        marketId: "ke",
+        industryLabel: "Banking",
+        careersUrl: null,
+        confidence: "high",
+        reviewedAt: null,
+      },
+    ],
+    roleFamilies: [
+      entity("product", "Product management", "product-management"),
+      entity("engineering", "Software engineering", "software-engineering"),
+    ],
+    jobRoles: [
+      {
+        ...entity("pm", "Product Manager", "product-manager"),
+        roleFamilyId: "product",
+        roleFamilySlug: "product-management",
+        companyId: null,
+        marketId: null,
+      },
+      {
+        ...entity("engineer", "Software Engineer", "software-engineer"),
+        roleFamilyId: "engineering",
+        roleFamilySlug: "software-engineering",
+        companyId: null,
+        marketId: null,
+      },
+      {
+        ...entity(
+          "safaricom-engineer",
+          "Safaricom Software Engineer",
+          "safaricom-software-engineer",
+        ),
+        roleFamilyId: "engineering",
+        roleFamilySlug: "software-engineering",
+        companyId: "safaricom",
+        marketId: "ke",
+      },
+    ],
+    seniorityLevels: [
+      { ...entity("entry", "Entry level", "entry-level"), displayOrder: 0 },
+      { ...entity("mid", "Mid-level", "mid-level"), displayOrder: 1 },
+      { ...entity("senior", "Senior", "senior"), displayOrder: 2 },
+    ],
+    interviewStages: [{ ...entity("screen", "Phone screen"), displayOrder: 0 }],
+    publicTargets: [
+      {
+        jobPostingId: "job",
+        jobPostingVersionId: "public-v1",
+        slug: "software-engineer",
+        title: "Software Engineer",
+        companyId: "kcb",
+        companyLabel: "KCB Group",
+        marketId: "ke",
+        marketLabel: "Kenya",
+        roleFamilyId: "engineering",
+        roleFamilyLabel: "Software engineering",
+        jobRoleId: "engineer",
+        jobRoleLabel: "Software Engineer",
+        seniorityLevelId: "senior",
+        seniorityLabel: "Senior",
+        location: "Nairobi",
+        status: "published",
+        sourceName: "KCB careers",
+        sourceUrl: null,
+        applicationHost: null,
+        lastVerifiedAt: null,
+        closesAt: null,
+        prefillSourceLabel: "Reviewed job",
+        searchText: "software engineer kcb nairobi",
+      },
+    ],
+    privateTargets: [
+      {
+        privateJobTargetId: "private",
+        privateJobTargetVersionId: "private-v1",
+        title: "Product Manager",
+        companyId: null,
+        companyLabel: "Mwangaza Studio",
+        marketId: "ke",
+        marketLabel: "Kenya",
+        roleFamilyId: "product",
+        roleFamilyLabel: "Product management",
+        jobRoleId: "pm",
+        jobRoleLabel: "Product Manager",
+        versionNumber: 1,
+        createdAt: "2026-09-01T00:00:00Z",
+        requirements: [],
+        searchText: "product manager mwangaza",
+      },
+    ],
+    candidateDocuments: [
+      {
+        documentId: "cv",
+        versionId: "cv-v1",
+        title: "My CV",
+        kind: "resume",
+        status: "parsed",
+        versionNumber: 1,
+        createdAt: "2026-09-01T00:00:00Z",
+        factCount: 1,
+        facts: [
+          {
+            id: "fact",
+            type: "skill",
+            label: "Customer research",
+            skillName: "Research",
+            sourceExcerpt: "Led interviews with 12 customers.",
+            evidenceSource: "document",
+            userConfirmed: true,
+          },
+        ],
+      },
+    ],
+  };
+}

@@ -34,9 +34,11 @@ export default async function InterviewOnboardingPage({
   if (!user) {
     const current = new URLSearchParams();
     const job = firstValue(params.job);
+    const jobVersion = firstValue(params.jobVersion);
     const target = firstValue(params.target);
 
     if (job) current.set("job", job);
+    if (jobVersion) current.set("jobVersion", jobVersion);
     if (target) current.set("target", target);
 
     const query = current.toString();
@@ -55,42 +57,18 @@ export default async function InterviewOnboardingPage({
   );
 
   return (
-    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-4 text-foreground md:px-5 lg:px-6">
-      <div className="mx-auto grid max-w-[1040px] gap-4">
-        <header className="border-b border-muted-line pb-5 pt-1">
-          <div className="grid gap-4 lg:grid-cols-[1fr_280px] lg:items-end">
-            <div>
-              <p className="text-[10px] font-semibold text-primary">
-                Job interview practice
-              </p>
-              <h1 className="mt-1.5 max-w-3xl text-[clamp(1.8rem,3.2vw,2.8rem)] font-semibold leading-[1.04] tracking-[-0.04em] text-foreground text-balance">
-                Set up your mock interview
-              </h1>
-              <p className="mt-2.5 max-w-[64ch] text-[12px] leading-[1.6] text-muted">
-                Choose the role, seniority, interview format, and optional CV
-                context. You can start without attaching a job or document.
-              </p>
-            </div>
-            <aside className="rounded-xl border border-muted-line bg-surface px-4 py-3">
-              <p className="text-[10px] font-semibold text-foreground">
-                Setup notes
-              </p>
-              <dl className="mt-2 grid gap-1.5 text-[10px] leading-4 text-muted">
-                <div className="flex justify-between gap-3">
-                  <dt>Language</dt>
-                  <dd className="font-semibold text-foreground">English</dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt>Job required</dt>
-                  <dd className="font-semibold text-foreground">No</dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt>CV required</dt>
-                  <dd className="font-semibold text-foreground">No</dd>
-                </div>
-              </dl>
-            </aside>
-          </div>
+    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-6 text-foreground md:px-6 md:py-8">
+      <div className="mx-auto grid max-w-[720px] gap-6">
+        <header>
+          <p className="text-[12px] font-semibold text-primary">
+            Mock interview
+          </p>
+          <h1 className="mt-2 text-[clamp(26px,3vw,34px)] font-semibold leading-tight tracking-[-0.04em] text-balance">
+            Set up your interview
+          </h1>
+          <p className="mt-2 text-[14px] leading-6 text-muted">
+            Choose your role and format. We’ll take care of the questions.
+          </p>
         </header>
 
         <JobInterviewOnboardingClient

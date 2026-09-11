@@ -26,6 +26,7 @@
     "test:behavioral-evaluation": "tsx scripts/test-behavioral-evaluation.ts",
     "test:role-specific-evaluation": "tsx scripts/test-role-specific-evaluation.ts",
     "test:interview-onboarding": "tsx scripts/test-interview-onboarding.ts",
+    "test:interview-onboarding-browser": "tsx scripts/test-interview-onboarding-browser.ts",
     "test:job-interview-text": "tsx scripts/test-job-interview-text-session.ts",
     "test:job-interview-reports": "tsx scripts/test-job-interview-reports.ts",
     "test:job-interview-voice": "tsx scripts/test-job-interview-voice-session.ts",

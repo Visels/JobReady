@@ -1,285 +1,89 @@
 "use client";
 
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  ChevronDown,
+  MessageSquare,
+  Mic,
+  SlidersHorizontal,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   useEffect,
   useId,
+  useRef,
   useState,
   useTransition,
-  type ChangeEvent,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import {
   buildJobInterviewSessionRequestFromDraft,
   createDefaultInterviewOnboardingDraft,
   prefillDraftFromPrivateTarget,
   prefillDraftFromPublicTarget,
-  requiredOnboardingMissingFields,
   roleSpecificFocusDescriptor,
   sanitizeInterviewOnboardingDraft,
   type InterviewOnboardingDraft,
   type InterviewOnboardingOptions,
 } from "@/lib/interviews/interview-onboarding-contracts";
 
-type SelectOption = {
-  id: string;
-  label: string;
-  description?: string | null;
-  searchText: string;
-};
-
-type ApiErrorBody = {
-  error?: string;
-  code?: string;
-  issues?: Array<{ message?: string }>;
-};
-
 const STORAGE_KEY = "jobready-interview-onboarding-draft-v1";
 const DRAFT_SCHEMA_VERSION = "task17.v1";
+const controlClass =
+  "min-h-[44px] w-full min-w-0 rounded-lg border border-muted-line bg-surface px-3 py-2 text-[14px] text-foreground outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-soft disabled:text-muted";
+const textButtonClass =
+  "rounded-md text-[12px] font-semibold text-primary underline-offset-4 transition duration-200 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:opacity-50";
 
-function classes(...values: Array<string | false | null | undefined>) {
-  return values.filter(Boolean).join(" ");
-}
-
-function idempotencyKey() {
-  const random =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2);
-
-  return `job-onboarding-${Date.now().toString(36)}-${random}`;
-}
-
-function searchableText(option: SelectOption) {
-  return `${option.label} ${option.description ?? ""} ${option.searchText}`;
-}
-
-function optionVisible(option: SelectOption, query: string) {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return true;
-
-  return searchableText(option).toLowerCase().includes(normalized);
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-
-  return (
-    <p className="text-[10px] font-medium leading-4 text-danger" role="alert">
-      {message}
-    </p>
-  );
-}
-
-function SearchableSelect({
+function Field({
   label,
-  helper,
-  value,
-  options,
-  onChange,
-  placeholder = "Choose an option",
-  emptyText = "No matching options.",
-  required = false,
-  disabled = false,
-  allowEmpty = true,
   error,
+  children,
 }: {
   label: string;
-  helper?: string;
-  value: string;
-  options: SelectOption[];
-  onChange: (value: string) => void;
-  placeholder?: string;
-  emptyText?: string;
-  required?: boolean;
-  disabled?: boolean;
-  allowEmpty?: boolean;
   error?: string;
+  children: (props: {
+    id: string;
+    "aria-invalid": boolean;
+    "aria-describedby"?: string;
+  }) => ReactNode;
 }) {
   const id = useId();
-  const [query, setQuery] = useState("");
-  const selected = options.find((option) => option.id === value) ?? null;
-  const visible = options.filter((option) => optionVisible(option, query));
-  const selectOptions =
-    selected && !visible.some((option) => option.id === selected.id)
-      ? [selected, ...visible]
-      : visible;
-  const helperId = `${id}-helper`;
-  const errorId = `${id}-error`;
-
   return (
-    <div className="grid gap-1.5">
-      <label
-        htmlFor={`${id}-search`}
-        className="text-[11px] font-semibold text-foreground"
-      >
+    <div className="grid min-w-0 content-start gap-2">
+      <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
         {label}
-        {required ? <span className="text-danger"> *</span> : null}
       </label>
-      {helper ? (
-        <p id={helperId} className="text-[10px] leading-4 text-muted">
-          {helper}
+      {children({
+        id,
+        "aria-invalid": Boolean(error),
+        "aria-describedby": error ? `${id}-error` : undefined,
+      })}
+      {error ? (
+        <p id={`${id}-error`} className="text-[12px] text-danger">
+          {error}
         </p>
       ) : null}
-      <input
-        id={`${id}-search`}
-        type="search"
-        value={query}
-        disabled={disabled}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder={`Search ${label.toLowerCase()}`}
-        aria-describedby={helper ? helperId : undefined}
-        className="h-9 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-surface-soft"
-      />
-      <select
-        value={value}
-        disabled={disabled}
-        required={required}
-        aria-invalid={Boolean(error)}
-        aria-describedby={classes(helper ? helperId : null, error ? errorId : null)}
-        onChange={(event) => onChange(event.target.value)}
-        className="min-h-10 rounded-lg border border-muted-line bg-surface px-3 py-2 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-surface-soft"
-      >
-        {allowEmpty ? <option value="">{placeholder}</option> : null}
-        {selectOptions.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {visible.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2 text-[10px] font-medium text-muted">
-          {emptyText}
-        </p>
-      ) : null}
-      <span id={errorId}>
-        <FieldError message={error} />
-      </span>
     </div>
   );
-}
-
-function RadioCard({
-  name,
-  value,
-  checked,
-  onChange,
-  title,
-  body,
-  disabled = false,
-}: {
-  name: string;
-  value: string;
-  checked: boolean;
-  onChange: (value: string) => void;
-  title: string;
-  body: string;
-  disabled?: boolean;
-}) {
-  return (
-    <label
-      className={classes(
-        "group relative min-h-[98px] cursor-pointer rounded-xl border bg-surface p-3.5 transition duration-200 ease-soft focus-within:ring-2 focus-within:ring-primary/15",
-        checked
-          ? "border-primary bg-primary-soft/60"
-          : "border-muted-line hover:border-muted-line-strong hover:bg-surface-soft",
-        disabled ? "cursor-not-allowed opacity-55" : null,
-      )}
-    >
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        disabled={disabled}
-        onChange={() => onChange(value)}
-        className="peer sr-only"
-      />
-      <span
-        aria-hidden="true"
-        className={classes(
-          "absolute right-3.5 top-3.5 h-3.5 w-3.5 rounded-full border transition duration-200",
-          checked ? "border-primary bg-primary" : "border-muted-line-strong",
-        )}
-      />
-      <span className="block pr-7 text-[12px] font-semibold leading-4 text-foreground">
-        {title}
-      </span>
-      <span className="mt-1.5 block text-[10px] leading-[1.5] text-muted">
-        {body}
-      </span>
-    </label>
-  );
-}
-
-function LoadingShell() {
-  return (
-    <div className="rounded-2xl border border-muted-line bg-surface p-4">
-      <div className="grid gap-3">
-        <div className="h-4 w-36 rounded-md skeleton-shimmer" />
-        <div className="h-10 rounded-lg skeleton-shimmer" />
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="h-28 rounded-xl skeleton-shimmer" />
-          <div className="h-28 rounded-xl skeleton-shimmer" />
-        </div>
-        <div className="h-20 rounded-xl skeleton-shimmer" />
-      </div>
-    </div>
-  );
-}
-
-function storageValue(draft: InterviewOnboardingDraft) {
-  return JSON.stringify({
-    schemaVersion: DRAFT_SCHEMA_VERSION,
-    savedAt: new Date().toISOString(),
-    draft,
-  });
 }
 
 function readStoredDraft() {
   const raw = window.localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
-
-  const parsed = JSON.parse(raw) as {
-    schemaVersion?: string;
-    draft?: unknown;
-  };
-  if (parsed.schemaVersion !== DRAFT_SCHEMA_VERSION) return null;
-
-  return sanitizeInterviewOnboardingDraft(parsed.draft);
+  const parsed = JSON.parse(raw) as { schemaVersion?: string; draft?: unknown };
+  return parsed.schemaVersion === DRAFT_SCHEMA_VERSION
+    ? sanitizeInterviewOnboardingDraft(parsed.draft)
+    : null;
 }
 
-function requiredSetupComplete(
-  draft: InterviewOnboardingDraft,
-  options: InterviewOnboardingOptions,
-) {
-  const fieldErrors = requiredOnboardingMissingFields(
-    {
-      ...draft,
-      candidateDocumentChoice: "skip",
-      candidateDocumentVersionId: "",
-    },
-    options,
-  );
-
-  return Object.keys(fieldErrors).length === 0;
-}
-
-function selectedDocument(
-  draft: InterviewOnboardingDraft,
-  options: InterviewOnboardingOptions,
-) {
-  return (
-    options.candidateDocuments.find(
-      (document) => document.versionId === draft.candidateDocumentVersionId,
-    ) ?? options.candidateDocuments.at(0) ?? null
-  );
-}
-
-function focusModeText(value: InterviewOnboardingDraft["focusMode"]) {
-  if (value === "behavioral_focus") return "Behavioral Focus";
-  if (value === "role_specific_focus") return "Role-specific Focus";
-  return "Recommended";
+function removeStoredDraft() {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Storage is optional; an interview can still be created when it is blocked.
+  }
 }
 
 export function JobInterviewOnboardingClient({
@@ -290,6 +94,9 @@ export function JobInterviewOnboardingClient({
   initialDraft: InterviewOnboardingDraft;
 }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const requestKey = useRef<string | null>(null);
+  const submitLock = useRef(false);
   const [draftReady, setDraftReady] = useState(false);
   const [draft, setDraft] = useState(initialDraft);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -297,730 +104,781 @@ export function JobInterviewOnboardingClient({
   const [statusText, setStatusText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [isNavigating, startTransition] = useTransition();
+  const [showJobs, setShowJobs] = useState(false);
+  const [jobQuery, setJobQuery] = useState("");
+  const [moreOptions, setMoreOptions] = useState(false);
   const pending = submitting || isNavigating;
-  const setupComplete = requiredSetupComplete(draft, options);
   const roleSpecific = roleSpecificFocusDescriptor(draft, options);
-  const filteredCompanies = options.companies.filter(
-    (company) => !draft.marketId || company.marketId === draft.marketId,
+  const publicTarget =
+    draft.entryPath === "public_job"
+      ? options.publicTargets.find(
+          (target) =>
+            target.jobPostingVersionId === draft.publicJobPostingVersionId,
+        )
+      : undefined;
+  const privateTarget =
+    draft.entryPath === "private_job"
+      ? options.privateTargets.find(
+          (target) =>
+            target.privateJobTargetVersionId ===
+            draft.privateJobTargetVersionId,
+        )
+      : undefined;
+  const target = publicTarget ?? privateTarget;
+  const roleLocked = Boolean(publicTarget || privateTarget?.jobRoleId);
+  const companyLocked = Boolean(publicTarget || privateTarget?.companyId);
+  const marketLocked = Boolean(publicTarget || privateTarget?.marketId);
+  const companies = options.companies.filter(
+    (company) => company.marketId === draft.marketId,
   );
-  const filteredRoles = options.jobRoles.filter((role) => {
-    if (draft.roleFamilyId && role.roleFamilyId !== draft.roleFamilyId) {
-      return false;
-    }
-    if (role.marketId && draft.marketId && role.marketId !== draft.marketId) {
-      return false;
-    }
-    if (role.companyId && draft.companyId && role.companyId !== draft.companyId) {
-      return false;
-    }
-    if (role.companyId && !draft.companyId) return false;
-
-    return true;
-  });
-  const publicTarget = options.publicTargets.find(
-    (target) => target.jobPostingVersionId === draft.publicJobPostingVersionId,
+  const roles = options.jobRoles.filter(
+    (role) =>
+      (!role.marketId || role.marketId === draft.marketId) &&
+      (!role.companyId || role.companyId === draft.companyId),
   );
-  const privateTarget = options.privateTargets.find(
-    (target) =>
-      target.privateJobTargetVersionId === draft.privateJobTargetVersionId,
+  const cvDocument = options.candidateDocuments.find(
+    (document) => document.versionId === draft.candidateDocumentVersionId,
   );
-  const cvDocument = selectedDocument(draft, options);
+  const market = options.markets.find((item) => item.id === draft.marketId);
+  const focusLabel =
+    draft.focusMode === "recommended"
+      ? "Balanced questions"
+      : draft.focusMode === "behavioral_focus"
+        ? "Behavioral focus"
+        : roleSpecific.label;
+  const targetValue = publicTarget
+    ? `public:${publicTarget.jobPostingVersionId}`
+    : privateTarget
+      ? `private:${privateTarget.privateJobTargetVersionId}`
+      : "";
+  const normalizedQuery = jobQuery.trim().toLowerCase();
+  const publicJobs = options.publicTargets.filter(
+    (item) =>
+      item.jobPostingVersionId === publicTarget?.jobPostingVersionId ||
+      `${item.title} ${item.companyLabel} ${item.searchText}`
+        .toLowerCase()
+        .includes(normalizedQuery),
+  );
+  const privateJobs = options.privateTargets.filter(
+    (item) =>
+      item.privateJobTargetVersionId ===
+        privateTarget?.privateJobTargetVersionId ||
+      `${item.title} ${item.companyLabel ?? ""} ${item.searchText}`
+        .toLowerCase()
+        .includes(normalizedQuery),
+  );
+  const hasJobs =
+    options.publicTargets.length + options.privateTargets.length > 0;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       try {
-        setDraft(readStoredDraft() ?? initialDraft);
+        // A job opened from the jobs page always takes priority over an old draft.
+        const restored =
+          initialDraft.entryPath === "standalone" ? readStoredDraft() : null;
+        let next = restored ?? initialDraft;
+        if (next.entryPath === "public_job") {
+          next = prefillDraftFromPublicTarget(
+            next,
+            options,
+            next.publicJobPostingVersionId,
+          );
+        } else if (next.entryPath === "private_job") {
+          next = prefillDraftFromPrivateTarget(
+            next,
+            options,
+            next.privateJobTargetVersionId,
+          );
+        }
+        setDraft(next);
       } catch {
         setDraft(initialDraft);
       } finally {
         setDraftReady(true);
       }
     }, 0);
-
     return () => window.clearTimeout(timeout);
-  }, [initialDraft]);
+  }, [initialDraft, options]);
 
   useEffect(() => {
     if (!draftReady) return;
-
-    window.localStorage.setItem(STORAGE_KEY, storageValue(draft));
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          schemaVersion: DRAFT_SCHEMA_VERSION,
+          savedAt: new Date().toISOString(),
+          draft,
+        }),
+      );
+    } catch {
+      // Do not make browser storage a requirement for interview practice.
+    }
   }, [draft, draftReady]);
 
-  function patchDraft(patch: Partial<InterviewOnboardingDraft>) {
-    setDraft((current) => sanitizeInterviewOnboardingDraft({ ...current, ...patch }));
-    setFieldErrors({});
-    setFormError("");
-  }
-
-  function resetDraft() {
-    const next = createDefaultInterviewOnboardingDraft(options);
-    window.localStorage.removeItem(STORAGE_KEY);
+  function updateDraft(next: InterviewOnboardingDraft) {
     setDraft(next);
+    requestKey.current = null;
     setFieldErrors({});
     setFormError("");
-    setStatusText("Draft reset.");
+    setStatusText("");
   }
 
-  function changeEntryPath(value: string) {
-    const entryPath = value as InterviewOnboardingDraft["entryPath"];
-    if (entryPath === "public_job") {
-      const selected =
-        publicTarget?.jobPostingVersionId ??
-        options.publicTargets.at(0)?.jobPostingVersionId;
-      if (selected) {
-        setDraft((current) =>
-          prefillDraftFromPublicTarget(current, options, selected),
-        );
-        return;
-      }
-    }
-
-    if (entryPath === "private_job") {
-      const selected =
-        privateTarget?.privateJobTargetVersionId ??
-        options.privateTargets.at(0)?.privateJobTargetVersionId;
-      if (selected) {
-        setDraft((current) =>
-          prefillDraftFromPrivateTarget(current, options, selected),
-        );
-        return;
-      }
-    }
-
-    patchDraft({ entryPath });
+  function patchDraft(patch: Partial<InterviewOnboardingDraft>) {
+    // Keep text as typed; trim and validate only when building the request.
+    updateDraft({ ...draft, ...patch });
   }
 
-  function changeRoleFamily(value: string) {
-    const nextRole =
-      options.jobRoles.find(
-        (role) =>
-          role.roleFamilyId === value &&
-          (!role.marketId || role.marketId === draft.marketId) &&
-          (!role.companyId || role.companyId === draft.companyId),
-      ) ?? null;
+  function changeContext(patch: Partial<InterviewOnboardingDraft>) {
+    const next = { ...draft, ...patch };
+    if (
+      !options.companies.some(
+        (company) =>
+          company.id === next.companyId && company.marketId === next.marketId,
+      )
+    ) {
+      next.companyId = "";
+    }
+    const role = options.jobRoles.find((item) => item.id === next.jobRoleId);
+    if (
+      role &&
+      ((role.marketId && role.marketId !== next.marketId) ||
+        (role.companyId && role.companyId !== next.companyId))
+    ) {
+      // Keep the role area when an exact company- or market-specific title no longer fits.
+      next.jobRoleId = "";
+    }
+    updateDraft(next);
+  }
 
+  function chooseJob(value: string) {
+    if (value.startsWith("public:")) {
+      updateDraft(prefillDraftFromPublicTarget(draft, options, value.slice(7)));
+    } else if (value.startsWith("private:")) {
+      updateDraft(
+        prefillDraftFromPrivateTarget(draft, options, value.slice(8)),
+      );
+    }
+    setShowJobs(false);
+    setJobQuery("");
+  }
+
+  function clearJob() {
     patchDraft({
-      roleFamilyId: value,
-      jobRoleId: nextRole?.id ?? "",
+      entryPath: "standalone",
+      publicJobPostingVersionId: "",
+      privateJobTargetVersionId: "",
     });
-  }
-
-  function changeCompanyMode(value: string) {
-    if (value === "listed") {
-      patchDraft({
-        companyId: filteredCompanies.at(0)?.id ?? options.defaults.companyId,
-        otherCompanyName: "",
-      });
-      return;
-    }
-
-    patchDraft({ companyId: "", otherCompanyName: draft.otherCompanyName });
+    setShowJobs(false);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitLock.current) return;
     setFormError("");
     setFieldErrors({});
     setStatusText("");
-
+    requestKey.current ??= `job-onboarding-${crypto.randomUUID()}`;
     const build = buildJobInterviewSessionRequestFromDraft({
       draft,
       options,
-      idempotencyKey: idempotencyKey(),
+      idempotencyKey: requestKey.current,
     });
 
     if (!build.ok) {
       setFieldErrors(build.fieldErrors);
-      setFormError(build.fieldErrors.form ?? "Complete the required setup.");
+      setFormError(
+        build.fieldErrors.form ??
+          "Check the highlighted details to start your interview.",
+      );
+      if (
+        build.fieldErrors.marketId ||
+        build.fieldErrors.interviewStageId ||
+        build.fieldErrors.candidateDocumentVersionId
+      )
+        setMoreOptions(true);
+      if (
+        build.fieldErrors.publicJobPostingVersionId ||
+        build.fieldErrors.privateJobTargetVersionId
+      )
+        setShowJobs(true);
+      window.requestAnimationFrame(() =>
+        formRef.current
+          ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+          ?.focus(),
+      );
       return;
     }
 
+    submitLock.current = true;
     setSubmitting(true);
-    setStatusText("Creating your interview setup.");
-
+    setStatusText("Getting your interview ready…");
     try {
       const response = await fetch("/api/job-interviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(build.input),
       });
-      const body = (await response.json().catch(() => ({}))) as ApiErrorBody & {
+      const body = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        issues?: Array<{ message?: string }>;
         session?: { id?: string };
       };
-
       if (!response.ok || !body.session?.id) {
-        const issue = body.issues?.find((item) => item.message)?.message;
-        throw new Error(body.error ?? issue ?? "Could not create interview.");
+        throw new Error(
+          body.error ??
+            body.issues?.find((issue) => issue.message)?.message ??
+            "Could not create your interview. Please try again.",
+        );
       }
-
-      window.localStorage.removeItem(STORAGE_KEY);
-      setStatusText("Interview setup created. Opening preparation.");
-      startTransition(() => {
-        router.push(`/interviews/${body.session?.id}/prepare`);
-      });
+      removeStoredDraft();
+      setStatusText("Opening your interview…");
+      const room = build.input.interviewMode === "voice" ? "voice" : "room";
+      startTransition(() =>
+        router.push(
+          `/interviews/${encodeURIComponent(body.session!.id!)}/${room}`,
+        ),
+      );
     } catch (error) {
       setFormError(
         error instanceof Error
           ? error.message
-          : "Could not create this interview setup.",
+          : "Could not create your interview. Please try again.",
       );
       setStatusText("");
-    } finally {
+      submitLock.current = false;
       setSubmitting(false);
     }
   }
 
-  if (!draftReady) return <LoadingShell />;
+  if (!draftReady) {
+    return (
+      <div
+        aria-label="Loading interview setup"
+        role="status"
+        className="h-[460px] rounded-2xl border border-muted-line bg-surface p-6"
+      >
+        <div className="h-full rounded-xl skeleton-shimmer" />
+      </div>
+    );
+  }
 
   return (
-    <form onSubmit={submit} className="grid gap-4">
-      <div className="rounded-2xl border border-muted-line bg-surface p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-[10px] font-semibold text-primary">
-              Step 1
-            </p>
-            <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
-              Choose your interview path
-            </h2>
-            <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
-              Start from a saved public job, a private target, or a standalone
-              company and role. Jobs and CVs stay optional.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={resetDraft}
-            className="rounded-lg border border-muted-line px-3 py-2 text-[10px] font-semibold text-muted transition duration-200 ease-soft hover:border-primary hover:text-primary active:scale-press"
-          >
-            Reset draft
-          </button>
+    <form
+      ref={formRef}
+      onSubmit={submit}
+      noValidate
+      aria-label="Interview setup"
+      className="rounded-2xl border border-muted-line bg-surface"
+    >
+      <fieldset disabled={pending} className="min-w-0 p-5 sm:p-7">
+        <legend className="sr-only">Interview details</legend>
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h2 className="text-[16px] font-semibold tracking-[-0.02em]">
+            What are you preparing for?
+          </h2>
+          {hasJobs ? (
+            <button
+              type="button"
+              onClick={() => setShowJobs(!showJobs)}
+              aria-expanded={showJobs}
+              aria-controls="interview-job-picker"
+              className={`${textButtonClass} inline-flex shrink-0 items-center gap-1.5`}
+            >
+              <BriefcaseBusiness size={14} aria-hidden="true" />
+              {target ? "Change job" : "Use a job"}
+            </button>
+          ) : null}
         </div>
 
-        <fieldset className="mt-4">
-          <legend className="sr-only">Interview entry path</legend>
-          <div className="grid gap-3 lg:grid-cols-[1.1fr_1fr_1fr]">
-            <RadioCard
-              name="entry-path"
-              value="standalone"
-              checked={draft.entryPath === "standalone"}
-              onChange={changeEntryPath}
-              title="Standalone company/role"
-              body="Prepare without attaching a job. Use a listed company or Other Company with role fallback."
-            />
-            <RadioCard
-              name="entry-path"
-              value="public_job"
-              checked={draft.entryPath === "public_job"}
-              onChange={changeEntryPath}
-              title="Public job target"
-              body="Prefill from a stored public job version so company, market, role, and seniority stay traceable."
-              disabled={options.publicTargets.length === 0}
-            />
-            <RadioCard
-              name="entry-path"
-              value="private_job"
-              checked={draft.entryPath === "private_job"}
-              onChange={changeEntryPath}
-              title="Private target"
-              body="Use a private saved target or application context without publishing that target."
-              disabled={options.privateTargets.length === 0}
-            />
-          </div>
-        </fieldset>
-
-        {draft.entryPath === "public_job" ? (
-          <div className="mt-4 grid gap-3 rounded-xl border border-muted-line bg-surface-soft p-3.5">
-            <SearchableSelect
-              label="Public job"
-              helper="Search by title, company, market, role, location, source, or application host."
-              value={draft.publicJobPostingVersionId}
-              options={options.publicTargets.map((target) => ({
-                id: target.jobPostingVersionId,
-                label: `${target.title} at ${target.companyLabel}`,
-                description: `${target.roleFamilyLabel} / ${target.status}`,
-                searchText: target.searchText,
-              }))}
-              onChange={(value) =>
-                setDraft((current) =>
-                  prefillDraftFromPublicTarget(current, options, value),
-                )
+        {showJobs ? (
+          <div
+            id="interview-job-picker"
+            className="mb-5 grid gap-3 rounded-xl bg-surface-soft p-4"
+          >
+            <Field label="Search jobs">
+              {(props) => (
+                <input
+                  {...props}
+                  type="search"
+                  value={jobQuery}
+                  onChange={(event) => setJobQuery(event.target.value)}
+                  placeholder="Job title or company"
+                  className={controlClass}
+                />
+              )}
+            </Field>
+            <Field
+              label="Choose a job"
+              error={
+                fieldErrors.publicJobPostingVersionId ??
+                fieldErrors.privateJobTargetVersionId
               }
-              emptyText="No public jobs match that search."
-              error={fieldErrors.publicJobPostingVersionId}
-            />
-            {publicTarget ? (
-              <div className="rounded-lg border border-accent/35 bg-surface px-3 py-2.5 text-[10px] leading-4 text-muted">
-                <p className="font-semibold text-accent-strong">
-                  Trustworthy prefill
-                </p>
-                <p className="mt-1.5">
-                  {publicTarget.prefillSourceLabel} Selected context:
-                  {" "}
-                  {publicTarget.companyLabel}, {publicTarget.marketLabel},{" "}
-                  {publicTarget.jobRoleLabel ?? publicTarget.roleFamilyLabel}
-                  {publicTarget.seniorityLabel
-                    ? `, ${publicTarget.seniorityLabel}`
-                    : ""}
-                  .
-                </p>
-              </div>
+            >
+              {(props) => (
+                <select
+                  {...props}
+                  value={targetValue}
+                  onChange={(event) => chooseJob(event.target.value)}
+                  className={controlClass}
+                >
+                  <option value="">Choose a job to fill in the details</option>
+                  {publicJobs.length > 0 ? (
+                    <optgroup label="Public jobs">
+                      {publicJobs.map((item) => (
+                        <option
+                          key={item.jobPostingVersionId}
+                          value={`public:${item.jobPostingVersionId}`}
+                        >
+                          {item.title} at {item.companyLabel}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null}
+                  {privateJobs.length > 0 ? (
+                    <optgroup label="Your saved targets">
+                      {privateJobs.map((item) => (
+                        <option
+                          key={item.privateJobTargetVersionId}
+                          value={`private:${item.privateJobTargetVersionId}`}
+                        >
+                          {item.title}
+                          {item.companyLabel ? ` at ${item.companyLabel}` : ""}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null}
+                </select>
+              )}
+            </Field>
+            {!publicJobs.length && !privateJobs.length ? (
+              <p className="text-[12px] text-muted">
+                No matching jobs. Try another search or choose your own role
+                below.
+              </p>
             ) : null}
+            <button
+              type="button"
+              onClick={clearJob}
+              className={`${textButtonClass} justify-self-start`}
+            >
+              Continue without a job
+            </button>
           </div>
         ) : null}
 
-        {draft.entryPath === "private_job" ? (
-          <div className="mt-4 grid gap-3 rounded-xl border border-muted-line bg-surface-soft p-3.5">
-            <SearchableSelect
-              label="Private target"
-              helper="Search your private saved targets by role, company, market, or requirements."
-              value={draft.privateJobTargetVersionId}
-              options={options.privateTargets.map((target) => ({
-                id: target.privateJobTargetVersionId,
-                label: `${target.title}${target.companyLabel ? ` at ${target.companyLabel}` : ""}`,
-                description: target.roleFamilyLabel,
-                searchText: target.searchText,
-              }))}
-              onChange={(value) =>
-                setDraft((current) =>
-                  prefillDraftFromPrivateTarget(current, options, value),
-                )
-              }
-              emptyText="No private targets match that search."
-              error={fieldErrors.privateJobTargetVersionId}
-            />
-            {privateTarget ? (
-              <div className="rounded-lg border border-accent/35 bg-surface px-3 py-2.5 text-[10px] leading-4 text-muted">
-                <p className="font-semibold text-accent-strong">
-                  Private prefill
-                </p>
-                <p className="mt-1.5">
-                  This uses your private target version {privateTarget.versionNumber}.
-                  If a field was missing, the role controls below provide the
-                  fallback used for the session.
-                </p>
-              </div>
-            ) : null}
+        {target && !showJobs ? (
+          <div className="mb-5 flex items-center justify-between gap-4 rounded-lg bg-primary-soft px-4 py-3">
+            <p className="min-w-0 text-[12px] leading-5 text-primary">
+              <span className="font-semibold">
+                {target.title}
+                {target.companyLabel ? ` at ${target.companyLabel}` : ""}
+              </span>
+              <span className="block">
+                Details filled in from{" "}
+                {privateTarget ? "your private saved job" : "this job"}.
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={clearJob}
+              className={`${textButtonClass} shrink-0`}
+            >
+              Remove
+            </button>
           </div>
         ) : null}
-      </div>
 
-      <section className="rounded-2xl border border-muted-line bg-surface p-4">
-        <p className="text-[10px] font-semibold text-primary">
-          Required setup
-        </p>
-        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
-          Market, role, seniority
-        </h2>
-        <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
-          You choose familiar job language. Jiandae maps it to reviewed
-          interview plans internally, without asking you to configure rubrics.
-        </p>
+        <div className="grid gap-4">
+          <Field
+            label="Role"
+            error={fieldErrors.jobRoleId ?? fieldErrors.roleFamilyId}
+          >
+            {(props) => (
+              <select
+                {...props}
+                disabled={roleLocked}
+                value={
+                  draft.jobRoleId
+                    ? `role:${draft.jobRoleId}`
+                    : draft.roleFamilyId
+                      ? `family:${draft.roleFamilyId}`
+                      : ""
+                }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  const role = roles.find(
+                    (item) => `role:${item.id}` === value,
+                  );
+                  patchDraft({
+                    jobRoleId: role?.id ?? "",
+                    roleFamilyId: role?.roleFamilyId ?? value.slice(7),
+                  });
+                }}
+                className={controlClass}
+              >
+                <option value="" disabled>
+                  Choose the role you want to practise
+                </option>
+                {options.roleFamilies.map((family) => (
+                  <optgroup key={family.id} label={family.label}>
+                    <option value={`family:${family.id}`}>
+                      {family.label} — general practice
+                    </option>
+                    {roles
+                      .filter((role) => role.roleFamilyId === family.id)
+                      .map((role) => (
+                        <option key={role.id} value={`role:${role.id}`}>
+                          {role.label}
+                        </option>
+                      ))}
+                  </optgroup>
+                ))}
+              </select>
+            )}
+          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Company" error={fieldErrors.companyId}>
+              {(props) => (
+                <select
+                  {...props}
+                  disabled={companyLocked}
+                  value={draft.companyId}
+                  onChange={(event) =>
+                    changeContext({
+                      companyId: event.target.value,
+                      otherCompanyName: "",
+                    })
+                  }
+                  className={controlClass}
+                >
+                  <option value="">Any company / other</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+            <Field
+              label="Experience level"
+              error={fieldErrors.seniorityLevelId}
+            >
+              {(props) => (
+                <select
+                  {...props}
+                  disabled={Boolean(publicTarget?.seniorityLevelId)}
+                  value={draft.seniorityLevelId}
+                  onChange={(event) =>
+                    patchDraft({ seniorityLevelId: event.target.value })
+                  }
+                  className={controlClass}
+                >
+                  <option value="" disabled>
+                    Choose your level
+                  </option>
+                  {options.seniorityLevels.map((level) => (
+                    <option key={level.id} value={level.id}>
+                      {level.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+          </div>
+          {!draft.companyId ? (
+            <Field
+              label="Company name (optional)"
+              error={fieldErrors.otherCompanyName}
+            >
+              {(props) => (
+                <input
+                  {...props}
+                  value={draft.otherCompanyName}
+                  maxLength={120}
+                  onChange={(event) =>
+                    patchDraft({ otherCompanyName: event.target.value })
+                  }
+                  placeholder="Leave blank for general role practice"
+                  className={controlClass}
+                />
+              )}
+            </Field>
+          ) : null}
+        </div>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <SearchableSelect
-            label="Market"
-            helper="English-first setup for Kenya launch content."
-            value={draft.marketId}
-            options={options.markets}
-            onChange={(value) => patchDraft({ marketId: value })}
-            required
-            allowEmpty={false}
-            error={fieldErrors.marketId}
-          />
-
-          <fieldset className="grid gap-2.5">
-            <legend className="text-[11px] font-semibold text-foreground">
-              Company
+        <div className="mt-6 grid gap-4 border-t border-muted-line pt-5 sm:grid-cols-[1fr_160px]">
+          <fieldset className="min-w-0">
+            <legend className="mb-2 text-[13px] font-semibold">
+              Interview format
             </legend>
-            <div className="grid gap-2.5 sm:grid-cols-2">
-              <RadioCard
-                name="company-mode"
-                value="listed"
-                checked={Boolean(draft.companyId)}
-                onChange={changeCompanyMode}
-                title="Listed company"
-                body="Use reviewed company context where available."
-              />
-              <RadioCard
-                name="company-mode"
-                value="other"
-                checked={!draft.companyId}
-                onChange={changeCompanyMode}
-                title="Other Company"
-                body="Use the role and industry fallback when company-specific content is unsupported."
-              />
+            <div className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  {
+                    value: "text",
+                    title: "Text",
+                    description: "Type your answers",
+                    icon: MessageSquare,
+                  },
+                  {
+                    value: "voice",
+                    title: "Voice",
+                    description: "Practise out loud",
+                    icon: Mic,
+                  },
+                ] as const
+              ).map(({ value, title, description, icon: Icon }) => (
+                <label
+                  key={value}
+                  className={`flex min-h-[72px] cursor-pointer items-center gap-3 rounded-lg border px-3 py-3 transition duration-200 focus-within:ring-2 focus-within:ring-primary/30 ${draft.interviewMode === value ? "border-primary bg-primary-soft" : "border-muted-line hover:bg-surface-soft"}`}
+                >
+                  <input
+                    type="radio"
+                    name="interview-mode"
+                    value={value}
+                    checked={draft.interviewMode === value}
+                    onChange={() => patchDraft({ interviewMode: value })}
+                    className="sr-only"
+                  />
+                  <Icon
+                    size={18}
+                    className="shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <span className="block text-[13px] font-semibold">
+                      {title}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] leading-4 text-muted">
+                      {description}
+                    </span>
+                  </span>
+                </label>
+              ))}
             </div>
           </fieldset>
-
-          {draft.companyId ? (
-            <SearchableSelect
-              label="Company from reviewed list"
-              helper="Search by company, industry, careers URL, or focus area."
-              value={draft.companyId}
-              options={filteredCompanies}
-              onChange={(value) =>
-                patchDraft({ companyId: value, otherCompanyName: "" })
-              }
-              required
-              allowEmpty={false}
-              emptyText="No listed companies match that market search."
-              error={fieldErrors.companyId}
-            />
-          ) : (
-            <div className="grid gap-1.5 rounded-xl border border-accent/35 bg-surface-soft p-3.5">
-              <label
-                htmlFor="other-company-name"
-                className="text-[11px] font-semibold text-foreground"
-              >
-                Other company name
-              </label>
-              <input
-                id="other-company-name"
-                type="text"
-                value={draft.otherCompanyName}
+          <Field label="Duration">
+            {(props) => (
+              <select
+                {...props}
+                value={draft.durationMinutes}
                 onChange={(event) =>
-                  patchDraft({ otherCompanyName: event.target.value })
+                  patchDraft({ durationMinutes: Number(event.target.value) })
                 }
-                placeholder="Example: Nairobi fintech, county agency, NGO"
-                className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:ring-2 focus:ring-primary/15"
-              />
-              <p className="text-[10px] leading-4 text-muted">
-                If we do not have reviewed company-specific content, the session
-                uses the selected market, role, seniority, and industry-style
-                questions. The company name is stored as a client label only.
-              </p>
-              <FieldError message={fieldErrors.otherCompanyName} />
-            </div>
-          )}
-
-          <SearchableSelect
-            label="Role area"
-            helper="Broad area such as Product Management or Software Engineering."
-            value={draft.roleFamilyId}
-            options={options.roleFamilies}
-            onChange={changeRoleFamily}
-            required
-            allowEmpty={false}
-            error={fieldErrors.roleFamilyId}
-          />
-
-          <SearchableSelect
-            label="Role"
-            helper="Choose the closest role title. The role remains optional when a target lacks an exact match."
-            value={draft.jobRoleId}
-            options={filteredRoles}
-            onChange={(value) => patchDraft({ jobRoleId: value })}
-            placeholder="No exact role"
-            emptyText="No roles match. Broaden the role area or use no exact role."
-            error={fieldErrors.jobRoleId}
-          />
-
-          <SearchableSelect
-            label="Seniority"
-            helper="This keeps question difficulty aligned with your job level."
-            value={draft.seniorityLevelId}
-            options={options.seniorityLevels}
-            onChange={(value) => patchDraft({ seniorityLevelId: value })}
-            required
-            allowEmpty={false}
-            error={fieldErrors.seniorityLevelId}
-          />
-
-          <SearchableSelect
-            label="Interview stage"
-            helper="Optional. Leave blank if you are not sure yet."
-            value={draft.interviewStageId}
-            options={options.interviewStages}
-            onChange={(value) => patchDraft({ interviewStageId: value })}
-            placeholder="No stage selected"
-            error={fieldErrors.interviewStageId}
-          />
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-muted-line bg-surface p-4">
-        <p className="text-[10px] font-semibold text-primary">
-          Practice shape
-        </p>
-        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
-          Focus, mode, duration
-        </h2>
-
-        <fieldset className="mt-4">
-          <legend className="sr-only">Interview focus</legend>
-          <div className="grid gap-3 lg:grid-cols-3">
-            <RadioCard
-              name="focus-mode"
-              value="recommended"
-              checked={draft.focusMode === "recommended"}
-              onChange={(value) =>
-                patchDraft({
-                  focusMode: value as InterviewOnboardingDraft["focusMode"],
-                })
-              }
-              title="Recommended"
-              body="Balanced coverage across behavioral, role, and practical readiness. This is the default."
-            />
-            <RadioCard
-              name="focus-mode"
-              value="behavioral_focus"
-              checked={draft.focusMode === "behavioral_focus"}
-              onChange={(value) =>
-                patchDraft({
-                  focusMode: value as InterviewOnboardingDraft["focusMode"],
-                })
-              }
-              title="Behavioral Focus"
-              body="More practice on STAR stories, ownership, judgment, communication, and evidence."
-            />
-            <RadioCard
-              name="focus-mode"
-              value="role_specific_focus"
-              checked={draft.focusMode === "role_specific_focus"}
-              onChange={(value) =>
-                patchDraft({
-                  focusMode: value as InterviewOnboardingDraft["focusMode"],
-                })
-              }
-              title={roleSpecific.label}
-              body={roleSpecific.description}
-            />
-          </div>
-        </fieldset>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <label className="grid gap-1.5">
-            <span className="text-[11px] font-semibold text-foreground">
-              Mode
-            </span>
-            <select
-              value={draft.interviewMode}
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                patchDraft({
-                  interviewMode: event.target
-                    .value as InterviewOnboardingDraft["interviewMode"],
-                })
-              }
-              className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15"
-            >
-              <option value="text">Text interview</option>
-              <option value="voice">Voice interview</option>
-            </select>
-          </label>
-
-          <label className="grid gap-1.5">
-            <span className="text-[11px] font-semibold text-foreground">
-              Duration
-            </span>
-            <select
-              value={draft.durationMinutes}
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                patchDraft({ durationMinutes: Number(event.target.value) })
-              }
-              className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15"
-            >
-              {[15, 25, 30, 45, 60].map((minutes) => (
-                <option key={minutes} value={minutes}>
-                  {minutes} minutes
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="grid gap-1.5">
-            <span className="text-[11px] font-semibold text-foreground">
-              Language
-            </span>
-            <select
-              value={draft.language}
-              onChange={() => patchDraft({ language: "en" })}
-              className="h-10 rounded-lg border border-muted-line bg-surface px-3 text-[11px] font-semibold text-foreground outline-none transition duration-200 ease-soft focus:border-primary focus:ring-2 focus:ring-primary/15"
-            >
-              <option value="en">English</option>
-            </select>
-            <span className="text-[10px] leading-4 text-muted">
-              More languages can be added after the English-first launch.
-            </span>
-          </label>
-        </div>
-      </section>
-
-      <section
-        className={classes(
-          "rounded-2xl border bg-surface p-4 transition duration-200",
-          setupComplete ? "border-muted-line" : "border-muted-line opacity-75",
-        )}
-      >
-        <p className="text-[10px] font-semibold text-primary">
-          Optional personalization
-        </p>
-        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
-          CV/resume context
-        </h2>
-        <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-muted">
-          This appears after required setup and never blocks interview creation.
-          There is no upload here.
-        </p>
-
-        {!setupComplete ? (
-          <p className="mt-3 rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2.5 text-[10px] font-medium text-muted">
-            Complete market, role, seniority, and any selected target first.
-            You can still skip CV.
-          </p>
-        ) : null}
-
-        <fieldset className="mt-4" disabled={!setupComplete}>
-          <legend className="sr-only">CV personalization choice</legend>
-          <div className="grid gap-3 md:grid-cols-2">
-            <RadioCard
-              name="cv-choice"
-              value="skip"
-              checked={draft.candidateDocumentChoice === "skip"}
-              onChange={() =>
-                patchDraft({
-                  candidateDocumentChoice: "skip",
-                  candidateDocumentVersionId: "",
-                })
-              }
-              title="Skip CV"
-              body="Create the interview from role, company, target, seniority, and selected focus only."
-              disabled={!setupComplete}
-            />
-            <RadioCard
-              name="cv-choice"
-              value="use"
-              checked={draft.candidateDocumentChoice === "use"}
-              onChange={() =>
-                patchDraft({
-                  candidateDocumentChoice: "use",
-                  candidateDocumentVersionId: cvDocument?.versionId ?? "",
-                })
-              }
-              title="Use selected CV/resume"
-              body="Add allowlisted structured facts from one parsed document version to personalize prompts."
-              disabled={!setupComplete || options.candidateDocuments.length === 0}
-            />
-          </div>
-        </fieldset>
-
-        {setupComplete &&
-        draft.candidateDocumentChoice === "use" &&
-        options.candidateDocuments.length > 0 ? (
-          <div className="mt-4 grid gap-3 rounded-xl border border-muted-line bg-surface-soft p-3.5">
-            <SearchableSelect
-              label="CV/resume version"
-              helper="Choose one already parsed version. Uploading belongs to the documents flow, not this setup."
-              value={draft.candidateDocumentVersionId || cvDocument?.versionId || ""}
-              options={options.candidateDocuments.map((document) => ({
-                id: document.versionId,
-                label: `${document.title} - version ${document.versionNumber}`,
-                description: `${document.factCount} available structured facts`,
-                searchText: `${document.title} ${document.kind} ${document.status}`,
-              }))}
-              onChange={(value) =>
-                patchDraft({ candidateDocumentVersionId: value })
-              }
-              allowEmpty={false}
-              error={fieldErrors.candidateDocumentVersionId}
-            />
-            {cvDocument ? (
-              <div className="rounded-lg border border-accent/35 bg-surface p-3 text-[10px] leading-4 text-muted">
-                <p className="font-semibold text-accent-strong">
-                  Exactly what will be used
-                </p>
-                <p className="mt-1.5">
-                  Jiandae will use up to 10 structured facts from this version:
-                  fact labels, skill names, confirmation status, evidence type,
-                  and short source excerpts. It will not use raw file text,
-                  private storage objects, other documents, or upload metadata.
-                </p>
-                {cvDocument.facts.length > 0 ? (
-                  <ul className="mt-2.5 grid gap-1.5">
-                    {cvDocument.facts.map((fact) => (
-                      <li
-                        key={fact.id}
-                        className="rounded-lg border border-muted-line bg-surface-soft px-3 py-2"
-                      >
-                        <span className="font-semibold text-foreground">
-                          {fact.label}
-                        </span>
-                        {fact.skillName ? (
-                          <span> / {fact.skillName}</span>
-                        ) : null}
-                        {fact.sourceExcerpt ? (
-                          <span className="block text-muted">
-                            {fact.sourceExcerpt}
-                          </span>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2.5 rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2 font-medium text-muted">
-                    This document has no allowlisted facts yet. Skip CV for now.
-                  </p>
-                )}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
-        {setupComplete && options.candidateDocuments.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-muted-line bg-surface-soft px-3 py-2.5 text-[10px] font-medium text-muted">
-            No parsed CV/resume is available yet. Choose Skip CV and start from
-            the job setup.
-          </p>
-        ) : null}
-      </section>
-
-      <section className="rounded-2xl border border-primary bg-primary p-4 text-white">
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
-          <div>
-            <p className="text-[10px] font-semibold text-white/58">
-              Review
-            </p>
-            <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em]">
-              {focusModeText(draft.focusMode)} / {draft.durationMinutes} minutes
-            </h2>
-            <p className="mt-1.5 max-w-2xl text-[10px] leading-4 text-white/70">
-              Submitting creates one valid job-interview session, reserves one
-              interview credit, persists the selected question set, and routes
-              you to preparation.
-            </p>
-            {draft.companyId ? null : (
-              <p className="mt-2.5 rounded-lg border border-accent/35 bg-accent/10 px-3 py-2.5 text-[10px] leading-4 text-accent-soft">
-                Other Company is active. Company-specific content will fall back
-                to reviewed role and industry-style coverage.
-              </p>
-            )}
-            {formError ? (
-              <p
-                role="alert"
-                className="mt-3 rounded-lg border border-danger/25 bg-danger-surface px-3 py-2.5 text-[10px] font-semibold text-danger"
+                className={`${controlClass} sm:min-h-[72px]`}
               >
-                {formError}
-              </p>
-            ) : null}
-            <p className="sr-only" aria-live="polite">
-              {statusText}
-            </p>
-            {statusText ? (
-              <p className="mt-2.5 text-[10px] font-medium text-white/70">
-                {statusText}
-              </p>
-            ) : null}
-          </div>
+                {[...new Set([15, 25, 30, 45, 60, draft.durationMinutes])]
+                  .sort((a, b) => a - b)
+                  .map((minutes) => (
+                    <option key={minutes} value={minutes}>
+                      {minutes} minutes
+                    </option>
+                  ))}
+              </select>
+            )}
+          </Field>
+        </div>
 
+        <details
+          open={moreOptions}
+          onToggle={(event) => setMoreOptions(event.currentTarget.open)}
+          className="group mt-5 border-t border-muted-line pt-4"
+        >
+          <summary className="flex min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
+            <SlidersHorizontal
+              size={15}
+              className="text-muted"
+              aria-hidden="true"
+            />
+            <span className="text-[13px] font-semibold">More options</span>
+            <span className="ml-1 hidden text-[11px] text-muted sm:inline">
+              Focus, CV & interview stage
+            </span>
+            <ChevronDown
+              size={16}
+              className="ml-auto text-muted transition-transform duration-200 group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div className="grid gap-4 pt-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Question focus">
+                {(props) => (
+                  <select
+                    {...props}
+                    value={draft.focusMode}
+                    onChange={(event) =>
+                      patchDraft({
+                        focusMode: event.target
+                          .value as InterviewOnboardingDraft["focusMode"],
+                      })
+                    }
+                    className={controlClass}
+                  >
+                    <option value="recommended">Balanced (recommended)</option>
+                    <option value="behavioral_focus">Behavioral focus</option>
+                    <option value="role_specific_focus">
+                      {roleSpecific.label}
+                    </option>
+                  </select>
+                )}
+              </Field>
+              <Field
+                label="Interview stage"
+                error={fieldErrors.interviewStageId}
+              >
+                {(props) => (
+                  <select
+                    {...props}
+                    value={draft.interviewStageId}
+                    onChange={(event) =>
+                      patchDraft({ interviewStageId: event.target.value })
+                    }
+                    className={controlClass}
+                  >
+                    <option value="">Any stage</option>
+                    {options.interviewStages.map((stage) => (
+                      <option key={stage.id} value={stage.id}>
+                        {stage.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </Field>
+            </div>
+            {options.markets.length > 1 || fieldErrors.marketId ? (
+              <Field label="Market" error={fieldErrors.marketId}>
+                {(props) => (
+                  <select
+                    {...props}
+                    disabled={marketLocked}
+                    value={draft.marketId}
+                    onChange={(event) =>
+                      changeContext({ marketId: event.target.value })
+                    }
+                    className={controlClass}
+                  >
+                    <option value="" disabled>
+                      Choose a market
+                    </option>
+                    {options.markets.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </Field>
+            ) : null}
+            <Field
+              label="Personalize with a CV (optional)"
+              error={fieldErrors.candidateDocumentVersionId}
+            >
+              {(props) => (
+                <select
+                  {...props}
+                  value={
+                    draft.candidateDocumentChoice === "use"
+                      ? draft.candidateDocumentVersionId
+                      : ""
+                  }
+                  onChange={(event) =>
+                    patchDraft({
+                      candidateDocumentChoice: event.target.value
+                        ? "use"
+                        : "skip",
+                      candidateDocumentVersionId: event.target.value,
+                    })
+                  }
+                  className={controlClass}
+                >
+                  <option value="">Skip CV</option>
+                  {options.candidateDocuments.map((document) => (
+                    <option key={document.versionId} value={document.versionId}>
+                      {document.title} — version {document.versionNumber}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+            <p className="text-[12px] leading-5 text-muted">
+              {cvDocument && draft.candidateDocumentChoice === "use"
+                ? "By selecting this CV, you allow Jiandae to use up to 10 facts about your roles and skills, with short supporting excerpts, to personalize questions. Your raw CV text is not shared."
+                : options.candidateDocuments.length
+                  ? "Your CV is only used if you select it here."
+                  : "No saved CV yet. You can start with just your role."}
+            </p>
+            {cvDocument &&
+            draft.candidateDocumentChoice === "use" &&
+            cvDocument.facts.length > 0 ? (
+              <details className="rounded-lg bg-surface-soft px-4 py-3">
+                <summary className="cursor-pointer text-[12px] font-semibold text-primary focus-visible:outline-2 focus-visible:outline-primary">
+                  Preview CV details
+                </summary>
+                <ul className="mt-3 grid gap-2 text-[12px] leading-5 text-muted">
+                  {cvDocument.facts.map((fact) => (
+                    <li key={fact.id}>
+                      <span className="font-semibold text-foreground">
+                        {fact.label}
+                      </span>
+                      {fact.skillName ? ` · ${fact.skillName}` : ""}
+                      {fact.sourceExcerpt ? (
+                        <span className="block">{fact.sourceExcerpt}</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                removeStoredDraft();
+                updateDraft(createDefaultInterviewOnboardingDraft(options));
+                setShowJobs(false);
+                setMoreOptions(false);
+                setStatusText("Setup reset.");
+              }}
+              className={`${textButtonClass} mt-1 justify-self-start`}
+            >
+              Reset to defaults
+            </button>
+          </div>
+        </details>
+      </fieldset>
+
+      <div className="border-t border-muted-line px-5 py-5 sm:px-7">
+        <p className="mb-4 text-[12px] leading-5 text-muted">
+          {focusLabel} · {market?.label ?? "Choose a market"} · English ·{" "}
+          {draft.candidateDocumentChoice === "use"
+            ? "CV included"
+            : "No CV needed"}
+        </p>
+        {formError ? (
+          <p
+            role="alert"
+            className="mb-4 rounded-lg bg-danger/5 px-4 py-3 text-[13px] leading-5 text-danger"
+          >
+            {formError}
+          </p>
+        ) : null}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[12px] text-muted">Reserves 1 interview credit</p>
           <button
             type="submit"
             disabled={pending}
-            className="inline-flex min-h-10 min-w-[180px] items-center justify-center rounded-lg bg-accent px-4 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/30 active:scale-press disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex min-h-[46px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[14px] font-semibold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-wait disabled:opacity-70"
           >
-            {pending ? "Creating setup" : "Create interview setup"}
+            {pending ? "Getting ready…" : "Start interview"}
+            <ArrowRight size={17} aria-hidden="true" />
           </button>
         </div>
-      </section>
+        <p aria-live="polite" className="sr-only">
+          {statusText}
+        </p>
+      </div>
     </form>
   );
 }
