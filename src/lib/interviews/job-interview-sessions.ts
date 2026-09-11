@@ -1056,6 +1056,18 @@ export class JobInterviewSessionService {
       }
 
       if (error instanceof InterviewContentError) {
+        if (
+          error.code === "not_found" &&
+          error.message ===
+            "No reviewed plan or compatible plan template was found."
+        ) {
+          throw new JobInterviewSessionError(
+            "plan_unavailable",
+            "This interview setup does not have a reviewed plan yet. Choose another role, experience level, or question focus.",
+            error.details,
+          );
+        }
+
         throw mapContentError(error);
       }
 

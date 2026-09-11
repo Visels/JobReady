@@ -124,6 +124,7 @@ export async function getJobInterviewOnboardingOptions(
     jobRoles,
     seniorityLevels,
     interviewStages,
+    publishedPlans,
     publicTargets,
     privateTargets,
     candidateDocuments,
@@ -155,6 +156,18 @@ export async function getJobInterviewOnboardingOptions(
     db.interviewStage.findMany({
       where: { isActive: true },
       orderBy: [{ displayOrder: "asc" }, { label: "asc" }],
+    }),
+    db.interviewPlan.findMany({
+      where: { status: "published", retiredAt: null },
+      select: {
+        marketId: true,
+        companyId: true,
+        roleFamilyId: true,
+        jobRoleId: true,
+        seniorityLevelId: true,
+        interviewStageId: true,
+        focusMode: true,
+      },
     }),
     db.jobPosting.findMany({
       where: {
@@ -459,6 +472,7 @@ export async function getJobInterviewOnboardingOptions(
     jobRoles: jobRoleOptions,
     seniorityLevels: seniorityOptions,
     interviewStages: stageOptions,
+    planAvailability: publishedPlans,
     publicTargets: publicTargetOptions,
     privateTargets: privateTargetOptions,
     candidateDocuments: candidateDocumentOptions,

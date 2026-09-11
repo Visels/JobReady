@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { InterviewFocusMode } from "@prisma/client";
 import {
   createJobInterviewSessionRequestSchema,
   jobInterviewFocusModeSchema,
@@ -157,6 +158,16 @@ export type InterviewOnboardingCandidateDocumentOption = {
   }>;
 };
 
+export type InterviewOnboardingPlanAvailability = {
+  marketId: string | null;
+  companyId: string | null;
+  roleFamilyId: string;
+  jobRoleId: string | null;
+  seniorityLevelId: string;
+  interviewStageId: string | null;
+  focusMode: InterviewFocusMode;
+};
+
 export type InterviewOnboardingOptions = {
   defaults: {
     marketId: string;
@@ -175,10 +186,34 @@ export type InterviewOnboardingOptions = {
   jobRoles: InterviewOnboardingJobRoleOption[];
   seniorityLevels: InterviewOnboardingSeniorityOption[];
   interviewStages: InterviewOnboardingStageOption[];
+  planAvailability: InterviewOnboardingPlanAvailability[];
   publicTargets: InterviewOnboardingPublicTargetOption[];
   privateTargets: InterviewOnboardingPrivateTargetOption[];
   candidateDocuments: InterviewOnboardingCandidateDocumentOption[];
 };
+
+export function hasReviewedPlanForDraft(
+  draft: InterviewOnboardingDraft,
+  options: InterviewOnboardingOptions,
+) {
+  return options.planAvailability.some(
+    (plan) =>
+      plan.roleFamilyId === draft.roleFamilyId &&
+      plan.seniorityLevelId === draft.seniorityLevelId &&
+      plan.focusMode === draft.focusMode &&
+      (plan.marketId === null || plan.marketId === draft.marketId) &&
+      (draft.companyId
+        ? plan.companyId === null || plan.companyId === draft.companyId
+        : plan.companyId === null) &&
+      (draft.jobRoleId
+        ? plan.jobRoleId === null || plan.jobRoleId === draft.jobRoleId
+        : plan.jobRoleId === null) &&
+      (draft.interviewStageId
+        ? plan.interviewStageId === null ||
+          plan.interviewStageId === draft.interviewStageId
+        : plan.interviewStageId === null),
+  );
+}
 
 export type InterviewOnboardingBuildResult =
   | {
@@ -451,6 +486,19 @@ export function requiredOnboardingMissingFields(
   ) {
     fieldErrors.candidateDocumentVersionId =
       "Choose a CV/resume version or select Skip CV.";
+  }
+
+  if (
+    !fieldErrors.marketId &&
+    !fieldErrors.companyId &&
+    !fieldErrors.roleFamilyId &&
+    !fieldErrors.jobRoleId &&
+    !fieldErrors.seniorityLevelId &&
+    !fieldErrors.interviewStageId &&
+    !hasReviewedPlanForDraft(draft, options)
+  ) {
+    fieldErrors.form =
+      "This role, experience level, and question focus does not have a reviewed interview plan yet. Choose another available setup or reset to defaults.";
   }
 
   return fieldErrors;

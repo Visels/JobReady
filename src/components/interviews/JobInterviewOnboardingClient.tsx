@@ -21,6 +21,7 @@ import {
 import {
   buildJobInterviewSessionRequestFromDraft,
   createDefaultInterviewOnboardingDraft,
+  hasReviewedPlanForDraft,
   prefillDraftFromPrivateTarget,
   prefillDraftFromPublicTarget,
   roleSpecificFocusDescriptor,
@@ -30,7 +31,7 @@ import {
 } from "@/lib/interviews/interview-onboarding-contracts";
 
 const STORAGE_KEY = "jobready-interview-onboarding-draft-v1";
-const DRAFT_SCHEMA_VERSION = "task17.v1";
+const DRAFT_SCHEMA_VERSION = "task17.v2";
 const controlClass =
   "min-h-[44px] w-full min-w-0 rounded-lg border border-muted-line bg-surface px-3 py-2 text-[14px] text-foreground outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-soft disabled:text-muted";
 const textButtonClass =
@@ -169,6 +170,7 @@ export function JobInterviewOnboardingClient({
   );
   const hasJobs =
     options.publicTargets.length + options.privateTargets.length > 0;
+  const reviewedPlanAvailable = hasReviewedPlanForDraft(draft, options);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -270,6 +272,14 @@ export function JobInterviewOnboardingClient({
       privateJobTargetVersionId: "",
     });
     setShowJobs(false);
+  }
+
+  function resetToDefaults() {
+    removeStoredDraft();
+    updateDraft(createDefaultInterviewOnboardingDraft(options));
+    setShowJobs(false);
+    setMoreOptions(false);
+    setStatusText("Setup reset.");
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -834,13 +844,7 @@ export function JobInterviewOnboardingClient({
             ) : null}
             <button
               type="button"
-              onClick={() => {
-                removeStoredDraft();
-                updateDraft(createDefaultInterviewOnboardingDraft(options));
-                setShowJobs(false);
-                setMoreOptions(false);
-                setStatusText("Setup reset.");
-              }}
+              onClick={resetToDefaults}
               className={`${textButtonClass} mt-1 justify-self-start`}
             >
               Reset to defaults
@@ -864,11 +868,29 @@ export function JobInterviewOnboardingClient({
             {formError}
           </p>
         ) : null}
+        {!reviewedPlanAvailable && !formError ? (
+          <div
+            role="status"
+            className="mb-4 rounded-lg bg-warning/10 px-4 py-3 text-[13px] leading-5 text-foreground"
+          >
+            <p>
+              This setup does not have a reviewed interview plan yet. Choose a
+              different role, experience level, or question focus.
+            </p>
+            <button
+              type="button"
+              onClick={resetToDefaults}
+              className={`${textButtonClass} mt-2`}
+            >
+              Use available defaults
+            </button>
+          </div>
+        ) : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[12px] text-muted">Reserves 1 interview credit</p>
           <button
             type="submit"
-            disabled={pending}
+            disabled={pending || !reviewedPlanAvailable}
             className="inline-flex min-h-[46px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[14px] font-semibold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-wait disabled:opacity-70"
           >
             {pending ? "Getting ready…" : "Start interview"}

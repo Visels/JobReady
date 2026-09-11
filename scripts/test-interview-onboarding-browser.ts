@@ -251,6 +251,10 @@ async function main() {
     await expect(
       page.getByLabel("Experience level", { exact: true }),
     ).toHaveValue("entry");
+    await expect(
+      page.getByText("This setup does not have a reviewed interview plan yet."),
+    ).toBeVisible();
+    await expect(start).toBeDisabled();
     await page.goto(`${origin}/?job=software-engineer`);
     await expect(page.getByLabel("Role", { exact: true })).toHaveValue(
       "role:engineer",
@@ -303,7 +307,7 @@ async function main() {
       (draft) =>
         localStorage.setItem(
           "jobready-interview-onboarding-draft-v1",
-          JSON.stringify({ schemaVersion: "task17.v1", draft }),
+          JSON.stringify({ schemaVersion: "task17.v2", draft }),
         ),
       staleDraft,
     );
