@@ -1,5 +1,19 @@
 "use client";
 
+import {
+  AlertTriangle,
+  Camera,
+  CameraOff,
+  Check,
+  Mic,
+  MicOff,
+  PhoneOff,
+  RotateCcw,
+  ShieldCheck,
+  Volume2,
+  X,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -73,6 +87,10 @@ export function JobVoiceInterviewRoom({
   );
   const [error, setError] = useState("");
   const [soundBlocked, setSoundBlocked] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
+  const [cameraNotice, setCameraNotice] = useState("");
+  const [microphoneMuted, setMicrophoneMuted] = useState(false);
+  const [endDialogOpen, setEndDialogOpen] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(
     initialState.session.durationLimitSeconds,
   );
@@ -80,6 +98,8 @@ export function JobVoiceInterviewRoom({
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const channelRef = useRef<RTCDataChannel | null>(null);
   const microphoneRef = useRef<MediaStream | null>(null);
+  const cameraRef = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const channelReadyRef = useRef(false);
   const audioReadyRef = useRef(false);
@@ -143,6 +163,9 @@ export function JobVoiceInterviewRoom({
     peerRef.current = null;
     microphoneRef.current?.getTracks().forEach((track) => track.stop());
     microphoneRef.current = null;
+    cameraRef.current?.getTracks().forEach((track) => track.stop());
+    cameraRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.srcObject = null;
@@ -153,8 +176,9 @@ export function JobVoiceInterviewRoom({
     audioReadyRef.current = false;
     interviewStartedRef.current = false;
     clearTimers();
-    if (mountedRef.current && !preserveStatus) {
-      setStatus("idle");
+    if (mountedRef.current) {
+      setCameraOn(false);
+      if (!preserveStatus) setStatus("idle");
     }
   }
 
@@ -228,6 +252,9 @@ export function JobVoiceInterviewRoom({
         video: false,
       });
       microphoneRef.current = microphone;
+      microphone.getAudioTracks().forEach((track) => {
+        track.enabled = !microphoneMuted;
+      });
 
       const peer = new RTCPeerConnection();
       peerRef.current = peer;
@@ -372,6 +399,7 @@ export function JobVoiceInterviewRoom({
     microphoneRef.current?.getAudioTracks().forEach((track) => {
       track.enabled = false;
     });
+    stopCamera();
     setStatus("ending");
     send({ type: "response.cancel" });
     send({ type: "output_audio_buffer.clear" });
@@ -490,6 +518,49 @@ export function JobVoiceInterviewRoom({
     }
   }
 
+  function toggleMicrophone() {
+    const nextMuted = !microphoneMuted;
+    microphoneRef.current?.getAudioTracks().forEach((track) => {
+      track.enabled = !nextMuted;
+    });
+    setMicrophoneMuted(nextMuted);
+    if (nextMuted && status === "listening") setStatus("processing");
+  }
+
+  function stopCamera() {
+    cameraRef.current?.getTracks().forEach((track) => track.stop());
+    cameraRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraOn(false);
+  }
+
+  async function toggleCamera() {
+    if (cameraOn) {
+      stopCamera();
+      setCameraNotice("");
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraNotice("Camera preview is not supported in this browser.");
+      return;
+    }
+
+    try {
+      const camera = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
+      });
+      cameraRef.current = camera;
+      if (videoRef.current) videoRef.current.srcObject = camera;
+      setCameraOn(true);
+      setCameraNotice("");
+    } catch {
+      setCameraOn(false);
+      setCameraNotice("Camera permission was not granted. Your initials remain visible.");
+    }
+  }
+
   async function handleRealtimeEvent(event: RealtimeEvent) {
     if (event.type === "input_audio_buffer.speech_started") {
       if (!completingRef.current) setStatus("listening");
@@ -599,228 +670,400 @@ export function JobVoiceInterviewRoom({
                       ? "Interview complete"
                       : "Ready";
 
+  const interviewerSpeaking = status === "interviewer";
+  const candidateSpeaking = status === "listening" && !microphoneMuted;
+  const interviewLive = ["listening", "interviewer", "processing"].includes(
+    status,
+  );
+  const controlsLocked = ["connecting", "ending", "saving", "completed"].includes(
+    status,
+  );
+  const elapsedSeconds = Math.max(
+    0,
+    state.session.durationLimitSeconds - remainingSeconds,
+  );
+
   return (
-    <main className="min-h-[calc(100dvh-40px)] overflow-hidden bg-[radial-gradient(circle_at_12%_8%,rgba(215,168,79,0.2),transparent_28%),radial-gradient(circle_at_86%_12%,rgba(0,83,63,0.18),transparent_30%),#f7efe5] px-4 py-5 text-[#071512] md:px-7">
-      <div className="mx-auto grid max-w-[1180px] gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="relative overflow-hidden rounded-[2.25rem] border border-[#d9cbb8] bg-[#fffaf3] p-5 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-8">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#d7a84f]/20 blur-3xl" />
-          <div className="relative">
-            <p className="text-[12px] font-black uppercase tracking-[0.2em] text-[#956615]">
-              Voice interview room
-            </p>
-            <h1 className="mt-4 max-w-4xl text-[clamp(2.35rem,5.2vw,5rem)] font-black leading-[0.92] tracking-[-0.075em] text-[#071512] text-balance">
-              {state.context.title}
+    <main className="min-h-[calc(100dvh-40px)] bg-[#eef1ee] p-3 text-[#10251f] sm:p-5 lg:p-7">
+      <section className="mx-auto flex min-h-[calc(100dvh-64px)] max-w-[1500px] flex-col overflow-hidden rounded-[1.75rem] border border-black/8 bg-[#faf9f6] shadow-[0_30px_90px_rgba(18,50,41,0.14)]">
+        <header className="flex flex-col gap-4 border-b border-[#dfe3df] px-5 py-5 sm:px-7 lg:flex-row lg:items-center lg:justify-between lg:px-9">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#5f706a]">
+                Mock interview room
+              </p>
+              <span className="h-1 w-1 rounded-full bg-[#aab4b0]" aria-hidden="true" />
+              <p className="truncate text-xs font-medium text-[#66756f]">
+                {state.context.market}
+              </p>
+            </div>
+            <h1 className="mt-1 truncate text-[clamp(1.35rem,3vw,2rem)] font-semibold tracking-[-0.035em] text-[#071512]">
+              {state.context.role}
+              {state.context.company ? ` at ${state.context.company}` : ""}
             </h1>
-            <p className="mt-5 max-w-2xl text-[16px] leading-7 text-[#52605b]">
-              Speak naturally. The interviewer will ask one selected question at
-              a time, then your transcript will be evaluated against the same
-              evidence model as the text room.
-            </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-[1.3rem] border border-[#eadfce] bg-white px-4 py-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#7c6d5e]">
-                  Status
-                </p>
-                <p className="mt-1 text-lg font-black text-[#173a32]">
-                  {statusLabel}
-                </p>
-              </div>
-              <div className="rounded-[1.3rem] border border-[#eadfce] bg-white px-4 py-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#7c6d5e]">
-                  Time left
-                </p>
-                <p className="mt-1 font-mono text-lg font-black text-[#173a32]">
-                  {formatClock(remainingSeconds)}
-                </p>
-              </div>
-              <div className="rounded-[1.3rem] border border-[#eadfce] bg-white px-4 py-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#7c6d5e]">
-                  Progress
-                </p>
-                <p className="mt-1 text-lg font-black text-[#173a32]">
-                  {state.progress.answeredTurns}/{state.progress.totalTurns}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-7 rounded-[2rem] border border-[#173a32] bg-[#071512] p-5 text-white shadow-[0_24px_70px_rgba(7,21,18,0.18)]">
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#d7a84f]">
-                    Current selected question
-                  </p>
-                  <p className="mt-3 max-w-2xl text-[22px] font-black leading-8 tracking-[-0.04em]">
-                    {state.currentTurn?.question ??
-                      "All selected questions have been answered."}
-                  </p>
-                </div>
-                <div className="grid gap-2 text-[12px] font-black uppercase tracking-[0.14em] md:w-48">
-                  {status === "idle" || status === "failed" ? (
-                    <button
-                      type="button"
-                      onClick={() => void connect()}
-                      disabled={!state.progress.canConnect}
-                      className="rounded-full bg-[#d7a84f] px-5 py-3 text-[#071512] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#e6b94c] active:scale-press disabled:cursor-not-allowed disabled:opacity-55"
-                    >
-                      {status === "failed" ? "Reconnect" : "Start voice"}
-                    </button>
-                  ) : null}
-                  {["listening", "interviewer", "processing"].includes(status) ? (
-                    <button
-                      type="button"
-                      onClick={() => requestCompletion("candidate_ended_interview")}
-                      className="rounded-full border border-white/25 px-5 py-3 text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#d7a84f] active:scale-press"
-                    >
-                      End interview
-                    </button>
-                  ) : null}
-                  {["listening", "interviewer", "processing", "failed"].includes(
-                    status,
-                  ) ? (
-                    <button
-                      type="button"
-                      onClick={() => void interruptInterview()}
-                      className="rounded-full border border-white/15 px-5 py-3 text-white/76 transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-white/8 active:scale-press"
-                    >
-                      Pause
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-
-              <div
-                className="mt-7 grid grid-cols-[repeat(16,minmax(0,1fr))] gap-1.5"
-                aria-hidden="true"
-              >
-                {Array.from({ length: 16 }, (_, index) => (
-                  <span
-                    key={index}
-                    className={`h-2 rounded-full transition duration-500 ${
-                      index < Math.ceil((state.progress.percent / 100) * 16)
-                        ? "bg-[#d7a84f]"
-                        : "bg-white/14"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {error ? (
-              <div
-                role="alert"
-                className="mt-5 rounded-[1.25rem] border border-[#f0b3a4] bg-[#fff2ee] px-4 py-3 text-sm font-semibold leading-6 text-[#8b2d18]"
-              >
-                {error}
-                {status === "failed" ? (
-                  <button
-                    type="button"
-                    onClick={() => setFinalizationRetryToken((token) => token + 1)}
-                    className="ml-3 underline underline-offset-4"
-                  >
-                    Retry save
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-
-            {soundBlocked ? (
-              <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="audio-dialog-title"
-                className="fixed inset-0 z-[80] grid place-items-center bg-[#071512]/35 px-5 backdrop-blur-sm"
-              >
-                <div className="w-full max-w-md rounded-[2rem] border border-white/70 bg-[#fffaf3] p-6 text-center shadow-[0_24px_80px_rgba(21,35,29,0.22)]">
-                  <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
-                    Audio permission
-                  </p>
-                  <h2
-                    id="audio-dialog-title"
-                    className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#071512]"
-                  >
-                    Enable interviewer audio
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-[#52605b]">
-                    Your browser connected, but it needs one more tap before it
-                    can play the interviewer voice.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => void enableInterviewAudio()}
-                    className="mt-6 rounded-full bg-[#00533f] px-6 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#064534] active:scale-press"
-                  >
-                    Enable audio
-                  </button>
-                </div>
-              </div>
-            ) : null}
           </div>
-        </section>
 
-        <aside className="grid content-start gap-5">
-          <section className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)]">
-            <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
-              Context lock
-            </p>
-            <dl className="mt-4 grid gap-3 text-sm">
-              <div className="rounded-2xl bg-[#f8efe2] p-4">
-                <dt className="font-black uppercase tracking-[0.14em] text-[#7c6d5e]">
-                  Market
-                </dt>
-                <dd className="mt-1 font-bold text-[#173a32]">
-                  {state.context.market}
-                </dd>
-              </div>
-              <div className="rounded-2xl bg-[#f8efe2] p-4">
-                <dt className="font-black uppercase tracking-[0.14em] text-[#7c6d5e]">
-                  Role
-                </dt>
-                <dd className="mt-1 font-bold text-[#173a32]">
-                  {state.context.role}
-                </dd>
-              </div>
-              <div className="rounded-2xl bg-[#f8efe2] p-4">
-                <dt className="font-black uppercase tracking-[0.14em] text-[#7c6d5e]">
-                  Mode
-                </dt>
-                <dd className="mt-1 font-bold text-[#173a32]">
-                  {state.session.focusMode.replaceAll("_", " ")}
-                </dd>
-              </div>
-            </dl>
-            <p className="mt-4 text-sm leading-6 text-[#52605b]">
-              {state.context.safeContextNote}
-            </p>
-          </section>
-
-          <section className="rounded-[2rem] border border-[#d9cbb8] bg-[#fffaf3] p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)]">
-            <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
-              Retention
-            </p>
-            <p className="mt-3 text-sm leading-6 text-[#52605b]">
-              Raw audio is not stored. Jiandae saves ordered transcript text,
-              duration, provider usage, and realtime control events only.
-            </p>
-            <div className="mt-5 grid gap-3">
+          <div className="flex flex-wrap items-center gap-3 text-sm sm:gap-4" aria-live="polite">
+            <span
+              className={`inline-flex items-center gap-2 font-semibold ${
+                interviewLive ? "text-[#ad2727]" : "text-[#5d6c67]"
+              }`}
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                {interviewLive ? (
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#d43838] opacity-50" />
+                ) : null}
+                <span
+                  className={`relative inline-flex h-2.5 w-2.5 rounded-full ${
+                    interviewLive ? "bg-[#d43838]" : "bg-[#9ca8a4]"
+                  }`}
+                />
+              </span>
+              {interviewLive ? "Live" : statusLabel}
+            </span>
+            <span className="h-5 w-px bg-[#d7ddda]" aria-hidden="true" />
+            <span className="font-mono font-semibold tabular-nums text-[#152a23]">
+              {formatClock(elapsedSeconds)}
+            </span>
+            <span className="h-5 w-px bg-[#d7ddda]" aria-hidden="true" />
+            <span className="text-[#66756f]">
+              {state.progress.answeredTurns} of {state.progress.totalTurns}
+            </span>
+            {!interviewLive && !controlsLocked ? (
               <Link
                 href={`/interviews/${state.session.id}/prepare`}
-                className="rounded-full border border-[#d9cbb8] bg-white px-5 py-3 text-center text-[12px] font-black uppercase tracking-[0.14em] text-[#173a32] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#00533f] active:scale-press"
+                className="ml-auto font-semibold text-[#173a32] underline decoration-[#9aaba5] underline-offset-4 transition hover:decoration-[#173a32] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d7a84f] lg:ml-1"
               >
                 Back to prep
               </Link>
-              {state.progress.isComplete ? (
-                <Link
-                  href={`/interviews/${state.session.id}/report`}
-                  className="rounded-full bg-[#00533f] px-5 py-3 text-center text-[12px] font-black uppercase tracking-[0.14em] text-white transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#064534] active:scale-press"
+            ) : null}
+            {interviewLive ? (
+              <button
+                type="button"
+                onClick={() => void interruptInterview()}
+                className="font-semibold text-[#5d6c67] underline decoration-[#aeb8b4] underline-offset-4 transition hover:text-[#173a32] hover:decoration-[#173a32] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d7a84f]"
+              >
+                Pause
+              </button>
+            ) : null}
+          </div>
+        </header>
+
+        <div className="relative flex flex-1 flex-col overflow-hidden bg-[#073d34] px-3 pb-5 pt-4 sm:px-5 sm:pb-6 lg:px-7 lg:pb-7 lg:pt-7">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-80"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 0%, rgba(116,163,145,0.24), transparent 40%), radial-gradient(circle at 8% 100%, rgba(215,168,79,0.10), transparent 34%)",
+            }}
+            aria-hidden="true"
+          />
+
+          <div className="relative grid flex-1 gap-3 md:grid-cols-2 lg:gap-5">
+            <article
+              className={`relative min-h-[290px] overflow-hidden rounded-[1.35rem] border bg-[#17352e] transition-[border-color,box-shadow,transform] duration-300 md:min-h-[420px] ${
+                interviewerSpeaking
+                  ? "border-[#d4eea8] shadow-[0_0_0_3px_rgba(212,238,168,0.24),0_0_48px_rgba(185,224,132,0.34)]"
+                  : "border-white/16 shadow-[0_20px_55px_rgba(0,22,19,0.3)]"
+              }`}
+            >
+              <Image
+                src="/officer-avatar-realistic.png"
+                alt="AI mock interviewer in a professional office"
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover object-top"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/10" />
+
+              {interviewerSpeaking ? (
+                <div className="absolute right-4 top-4 flex items-center gap-2 rounded-full bg-[#e2f2c8] px-3 py-2 text-xs font-bold text-[#173a24] shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
+                  <span className="flex h-3 items-end gap-0.5" aria-hidden="true">
+                    {[6, 11, 8].map((height) => (
+                      <span
+                        key={height}
+                        className="w-0.5 animate-pulse rounded-full bg-[#285c38]"
+                        style={{ height }}
+                      />
+                    ))}
+                  </span>
+                  Speaking
+                </div>
+              ) : null}
+
+              <div className="absolute bottom-4 left-4 max-w-[calc(100%-2rem)] rounded-xl border border-white/10 bg-black/55 px-4 py-3 text-white backdrop-blur-md">
+                <p className="font-semibold">AI interviewer</p>
+                <p className="mt-0.5 truncate text-xs text-white/72">
+                  {state.context.title}
+                </p>
+              </div>
+
+              {(status === "idle" || status === "failed") && !state.progress.isComplete ? (
+                <div className="absolute inset-0 grid place-items-center bg-[#061d19]/34 px-6 backdrop-blur-[2px]">
+                  <button
+                    type="button"
+                    onClick={() => void connect()}
+                    disabled={!state.progress.canConnect}
+                    className="group inline-flex min-h-14 items-center gap-3 rounded-full bg-[#f4f1e8] py-2 pl-6 pr-2 text-sm font-bold text-[#10251f] shadow-[0_16px_40px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:bg-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d7a84f]"
+                  >
+                    {status === "failed" ? "Reconnect interview" : "Enter interview"}
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-[#0b4b40] text-white transition group-hover:bg-[#073d34]">
+                      {status === "failed" ? (
+                        <RotateCcw className="h-4 w-4" strokeWidth={1.9} />
+                      ) : (
+                        <Volume2 className="h-4 w-4" strokeWidth={1.9} />
+                      )}
+                    </span>
+                  </button>
+                </div>
+              ) : null}
+            </article>
+
+            <article
+              className={`relative min-h-[290px] overflow-hidden rounded-[1.35rem] border bg-[#dce6e0] transition-[border-color,box-shadow,transform] duration-300 md:min-h-[420px] ${
+                candidateSpeaking
+                  ? "border-[#d4eea8] shadow-[0_0_0_3px_rgba(212,238,168,0.24),0_0_48px_rgba(185,224,132,0.34)]"
+                  : "border-white/16 shadow-[0_20px_55px_rgba(0,22,19,0.3)]"
+              }`}
+            >
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                aria-label="Your private camera preview"
+                className={
+                  cameraOn
+                    ? "h-full w-full object-cover [transform:scaleX(-1)]"
+                    : "hidden"
+                }
+              />
+              {!cameraOn ? (
+                <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_50%_35%,#edf2ee,#cddbd4)]">
+                  <div className="text-center">
+                    <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-[#0b4b40] text-white shadow-[0_20px_48px_rgba(7,61,52,0.26)]">
+                      <CameraOff className="h-8 w-8" strokeWidth={1.5} />
+                    </div>
+                    <p className="mt-4 text-sm font-semibold text-[#385048]">Camera off</p>
+                  </div>
+                </div>
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/5" />
+
+              <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/12 bg-black/38 px-3 py-2 text-xs font-semibold text-white backdrop-blur-md">
+                <ShieldCheck className="h-4 w-4" strokeWidth={1.7} />
+                Local preview only
+              </div>
+
+              {candidateSpeaking ? (
+                <div className="absolute right-4 top-4 flex items-center gap-2 rounded-full bg-[#e2f2c8] px-3 py-2 text-xs font-bold text-[#173a24] shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
+                  <span className="flex h-3 items-end gap-0.5" aria-hidden="true">
+                    {[6, 11, 8].map((height) => (
+                      <span
+                        key={height}
+                        className="w-0.5 animate-pulse rounded-full bg-[#285c38]"
+                        style={{ height }}
+                      />
+                    ))}
+                  </span>
+                  Speaking
+                </div>
+              ) : null}
+
+              <div className="absolute bottom-4 left-4 rounded-xl border border-white/10 bg-black/55 px-4 py-3 text-white backdrop-blur-md">
+                <p className="font-semibold">You</p>
+                <p className="mt-0.5 text-xs text-white/72">
+                  {microphoneMuted
+                    ? "Microphone muted"
+                    : cameraOn
+                      ? "Camera on"
+                      : "Camera off"}
+                </p>
+              </div>
+            </article>
+          </div>
+
+          {error || cameraNotice ? (
+            <div
+              role={error ? "alert" : "status"}
+              className={`relative mx-auto mt-4 flex w-full max-w-2xl items-start gap-3 rounded-xl border px-4 py-3 text-sm backdrop-blur-md ${
+                error
+                  ? "border-[#ffb4a8]/35 bg-[#491711]/70 text-[#ffe4df]"
+                  : "border-white/12 bg-black/24 text-white/78"
+              }`}
+            >
+              {error ? (
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" strokeWidth={1.8} />
+              ) : (
+                <CameraOff className="mt-0.5 h-4 w-4 flex-none" strokeWidth={1.8} />
+              )}
+              <span>{error || cameraNotice}</span>
+              {error && status === "failed" && candidateTranscriptsRef.current.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setFinalizationRetryToken((token) => token + 1)}
+                  className="ml-auto flex-none font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
-                  View report
-                </Link>
+                  Retry save
+                </button>
               ) : null}
             </div>
-          </section>
-        </aside>
-      </div>
+          ) : null}
+
+          <div className="relative mt-5 flex items-start justify-center gap-3 sm:gap-5">
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleMicrophone}
+                disabled={!interviewLive || controlsLocked}
+                className={`grid h-14 w-14 place-items-center rounded-full border text-white transition duration-200 hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d7a84f] ${
+                  microphoneMuted
+                    ? "border-[#f09a8f]/45 bg-[#9d332b]"
+                    : "border-white/18 bg-white/10 hover:bg-white/16"
+                }`}
+                aria-label={microphoneMuted ? "Unmute microphone" : "Mute microphone"}
+                aria-pressed={microphoneMuted}
+              >
+                {microphoneMuted ? (
+                  <MicOff className="h-5 w-5" strokeWidth={1.8} />
+                ) : (
+                  <Mic className="h-5 w-5" strokeWidth={1.8} />
+                )}
+              </button>
+              <span className="text-xs font-medium text-white/72">
+                {microphoneMuted ? "Unmute" : "Mute"}
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void toggleCamera()}
+                disabled={controlsLocked}
+                className="grid h-14 w-14 place-items-center rounded-full border border-white/18 bg-white/10 text-white transition duration-200 hover:-translate-y-0.5 hover:bg-white/16 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d7a84f]"
+                aria-label={cameraOn ? "Turn camera off" : "Turn camera on"}
+                aria-pressed={cameraOn}
+              >
+                {cameraOn ? (
+                  <CameraOff className="h-5 w-5" strokeWidth={1.8} />
+                ) : (
+                  <Camera className="h-5 w-5" strokeWidth={1.8} />
+                )}
+              </button>
+              <span className="text-xs font-medium text-white/72">
+                {cameraOn ? "Stop video" : "Start video"}
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setEndDialogOpen(true)}
+                disabled={!interviewLive || controlsLocked}
+                className="grid h-14 w-14 place-items-center rounded-full bg-[#e24d47] text-white shadow-[0_13px_28px_rgba(226,77,71,0.32)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#cf403b] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffd0cb]"
+                aria-label="End interview"
+              >
+                <PhoneOff className="h-5 w-5" strokeWidth={2} />
+              </button>
+              <span className="text-xs font-medium text-white/72">End interview</span>
+            </div>
+          </div>
+
+          <div className="relative mx-auto mt-4 flex w-full max-w-3xl items-center gap-3 text-xs text-white/58">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/12">
+              <div
+                className="h-full rounded-full bg-[#d7a84f] transition-[width] duration-500"
+                style={{ width: `${state.progress.percent}%` }}
+              />
+            </div>
+            <span className="whitespace-nowrap">{formatClock(remainingSeconds)} left</span>
+          </div>
+        </div>
+      </section>
+
+      {endDialogOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="end-interview-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-[#071512]/48 px-5 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-md rounded-[1.75rem] border border-white/70 bg-[#faf9f6] p-6 shadow-[0_28px_90px_rgba(7,21,18,0.28)]">
+            <div className="flex items-start justify-between gap-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9a6420]">
+                  Leave interview room
+                </p>
+                <h2 id="end-interview-title" className="mt-2 text-2xl font-semibold tracking-[-0.035em]">
+                  End this interview?
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEndDialogOpen(false)}
+                className="grid h-10 w-10 flex-none place-items-center rounded-full border border-[#d9dfdc] transition hover:bg-[#eef1ee] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b4b40]"
+                aria-label="Close dialog"
+              >
+                <X className="h-4 w-4" strokeWidth={1.8} />
+              </button>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-[#5a6a64]">
+              Your microphone and local camera preview will stop. We’ll save the
+              transcript captured so far and prepare your report.
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setEndDialogOpen(false)}
+                className="min-h-12 rounded-full border border-[#cdd6d2] px-5 text-sm font-semibold transition hover:bg-[#eef1ee] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b4b40]"
+              >
+                Keep practicing
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEndDialogOpen(false);
+                  requestCompletion("candidate_ended_interview");
+                }}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#d9433e] px-5 text-sm font-semibold text-white transition hover:bg-[#c43833] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d9433e]"
+              >
+                <PhoneOff className="h-4 w-4" strokeWidth={2} />
+                End interview
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {soundBlocked ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="audio-dialog-title"
+          className="fixed inset-0 z-[60] grid place-items-center bg-[#071512]/48 px-5 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-md rounded-[1.75rem] border border-white/70 bg-[#faf9f6] p-6 text-center shadow-[0_28px_90px_rgba(7,21,18,0.28)]">
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#e8eee9] text-[#0b4b40]">
+              <Volume2 className="h-5 w-5" strokeWidth={1.8} />
+            </span>
+            <h2 id="audio-dialog-title" className="mt-4 text-2xl font-semibold tracking-[-0.035em]">
+              Enable interviewer audio
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[#5a6a64]">
+              Your browser connected successfully. One more tap lets it play the interviewer’s voice.
+            </p>
+            <button
+              type="button"
+              onClick={() => void enableInterviewAudio()}
+              className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#0b4b40] px-6 text-sm font-semibold text-white transition hover:bg-[#073d34] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#d7a84f]"
+            >
+              <Check className="h-4 w-4" strokeWidth={2} />
+              Enable audio
+            </button>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
