@@ -164,7 +164,7 @@ async function main() {
     await start.dblclick();
     await expect.poll(() => requests.length).toBe(1);
     await expect(
-      page.getByRole("heading", { name: "Preparing your interview" }),
+      page.getByRole("heading", { name: "Your room is getting ready" }),
     ).toBeVisible();
     await expect(
       page.getByText("Saving your interview setup", { exact: true }),

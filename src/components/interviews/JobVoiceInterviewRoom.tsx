@@ -777,8 +777,8 @@ export function JobVoiceInterviewRoom({
               }`}
             >
               <Image
-                src="/officer-avatar-realistic.png"
-                alt="AI mock interviewer in a professional office"
+                src="/interviewer-kenyan.png"
+                alt="Kenyan AI mock interviewer in a professional office"
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, 50vw"
