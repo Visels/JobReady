@@ -54,34 +54,41 @@ function formatStatus(value: string) {
 
 function evidenceTone(status: string) {
   if (status === "complete") {
-    return "border-[#b8ddc5] bg-[#e7f7ee] text-[#00533f]";
+    return "bg-success-surface text-success";
   }
   if (status === "unsupported" || status === "insufficient") {
-    return "border-[#ffc3b6] bg-[#fff0ec] text-[#9d2a18]";
+    return "bg-danger-surface text-danger";
   }
-  return "border-[#f2d28f] bg-[#fff8e8] text-[#8a5a00]";
+  return "bg-warning-surface text-warning";
 }
 
 function ClaimCard({ claim }: { claim: JobInterviewReportClaim }) {
   return (
-    <article className="rounded-[1.6rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.05)]">
-      <h3 className="text-[18px] font-black leading-6 tracking-[-0.04em] text-[#071512]">
+    <article className="rounded-xl border border-muted-line bg-surface-soft p-4">
+      <h3 className="text-[13px] font-semibold leading-5 tracking-[-0.015em] text-foreground">
         {claim.title}
       </h3>
-      <p className="mt-3 text-[14px] leading-6 text-[#52605b]">
+      <p className="mt-1.5 text-[12px] leading-[1.65] text-muted">
         {claim.detail}
       </p>
-      <div className="mt-4 grid gap-2">
-        {claim.evidence.map((excerpt) => (
-          <blockquote
-            key={`${claim.id}-${excerpt.turnId}-${excerpt.quote}`}
-            className="rounded-[1.15rem] border-l-4 border-[#00533f] bg-[#f8efe2] px-4 py-3 text-[13px] leading-6 text-[#173a32]"
-          >
-            <span className="font-black">Q{excerpt.sequence} evidence: </span>
-            {excerpt.quote}
-          </blockquote>
-        ))}
-      </div>
+      <details className="group mt-3 border-t border-muted-line pt-3">
+        <summary className="cursor-pointer list-none text-[10px] font-semibold text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+          <span className="group-open:hidden">Show supporting evidence</span>
+          <span className="hidden group-open:inline">Hide supporting evidence</span>
+          <span className="ml-1 text-muted">({claim.evidence.length})</span>
+        </summary>
+        <div className="mt-3 grid gap-2">
+          {claim.evidence.map((excerpt) => (
+            <blockquote
+              key={`${claim.id}-${excerpt.turnId}-${excerpt.quote}`}
+              className="border-l-2 border-primary/35 pl-3 text-[11px] leading-[1.6] text-muted"
+            >
+              <span className="font-semibold text-foreground">Question {excerpt.sequence}: </span>
+              {excerpt.quote}
+            </blockquote>
+          ))}
+        </div>
+      </details>
     </article>
   );
 }
@@ -96,25 +103,21 @@ function ClaimSection({
   claims: JobInterviewReportClaim[];
 }) {
   return (
-    <section className="grid gap-4">
-      <div>
-        <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
-          Transcript-backed
-        </p>
-        <h2 className="mt-2 text-2xl font-black tracking-[-0.05em] text-[#071512]">
-          {title}
-        </h2>
+    <section className="rounded-2xl border border-muted-line bg-surface p-4">
+      <div className="border-b border-muted-line pb-3">
+        <p className="text-[10px] font-medium text-muted-subtle">Transcript-backed</p>
+        <h2 className="mt-1 text-[16px] font-semibold tracking-[-0.025em] text-foreground">{title}</h2>
       </div>
       {claims.length > 0 ? (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="mt-3 grid gap-2.5">
           {claims.map((claim) => (
             <ClaimCard key={claim.id} claim={claim} />
           ))}
         </div>
       ) : (
-        <div className="rounded-[1.6rem] border border-dashed border-[#d9cbb8] bg-white/70 p-5 text-[14px] leading-6 text-[#52605b]">
+        <p className="mt-3 rounded-xl border border-dashed border-muted-line bg-surface-soft p-4 text-[11px] leading-[1.6] text-muted">
           {empty}
-        </div>
+        </p>
       )}
     </section>
   );
@@ -124,24 +127,22 @@ function StarSection({ turn }: { turn: JobInterviewReportTurn }) {
   if (turn.star.length === 0) return null;
 
   return (
-    <section className="mt-5 rounded-[1.4rem] border border-[#d9cbb8] bg-[#fffaf3] p-4">
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#956615]">
-        STAR evidence
-      </p>
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
+    <section>
+      <h4 className="text-[11px] font-semibold text-foreground">STAR evidence</h4>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {turn.star.map((part) => (
-          <div key={part.key} className="rounded-2xl bg-white p-4">
+          <div key={part.key} className="rounded-lg border border-muted-line bg-surface-soft p-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-black text-[#071512]">{part.label}</p>
-              <span className="rounded-full bg-[#f8efe2] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#6c4b00]">
+              <p className="text-[10px] font-semibold text-foreground">{part.label}</p>
+              <span className="rounded-md bg-surface px-2 py-1 text-[9px] font-medium text-muted">
                 {formatStatus(part.status)}
               </span>
             </div>
-            <p className="mt-2 text-[13px] leading-5 text-[#52605b]">
+            <p className="mt-2 text-[11px] leading-[1.55] text-muted">
               Score {part.score ?? "not scored"}/5. {part.feedback}
             </p>
             {part.evidence ? (
-              <blockquote className="mt-3 rounded-xl border-l-4 border-[#00533f] bg-[#f8efe2] px-3 py-2 text-[13px] leading-5 text-[#173a32]">
+              <blockquote className="mt-2 border-l-2 border-primary/30 pl-2.5 text-[11px] leading-[1.55] text-muted">
                 {part.evidence.quote}
               </blockquote>
             ) : null}
@@ -156,31 +157,29 @@ function CriteriaSection({ turn }: { turn: JobInterviewReportTurn }) {
   if (turn.criteria.length === 0) return null;
 
   return (
-    <section className="mt-5 rounded-[1.4rem] border border-[#173a32] bg-[#071512] p-4 text-white">
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#d7a84f]">
-        Framework criteria
-      </p>
-      <div className="mt-3 grid gap-3">
+    <section>
+      <h4 className="text-[11px] font-semibold text-foreground">Framework criteria</h4>
+      <div className="mt-2 grid gap-2">
         {turn.criteria.map((criterion) => (
           <div
             key={criterion.key}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+            className="rounded-lg border border-muted-line bg-surface-soft p-3"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="font-black">{criterion.label}</p>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#d7a84f]">
+              <p className="text-[10px] font-semibold text-foreground">{criterion.label}</p>
+              <span className="rounded-md bg-primary-soft px-2 py-1 text-[9px] font-semibold tabular-nums text-primary">
                 {criterion.score}/5
               </span>
             </div>
-            <p className="mt-2 text-[13px] leading-5 text-white/75">
+            <p className="mt-2 text-[11px] leading-[1.55] text-muted">
               {criterion.feedback}
             </p>
             {criterion.evidenceExcerpts.length > 0 ? (
-              <div className="mt-3 grid gap-2">
+              <div className="mt-2 grid gap-2">
                 {criterion.evidenceExcerpts.slice(0, 2).map((excerpt) => (
                   <blockquote
                     key={`${criterion.key}-${excerpt.quote}`}
-                    className="rounded-xl border-l-4 border-[#d7a84f] bg-white/8 px-3 py-2 text-[13px] leading-5 text-white/82"
+                    className="border-l-2 border-primary/30 pl-2.5 text-[11px] leading-[1.55] text-muted"
                   >
                     {excerpt.quote}
                   </blockquote>
@@ -196,65 +195,76 @@ function CriteriaSection({ turn }: { turn: JobInterviewReportTurn }) {
 
 function TurnCard({ turn }: { turn: JobInterviewReportTurn }) {
   return (
-    <article className="rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.05)] md:p-6">
+    <article className="rounded-2xl border border-muted-line bg-surface p-4 md:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-[#f8efe2] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#6c4b00]">
+        <span className="rounded-md bg-primary-soft px-2 py-1 text-[9px] font-semibold text-primary">
           Question {turn.sequence}
         </span>
-        <span className="rounded-full border border-[#d9cbb8] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#52605b]">
+        <span className="rounded-md border border-muted-line px-2 py-1 text-[9px] font-medium text-muted">
           {turn.frameworkLabel}
         </span>
         <span
-          className={`rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] ${evidenceTone(
+          className={`rounded-md px-2 py-1 text-[9px] font-medium ${evidenceTone(
             turn.evidenceStatus,
           )}`}
         >
           {formatStatus(turn.evidenceStatus)}
         </span>
       </div>
-      <h3 className="mt-4 text-xl font-black leading-7 tracking-[-0.04em] text-[#071512]">
+      <h3 className="mt-3 max-w-[72ch] text-[15px] font-semibold leading-[1.45] tracking-[-0.02em] text-foreground text-pretty">
         {turn.question}
       </h3>
-      {turn.answerExcerpt ? (
-        <blockquote className="mt-4 rounded-[1.4rem] border-l-4 border-[#00533f] bg-[#f8efe2] px-4 py-3 text-[14px] leading-7 text-[#173a32]">
-          {turn.answerExcerpt}
-        </blockquote>
-      ) : null}
-      <div className="mt-4 grid gap-3 md:grid-cols-[160px_1fr]">
-        <div className="rounded-2xl bg-[#071512] p-4 text-white">
-          <p className="text-[11px] font-black uppercase tracking-[0.12em] text-[#d7a84f]">
-            Turn score
-          </p>
-          <p className="mt-2 text-3xl font-black tracking-[-0.05em]">
-            {turn.overallScore ?? "None"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-[#eadfce] bg-[#fffaf3] p-4">
-          <p className="text-[13px] font-bold leading-6 text-[#173a32]">
-            {turn.answerSummary}
-          </p>
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
+        <section className="rounded-xl bg-surface-soft p-4">
+          <p className="text-[9px] font-medium text-muted-subtle">Your answer</p>
+          <blockquote className="mt-2 max-w-[72ch] text-[12px] leading-[1.7] text-foreground">
+            {turn.answerExcerpt || "No answer excerpt was available."}
+          </blockquote>
+        </section>
+        <section className="rounded-xl border border-muted-line p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[9px] font-medium text-muted-subtle">Evaluation</p>
+              <p className="mt-1 text-[12px] font-medium leading-[1.6] text-foreground">{turn.answerSummary}</p>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-[9px] text-muted-subtle">Score</p>
+              <p className="mt-0.5 text-[18px] font-semibold tabular-nums tracking-[-0.03em] text-foreground">
+                {turn.overallScore ?? "—"}<span className="text-[10px] font-normal text-muted">/100</span>
+              </p>
+            </div>
+          </div>
           {turn.improvements.length > 0 ? (
-            <ul className="mt-3 grid gap-2">
+            <ul className="mt-3 grid gap-1.5 border-t border-muted-line pt-3">
               {turn.improvements.slice(0, 3).map((item) => (
-                <li key={item} className="text-[13px] leading-5 text-[#52605b]">
-                  {item}
+                <li key={item} className="flex gap-2 text-[11px] leading-[1.55] text-muted">
+                  <span className="mt-[0.42rem] h-1 w-1 shrink-0 rounded-full bg-primary/45" aria-hidden="true" />
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
           ) : null}
-        </div>
+        </section>
       </div>
-      <StarSection turn={turn} />
-      <CriteriaSection turn={turn} />
       {turn.improvedAnswer ? (
-        <section className="mt-5 rounded-[1.4rem] border border-[#b8ddc5] bg-[#eef9f3] p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#00533f]">
-            Evidence-safe improved answer
-          </p>
-          <p className="mt-2 text-[14px] leading-6 text-[#173a32]">
+        <section className="mt-3 rounded-xl border border-success/20 bg-success-surface p-4">
+          <p className="text-[9px] font-semibold text-success">A stronger evidence-safe answer</p>
+          <p className="mt-2 max-w-[78ch] text-[12px] leading-[1.7] text-foreground">
             {turn.improvedAnswer}
           </p>
         </section>
+      ) : null}
+      {turn.star.length > 0 || turn.criteria.length > 0 ? (
+        <details className="group mt-3 rounded-xl border border-muted-line bg-surface px-4 py-3">
+          <summary className="cursor-pointer list-none text-[10px] font-semibold text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            <span className="group-open:hidden">Review detailed scoring</span>
+            <span className="hidden group-open:inline">Hide detailed scoring</span>
+          </summary>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <StarSection turn={turn} />
+            <CriteriaSection turn={turn} />
+          </div>
+        </details>
       ) : null}
     </article>
   );
@@ -262,38 +272,88 @@ function TurnCard({ turn }: { turn: JobInterviewReportTurn }) {
 
 function ReportHero({ snapshot }: { snapshot: JobInterviewReportSnapshot }) {
   return (
-    <section className="rounded-[2.2rem] border border-[#d9cbb8] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:p-8">
-      <div className="grid gap-7 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-        <div>
-          <p className="text-[13px] font-black uppercase tracking-[0.2em] text-[#956615]">
-            Private report
-          </p>
-          <h1 className="mt-4 max-w-4xl text-[clamp(2.35rem,5vw,4.9rem)] font-black leading-[0.92] tracking-[-0.078em] text-[#071512] text-balance">
+    <section className="rounded-2xl border border-muted-line bg-surface p-4 md:p-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold text-primary">Private interview report</p>
+          <h1 className="mt-1.5 max-w-4xl text-[clamp(1.75rem,3.2vw,2.65rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-foreground text-balance">
             {snapshot.session.targetTitle}
           </h1>
-          <p className="mt-5 max-w-3xl text-[16px] leading-7 text-[#52605b]">
+          <p className="mt-3 max-w-[72ch] text-[13px] leading-[1.65] text-muted">
             {snapshot.summary}
           </p>
+          <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-muted-line pt-4 text-[10px]">
+            <div>
+              <dt className="text-muted-subtle">Role</dt>
+              <dd className="mt-0.5 font-semibold text-foreground">{snapshot.session.role}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-subtle">Company</dt>
+              <dd className="mt-0.5 font-semibold text-foreground">{snapshot.session.company ?? "Not specified"}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-subtle">Format</dt>
+              <dd className="mt-0.5 font-semibold text-foreground">{formatStatus(snapshot.session.interviewMode ?? "Not specified")}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-subtle">Focus</dt>
+              <dd className="mt-0.5 font-semibold text-foreground">{formatStatus(snapshot.session.focusMode ?? "Recommended")}</dd>
+            </div>
+          </dl>
         </div>
-        <div className="rounded-[1.8rem] border border-[#173a32] bg-[#071512] p-5 text-white">
-          <p className="text-[12px] font-black uppercase tracking-[0.16em] text-[#d7a84f]">
-            Evidence status
-          </p>
-          <p className="mt-3 text-3xl font-black tracking-[-0.05em]">
-            {snapshot.evidence.label}
-          </p>
-          <p className="mt-3 text-[14px] leading-6 text-white/75">
+        <aside className="rounded-xl bg-primary p-4 text-white">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[9px] font-medium text-white/60">Readiness score</p>
+              <p className="mt-1 text-[28px] font-semibold tabular-nums tracking-[-0.04em]">{snapshot.evidence.scoreLabel}</p>
+            </div>
+            <span className="rounded-md bg-white/10 px-2 py-1 text-[9px] font-semibold text-white">{snapshot.evidence.label}</span>
+          </div>
+          <p className="mt-3 text-[11px] leading-[1.6] text-white/72">
             {snapshot.evidence.summary}
           </p>
-          <div className="mt-5 rounded-[1.2rem] bg-white p-4 text-[#071512]">
-            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#52605b]">
-              Readiness score
-            </p>
-            <p className="mt-2 text-4xl font-black tracking-[-0.06em]">
-              {snapshot.evidence.scoreLabel}
-            </p>
-          </div>
-        </div>
+          <dl className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-white/15 text-center">
+            <div className="bg-white/8 px-2 py-2.5"><dt className="text-[8px] text-white/55">Answered</dt><dd className="mt-1 text-[12px] font-semibold tabular-nums">{snapshot.evidence.answeredQuestions}</dd></div>
+            <div className="bg-white/8 px-2 py-2.5"><dt className="text-[8px] text-white/55">Evaluated</dt><dd className="mt-1 text-[12px] font-semibold tabular-nums">{snapshot.evidence.evaluatedQuestions}</dd></div>
+            <div className="bg-white/8 px-2 py-2.5"><dt className="text-[8px] text-white/55">Total</dt><dd className="mt-1 text-[12px] font-semibold tabular-nums">{snapshot.evidence.totalQuestions}</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function CompetencyOverview({ snapshot }: { snapshot: JobInterviewReportSnapshot }) {
+  if (snapshot.competencies.length === 0) return null;
+
+  return (
+    <section className="rounded-2xl border border-muted-line bg-surface p-4">
+      <div className="border-b border-muted-line pb-3">
+        <p className="text-[10px] font-medium text-muted-subtle">Skills assessed</p>
+        <h2 className="mt-1 text-[16px] font-semibold tracking-[-0.025em] text-foreground">Competency overview</h2>
+      </div>
+      <div className="mt-3 grid gap-2.5 md:grid-cols-2">
+        {snapshot.competencies.map((competency) => (
+          <article key={competency.id} className="rounded-xl bg-surface-soft p-3.5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-[11px] font-semibold text-foreground">{competency.name}</h3>
+                <p className="mt-1 text-[11px] leading-[1.55] text-muted">{competency.explanation}</p>
+              </div>
+              <span className="shrink-0 text-[11px] font-semibold tabular-nums text-foreground">
+                {competency.score === null ? "—" : `${competency.score}/5`}
+              </span>
+            </div>
+            {competency.score !== null ? (
+              <progress
+                value={competency.score}
+                max={5}
+                aria-label={`${competency.name}: ${competency.score} out of 5`}
+                className="mt-3 h-1 w-full overflow-hidden rounded-full accent-primary"
+              />
+            ) : null}
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -308,28 +368,28 @@ export default async function InterviewReportPage({
   const snapshot = await getReport(user.id, id);
 
   return (
-    <main className="min-h-[calc(100dvh-40px)] bg-[radial-gradient(circle_at_10%_6%,rgba(215,168,79,0.18),transparent_28%),radial-gradient(circle_at_88%_10%,rgba(0,83,63,0.14),transparent_32%),#f7efe5] px-4 py-5 text-[#071512] md:px-7">
-      <div className="mx-auto grid max-w-[1180px] gap-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
+    <main className="min-h-[calc(100dvh-64px)] px-4 py-4 text-foreground md:px-5 lg:px-6">
+      <div className="mx-auto grid max-w-[1120px] gap-4">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-muted-line pb-4">
           <Link
-            href={`/interviews/${id}/room`}
-            className="rounded-full border border-[#d9cbb8] bg-white px-5 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-[#173a32] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#00533f] active:scale-press"
+            href="/reports"
+            className="inline-flex min-h-9 items-center rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
           >
-            Back to room
+            Back to reports
           </Link>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             <a
               href={`/api/job-interviews/${id}/report/pdf`}
               download
-              className="rounded-full bg-[#00533f] px-5 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-white shadow-[0_18px_40px_rgba(0,83,63,0.18)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:bg-[#064534] active:scale-press"
+              className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3.5 text-[10px] font-semibold text-white transition duration-200 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
             >
               Download PDF
             </a>
             <Link
               href="/interviews/new"
-              className="rounded-full border border-[#d9cbb8] bg-white px-5 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-[#173a32] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#00533f] active:scale-press"
+              className="inline-flex min-h-9 items-center rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
             >
-              Practice again
+              Practise again
             </Link>
           </div>
         </header>
@@ -337,55 +397,66 @@ export default async function InterviewReportPage({
         <ReportHero snapshot={snapshot} />
 
         {snapshot.evidence.warnings.length > 0 ? (
-          <section className="rounded-[1.6rem] border border-[#f2d28f] bg-[#fff8e8] p-5">
-            <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#8a5a00]">
-              Evidence limits
-            </p>
-            <ul className="mt-3 grid gap-2 text-[14px] leading-6 text-[#6c4b00]">
+          <section className="rounded-xl border border-warning/20 bg-warning-surface p-4">
+            <p className="text-[10px] font-semibold text-warning">Evidence limits</p>
+            <ul className="mt-2 grid gap-1.5 text-[11px] leading-[1.6] text-foreground">
               {snapshot.evidence.warnings.map((warning) => (
-                <li key={warning}>{warning}</li>
+                <li key={warning} className="flex gap-2">
+                  <span className="mt-[0.42rem] h-1 w-1 shrink-0 rounded-full bg-warning" aria-hidden="true" />
+                  <span>{warning}</span>
+                </li>
               ))}
             </ul>
           </section>
         ) : null}
 
-        <ClaimSection
-          title="Strengths"
-          empty="No strength claim is shown without transcript evidence."
-          claims={snapshot.strengths}
-        />
-        <ClaimSection
-          title="Priority Improvements"
-          empty="No priority improvement is shown without transcript evidence."
-          claims={snapshot.priorityImprovements}
-        />
-        <ClaimSection
-          title="Next Practice Actions"
-          empty="Complete more transcript-backed practice before action claims are shown."
-          claims={snapshot.nextPracticeActions}
-        />
+        <section aria-labelledby="report-at-a-glance-title">
+          <div className="mb-3">
+            <p className="text-[10px] font-medium text-muted-subtle">What to keep and improve</p>
+            <h2 id="report-at-a-glance-title" className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">Report at a glance</h2>
+          </div>
+          <div className="grid gap-3 xl:grid-cols-3">
+            <ClaimSection
+              title="Strengths"
+              empty="No strength claim is shown without transcript evidence."
+              claims={snapshot.strengths}
+            />
+            <ClaimSection
+              title="Priority improvements"
+              empty="No priority improvement is shown without transcript evidence."
+              claims={snapshot.priorityImprovements}
+            />
+            <ClaimSection
+              title="Next practice actions"
+              empty="Complete more transcript-backed practice before action claims are shown."
+              claims={snapshot.nextPracticeActions}
+            />
+          </div>
+        </section>
 
-        <section className="grid gap-4">
-          <div>
-            <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
-              Evidence review
-            </p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-0.05em] text-[#071512]">
-              Turn-by-turn report
-            </h2>
+        <CompetencyOverview snapshot={snapshot} />
+
+        <section className="grid gap-3">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-medium text-muted-subtle">Evidence review</p>
+              <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">Question-by-question feedback</h2>
+            </div>
+            <p className="text-[10px] text-muted">{snapshot.turns.length} {snapshot.turns.length === 1 ? "question" : "questions"}</p>
           </div>
           {snapshot.turns.map((turn) => (
             <TurnCard key={turn.id} turn={turn} />
           ))}
         </section>
 
-        <section className="rounded-[1.8rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.05)]">
-          <p className="text-[12px] font-black uppercase tracking-[0.18em] text-[#956615]">
-            Important limits
-          </p>
-          <ul className="mt-3 grid gap-2 text-[14px] leading-6 text-[#52605b]">
+        <section className="rounded-xl border border-muted-line bg-surface-soft p-4">
+          <p className="text-[10px] font-semibold text-foreground">Important limits</p>
+          <ul className="mt-2 grid gap-1.5 text-[11px] leading-[1.6] text-muted">
             {snapshot.disclaimers.map((disclaimer) => (
-              <li key={disclaimer}>{disclaimer}</li>
+              <li key={disclaimer} className="flex gap-2">
+                <span className="mt-[0.42rem] h-1 w-1 shrink-0 rounded-full bg-muted-subtle" aria-hidden="true" />
+                <span>{disclaimer}</span>
+              </li>
             ))}
           </ul>
         </section>
