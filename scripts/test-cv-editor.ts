@@ -7,7 +7,10 @@ import {
   cvDraftSchema,
   type CvRevision,
 } from "../src/lib/cv/contracts";
-import { draftFromImportedCvText } from "../src/lib/cv/import";
+import {
+  draftAndWarningsFromImportedCvText,
+  draftFromImportedCvText,
+} from "../src/lib/cv/import";
 import { validateCvRevision } from "../src/lib/cv/revisions";
 import { exportCvDocx, exportCvPdf } from "../src/lib/cv/export";
 import { cvFixture } from "./fixtures/cv-draft";
@@ -49,6 +52,16 @@ async function main() {
   assert.match(imported.experience[0].description, /Coordinated customer/);
   assert.equal(imported.education[0].institution, "University of Nairobi");
   assert.match(imported.skills, /service operations/i);
+
+  const oversizedImport = draftAndWarningsFromImportedCvText({
+    fileName: "long-unstructured-cv.pdf",
+    text: ["Candidate Name", "Operations Specialist", "x".repeat(70_000)].join(
+      "\n",
+    ),
+  });
+  assert.equal(oversizedImport.draft.additional.length, 64_000);
+  assert.equal(oversizedImport.warnings.length, 1);
+  assert.match(oversizedImport.warnings[0], /shortened/i);
 
   const draft = cvFixture();
   const revision: CvRevision = {

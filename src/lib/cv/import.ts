@@ -219,10 +219,186 @@ function isContactLine(line: string, contact: ReturnType<typeof contactDetails>)
   );
 }
 
-export function draftFromImportedCvText(input: {
+type ImportedDraftResult = {
+  draft: CvDraft;
+  warnings: string[];
+};
+
+function constrainImportedDraft(draft: CvDraft): ImportedDraftResult {
+  let shortened = false;
+  const clip = (value: string, maxLength: number) => {
+    if (value.length <= maxLength) return value;
+    shortened = true;
+    return value.slice(0, maxLength);
+  };
+  const next: CvDraft = {
+    ...draft,
+    title: clip(draft.title, 120),
+    personal: {
+      fullName: clip(draft.personal.fullName, 240),
+      headline: clip(draft.personal.headline, 240),
+      email: clip(draft.personal.email, 240),
+      phone: clip(draft.personal.phone, 240),
+      location: clip(draft.personal.location, 240),
+      website: clip(draft.personal.website, 240),
+      linkedin: clip(draft.personal.linkedin, 240),
+    },
+    summary: clip(draft.summary, 8_000),
+    experience: draft.experience.slice(0, 20).map((entry) => ({
+      ...entry,
+      role: clip(entry.role, 240),
+      company: clip(entry.company, 240),
+      location: clip(entry.location, 240),
+      startDate: clip(entry.startDate, 240),
+      endDate: clip(entry.endDate, 240),
+      description: clip(entry.description, 8_000),
+    })),
+    education: draft.education.slice(0, 20).map((entry) => ({
+      ...entry,
+      degree: clip(entry.degree, 240),
+      institution: clip(entry.institution, 240),
+      location: clip(entry.location, 240),
+      startDate: clip(entry.startDate, 240),
+      endDate: clip(entry.endDate, 240),
+      details: clip(entry.details, 8_000),
+    })),
+    skills: clip(draft.skills, 8_000),
+    projects: draft.projects.slice(0, 20).map((entry) => ({
+      ...entry,
+      name: clip(entry.name, 240),
+      details: clip(entry.details, 8_000),
+    })),
+    certifications: clip(draft.certifications, 8_000),
+    achievements: clip(draft.achievements, 8_000),
+    languages: clip(draft.languages, 8_000),
+    additional: clip(draft.additional, 64_000),
+  };
+
+  type Reclaimer = { get: () => string; set: (value: string) => void };
+  const reclaimers: Reclaimer[] = [];
+  const add = (get: Reclaimer["get"], set: Reclaimer["set"]) =>
+    reclaimers.push({ get, set });
+  add(
+    () => next.additional,
+    (value) => {
+      next.additional = value;
+    },
+  );
+  for (const key of [
+    "languages",
+    "achievements",
+    "certifications",
+  ] as const)
+    add(
+      () => next[key],
+      (value) => {
+        next[key] = value;
+      },
+    );
+  for (const entry of [...next.projects].reverse()) {
+    add(
+      () => entry.details,
+      (value) => {
+        entry.details = value;
+      },
+    );
+    add(
+      () => entry.name,
+      (value) => {
+        entry.name = value;
+      },
+    );
+  }
+  add(
+    () => next.skills,
+    (value) => {
+      next.skills = value;
+    },
+  );
+  for (const entry of [...next.education].reverse()) {
+    for (const key of [
+      "details",
+      "location",
+      "endDate",
+      "startDate",
+      "institution",
+      "degree",
+    ] as const)
+      add(
+        () => entry[key],
+        (value) => {
+          entry[key] = value;
+        },
+      );
+  }
+  for (const entry of [...next.experience].reverse()) {
+    for (const key of [
+      "description",
+      "location",
+      "endDate",
+      "startDate",
+      "company",
+      "role",
+    ] as const)
+      add(
+        () => entry[key],
+        (value) => {
+          entry[key] = value;
+        },
+      );
+  }
+  add(
+    () => next.summary,
+    (value) => {
+      next.summary = value;
+    },
+  );
+  for (const key of [
+    "linkedin",
+    "website",
+    "location",
+    "phone",
+    "email",
+    "headline",
+    "fullName",
+  ] as const)
+    add(
+      () => next.personal[key],
+      (value) => {
+        next.personal[key] = value;
+      },
+    );
+  add(
+    () => next.title,
+    (value) => {
+      next.title = value;
+    },
+  );
+
+  const totalLimit = 98_000;
+  for (const field of reclaimers) {
+    const overflow = JSON.stringify(next).length - totalLimit;
+    if (overflow <= 0) break;
+    const value = field.get();
+    if (!value) continue;
+    field.set(value.slice(0, Math.max(0, value.length - overflow)));
+    shortened = true;
+  }
+
+  return {
+    draft: cvDraftSchema.parse(next),
+    warnings: shortened
+      ? [
+          "Some imported text exceeded the editor limits and was shortened. Compare the parsed sections with the original file.",
+        ]
+      : [],
+  };
+}
+
+export function draftAndWarningsFromImportedCvText(input: {
   fileName: string;
   text: string;
-}): CvDraft {
+}): ImportedDraftResult {
   const lines = input.text
     .replace(/\r\n?/g, "\n")
     .split("\n")
@@ -278,5 +454,12 @@ export function draftFromImportedCvText(input: {
     languages: joinLines(sections.get("languages") ?? []),
     additional: joinLines(additional),
   };
-  return cvDraftSchema.parse(draft);
+  return constrainImportedDraft(draft);
+}
+
+export function draftFromImportedCvText(input: {
+  fileName: string;
+  text: string;
+}): CvDraft {
+  return draftAndWarningsFromImportedCvText(input).draft;
 }

@@ -239,7 +239,9 @@ export function CvEditor({
       setTab("edit");
       setMobileView("editor");
       setImportNotice(
-        "CV imported into the sections below. Review the parsed details before tailoring or downloading.",
+        result.warnings.length > 0
+          ? "CV imported. Some text was shortened to fit the editor, so compare the sections below with your original file."
+          : "CV imported into the sections below. Review the parsed details before tailoring or downloading.",
       );
     } catch (error) {
       setImportError(

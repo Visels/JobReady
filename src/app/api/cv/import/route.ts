@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/session-guards";
-import { draftFromImportedCvText } from "@/lib/cv/import";
+import { draftAndWarningsFromImportedCvText } from "@/lib/cv/import";
 import { CvDraftError } from "@/lib/cv/draft-service";
 import { cvErrorResponse } from "@/lib/cv/server";
 import {
@@ -60,13 +60,14 @@ export async function POST(request: Request) {
       mimeType: file.type,
       body,
     });
+    const imported = draftAndWarningsFromImportedCvText({
+      fileName: file.name,
+      text: parsed.normalizedText,
+    });
     return Response.json(
       {
-        draft: draftFromImportedCvText({
-          fileName: file.name,
-          text: parsed.normalizedText,
-        }),
-        warnings: parsed.warnings,
+        draft: imported.draft,
+        warnings: [...new Set([...parsed.warnings, ...imported.warnings])],
       },
       { headers: { "Cache-Control": "private, no-store" } },
     );
