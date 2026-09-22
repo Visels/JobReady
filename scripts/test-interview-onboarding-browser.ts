@@ -163,6 +163,16 @@ async function main() {
     delay = true;
     await start.dblclick();
     await expect.poll(() => requests.length).toBe(1);
+    await expect(
+      page.getByRole("heading", { name: "Preparing your interview" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Saving your interview setup", { exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: path.join(output, "launch-progress.png"),
+      fullPage: true,
+    });
     await expect(page.getByLabel("Company", { exact: true })).toBeDisabled();
     await expect.poll(() => delayedRoute !== null).toBe(true);
     await delayedRoute!.fulfill({ json: { session: { id: "interview-123" } } });

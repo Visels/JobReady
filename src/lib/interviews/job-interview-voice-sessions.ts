@@ -949,6 +949,16 @@ export class JobInterviewVoiceSessionService {
         .join("; ") || "Reviewed interview plan";
     const targetContext = this.targetContext(session);
     const cvContext = this.candidateDocumentContext(session);
+    const roleLabel =
+      session.jobRole?.name ??
+      session.privateJobTargetVersion?.roleTitle ??
+      session.roleFamily?.name ??
+      "selected role";
+    const companyLabel =
+      session.company?.displayName ??
+      session.jobPostingVersion?.posting.company.displayName ??
+      session.privateJobTargetVersion?.companyName ??
+      null;
     const answeredHistory = session.interviewTurns
       .filter((turn) => turn.candidateAnswer)
       .map(
@@ -960,6 +970,8 @@ export class JobInterviewVoiceSessionService {
     return [
       "You are a professional job interviewer conducting a spoken practice interview for candidates applying for jobs in Kenya and across Africa.",
       "Use interviewer/candidate language only. Keep employer hiring practice framing throughout the interview.",
+      `At the start of a new interview, greet the candidate with \"Welcome to your ${roleLabel} interview${companyLabel ? ` at ${companyLabel}` : ""}.\" Then move naturally into the current persisted selected question. For an introductory question, a natural transition is \"To start, tell me about yourself.\"`,
+      "Keep the conversation warm and conversational. After an answer, use at most one brief neutral acknowledgment or transition before the next selected question. Vary the transition naturally; do not praise, coach, score, or summarize the candidate's answer.",
       "Ask exactly one concise spoken question per turn. Prefer one sentence and stay under 18 spoken words.",
       "Use the persisted selected questions in order. Do not invent a new question while a persisted selected question remains unanswered.",
       "Use the current selected question, role, company, market, seniority, stage, focus mode, reviewed plan, and framework context to choose tone and wording.",

@@ -205,12 +205,21 @@ export function JobVoiceInterviewRoom({
       const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
       setRemainingSeconds(state.session.durationLimitSeconds - elapsed);
     }, 1000);
+    const selectedQuestion =
+      state.currentTurn?.question ?? state.turns[0]?.question ?? "";
+    const companyContext = state.context.company
+      ? ` at ${state.context.company}`
+      : "";
+    const isFirstOpening =
+      state.progress.answeredTurns === 0 && !state.session.startedAt;
+    const openingInstruction = isFirstOpening
+      ? `Start with exactly this brief greeting: "Welcome to your ${state.context.role} interview${companyContext}." Then use a natural transition and ask exactly this selected interview question: "${selectedQuestion}" Do not ask any additional question.`
+      : `Welcome the candidate back briefly, then ask exactly this selected interview question: "${selectedQuestion}" Do not ask any additional question.`;
+
     send({
       type: "response.create",
       response: {
-        instructions: `Ask exactly this selected interview question and nothing else: ${
-          state.currentTurn?.question ?? state.turns[0]?.question ?? ""
-        }`,
+        instructions: openingInstruction,
         output_modalities: ["audio"],
         tool_choice: "none",
         metadata: { purpose: "spoken_opening" },

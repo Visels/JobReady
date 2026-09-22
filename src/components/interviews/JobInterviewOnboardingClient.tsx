@@ -3,7 +3,9 @@
 import {
   ArrowRight,
   BriefcaseBusiness,
+  Check,
   ChevronDown,
+  LoaderCircle,
   MessageSquare,
   Mic,
   SlidersHorizontal,
@@ -36,6 +38,114 @@ const controlClass =
   "min-h-[44px] w-full min-w-0 rounded-lg border border-muted-line bg-surface px-3 py-2 text-[14px] text-foreground outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-soft disabled:text-muted";
 const textButtonClass =
   "rounded-md text-[12px] font-semibold text-primary underline-offset-4 transition duration-200 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:opacity-50";
+
+const launchSteps = [
+  "Saving your interview setup",
+  "Preparing reviewed questions",
+  "Opening your interview room",
+] as const;
+
+function InterviewLaunchScreen({
+  activeStep,
+  interviewMode,
+  role,
+}: {
+  activeStep: number;
+  interviewMode: InterviewOnboardingDraft["interviewMode"];
+  role: string;
+}) {
+  const progress = [28, 68, 94][activeStep] ?? 94;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid min-h-dvh place-items-center overflow-y-auto bg-[#071512]/72 px-4 py-8 backdrop-blur-md"
+      role="status"
+      aria-live="polite"
+      aria-label={`Preparing your ${role} interview`}
+    >
+      <section className="relative w-full max-w-[560px] overflow-hidden rounded-[2rem] border border-white/70 bg-[#fffaf3] p-6 text-[#071512] shadow-[0_32px_100px_rgba(3,18,14,0.38)] sm:p-8">
+        <div
+          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#d7a84f]/20 blur-3xl"
+          aria-hidden="true"
+        />
+        <div className="relative">
+          <div className="flex items-center gap-3 text-[12px] font-semibold text-[#52605b]">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#0b4b40] text-white">
+              {interviewMode === "voice" ? (
+                <Mic size={16} aria-hidden="true" />
+              ) : (
+                <MessageSquare size={16} aria-hidden="true" />
+              )}
+            </span>
+            {interviewMode === "voice" ? "Voice interview" : "Text interview"}
+          </div>
+
+          <h2 className="mt-6 text-[clamp(1.8rem,6vw,2.7rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-balance">
+            Preparing your interview
+          </h2>
+          <p className="mt-3 max-w-[46ch] text-[14px] leading-6 text-[#52605b]">
+            We’re getting your {role} interview ready. Keep this window open;
+            your room will open automatically.
+          </p>
+
+          <div
+            className="mt-7 h-1.5 overflow-hidden rounded-full bg-[#e8dfd2]"
+            aria-hidden="true"
+          >
+            <div
+              className="h-full rounded-full bg-[#0b4b40] transition-[width] duration-700 ease-out motion-reduce:transition-none"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <ol className="mt-7 grid gap-4">
+            {launchSteps.map((step, index) => {
+              const complete = index < activeStep;
+              const active = index === activeStep;
+              return (
+                <li
+                  key={step}
+                  className={`flex items-center gap-3 text-[13px] transition-colors duration-300 ${
+                    complete || active ? "text-[#173a32]" : "text-[#8a958f]"
+                  }`}
+                >
+                  <span
+                    className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${
+                      complete
+                        ? "border-[#0b4b40] bg-[#0b4b40] text-white"
+                        : active
+                          ? "border-[#d7a84f] bg-[#f7ead0] text-[#7d5916]"
+                          : "border-[#d9d2c8] bg-white text-[#8a958f]"
+                    }`}
+                  >
+                    {complete ? (
+                      <Check size={14} strokeWidth={2.5} aria-hidden="true" />
+                    ) : active ? (
+                      <LoaderCircle
+                        size={14}
+                        className="animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <span className="text-[11px] font-semibold">{index + 1}</span>
+                    )}
+                  </span>
+                  <span className={active ? "font-semibold" : "font-medium"}>
+                    {step}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+
+          <p className="mt-7 border-t border-[#e8dfd2] pt-4 text-[12px] leading-5 text-[#6c7772]">
+            This usually takes only a few seconds.
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}
 
 function Field({
   label,
@@ -104,6 +214,7 @@ export function JobInterviewOnboardingClient({
   const [formError, setFormError] = useState("");
   const [statusText, setStatusText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [launchStep, setLaunchStep] = useState(0);
   const [isNavigating, startTransition] = useTransition();
   const [showJobs, setShowJobs] = useState(false);
   const [jobQuery, setJobQuery] = useState("");
@@ -171,6 +282,12 @@ export function JobInterviewOnboardingClient({
   const hasJobs =
     options.publicTargets.length + options.privateTargets.length > 0;
   const reviewedPlanAvailable = hasReviewedPlanForDraft(draft, options);
+  const roleLabel =
+    target?.title ??
+    options.jobRoles.find((role) => role.id === draft.jobRoleId)?.label ??
+    options.roleFamilies.find((family) => family.id === draft.roleFamilyId)
+      ?.label ??
+    "role";
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -217,6 +334,16 @@ export function JobInterviewOnboardingClient({
       // Do not make browser storage a requirement for interview practice.
     }
   }, [draft, draftReady]);
+
+  useEffect(() => {
+    if (!submitting) return;
+
+    const questionTimer = window.setTimeout(
+      () => setLaunchStep((current) => Math.max(current, 1)),
+      650,
+    );
+    return () => window.clearTimeout(questionTimer);
+  }, [submitting]);
 
   function updateDraft(next: InterviewOnboardingDraft) {
     setDraft(next);
@@ -321,6 +448,7 @@ export function JobInterviewOnboardingClient({
     }
 
     submitLock.current = true;
+    setLaunchStep(0);
     setSubmitting(true);
     setStatusText("Getting your interview ready…");
     try {
@@ -342,6 +470,7 @@ export function JobInterviewOnboardingClient({
         );
       }
       removeStoredDraft();
+      setLaunchStep(2);
       setStatusText("Opening your interview…");
       const room = build.input.interviewMode === "voice" ? "voice" : "room";
       startTransition(() =>
@@ -378,9 +507,17 @@ export function JobInterviewOnboardingClient({
       ref={formRef}
       onSubmit={submit}
       noValidate
+      aria-busy={pending}
       aria-label="Interview setup"
       className="rounded-2xl border border-muted-line bg-surface"
     >
+      {pending ? (
+        <InterviewLaunchScreen
+          activeStep={launchStep}
+          interviewMode={draft.interviewMode}
+          role={roleLabel}
+        />
+      ) : null}
       <fieldset disabled={pending} className="min-w-0 p-5 sm:p-7">
         <legend className="sr-only">Interview details</legend>
         <div className="mb-5 flex items-center justify-between gap-3">

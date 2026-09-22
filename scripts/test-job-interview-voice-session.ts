@@ -266,6 +266,14 @@ async function main() {
   assert.ok(
     scenarioAConnection.prepared.instructions.includes("interviewer/candidate"),
   );
+  assert.ok(
+    scenarioAConnection.prepared.instructions.includes("Welcome to your"),
+  );
+  assert.ok(
+    scenarioAConnection.prepared.instructions.includes(
+      "warm and conversational",
+    ),
+  );
   assert.equal(
     scenarioAConnection.prepared.instructions.includes("Officer:"),
     false,
