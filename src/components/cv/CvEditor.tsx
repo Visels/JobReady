@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import {
   Check,
   Download,
@@ -11,11 +11,13 @@ import {
   ChevronDown,
   ArrowUp,
   ArrowDown,
+  Upload,
 } from "lucide-react";
 import {
   cvBlocks,
   type CvDocumentOption,
   type CvDraft,
+  type CvImportResult,
 } from "@/lib/cv/contracts";
 import { useCvDraft } from "./useCvDraft";
 import { CvAiEditor } from "./CvAiEditor";
@@ -144,7 +146,11 @@ export function CvEditor({
   const [mobileView, setMobileView] = useState<"editor" | "preview">("editor");
   const [downloading, setDownloading] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importNotice, setImportNotice] = useState<string | null>(null);
   const [removed, setRemoved] = useState<CvDraft | null>(null);
+  const uploadInput = useRef<HTMLInputElement | null>(null);
   const set = <K extends keyof CvDraft>(key: K, value: CvDraft[K]) =>
     update({ ...editor.getDraft(), [key]: value });
   const blocks = cvBlocks(draft);
@@ -209,6 +215,44 @@ export function CvEditor({
     }
   }
 
+  async function importFile(file: File) {
+    setImporting(true);
+    setImportError(null);
+    setImportNotice(null);
+    try {
+      const form = new FormData();
+      form.set("file", file);
+      const response = await fetch("/api/cv/import", {
+        method: "POST",
+        body: form,
+      });
+      const result = (await response.json()) as CvImportResult & {
+        error?: string;
+      };
+      if (!response.ok)
+        throw new Error(result.error || "Couldn't import this CV.");
+      if (!(await editor.createFrom(result.draft)))
+        throw new Error(
+          "Save or resolve the current CV before importing another file.",
+        );
+      setRemoved(null);
+      setTab("edit");
+      setMobileView("editor");
+      setImportNotice(
+        "CV imported into the sections below. Review the parsed details before tailoring or downloading.",
+      );
+    } catch (error) {
+      setImportError(
+        error instanceof Error
+          ? error.message
+          : "Couldn't import this CV. Please try again.",
+      );
+    } finally {
+      setImporting(false);
+      if (uploadInput.current) uploadInput.current.value = "";
+    }
+  }
+
   return (
     <section className="cv-workbench" aria-label="CV editor">
       <div className="cv-toolbar">
@@ -247,6 +291,27 @@ export function CvEditor({
             <Plus size={15} />
             New CV
           </button>
+          <input
+            ref={uploadInput}
+            className="cv-sr-only"
+            type="file"
+            aria-label="Upload an existing CV"
+            accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            disabled={!editor.ready || importing}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void importFile(file);
+            }}
+          />
+          <button
+            type="button"
+            className="cv-button cv-upload"
+            disabled={!editor.ready || importing}
+            onClick={() => uploadInput.current?.click()}
+          >
+            <Upload size={15} />
+            {importing ? "Parsing CV…" : "Upload CV"}
+          </button>
         </div>
         <div className="cv-download-actions">
           <span
@@ -282,6 +347,31 @@ export function CvEditor({
           </button>
         </div>
       </div>
+      {importNotice && (
+        <div className="cv-import-notice" role="status">
+          <Check size={15} />
+          <p>{importNotice}</p>
+          <button
+            type="button"
+            aria-label="Dismiss import message"
+            onClick={() => setImportNotice(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+      {importError && (
+        <div className="cv-banner" role="alert">
+          <p>{importError}</p>
+          <button
+            type="button"
+            className="cv-button"
+            onClick={() => uploadInput.current?.click()}
+          >
+            Choose another file
+          </button>
+        </div>
+      )}
       {editor.error && (
         <div className="cv-banner" role="alert">
           <p>{editor.error}</p>

@@ -31,6 +31,9 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+.cv-workbench button:not(:disabled):active {
+  transform: translateY(1px);
+}
 .cv-workbench :is(button, input, select, textarea):focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
@@ -92,6 +95,15 @@
   border: 0;
   color: var(--color-muted);
   font-size: 12px;
+}
+.cv-upload {
+  border-color: color-mix(in srgb, var(--color-primary) 32%, transparent);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.cv-upload:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary-soft) 76%, white);
 }
 .cv-save-status {
   display: flex;
@@ -420,6 +432,57 @@
   gap: 7px;
   margin-bottom: 25px;
 }
+.cv-tailor-form {
+  padding: 18px;
+  margin: 4px 0 26px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+  border-radius: 9px;
+  background: var(--color-primary-soft);
+}
+.cv-tailor-form .cv-field :is(textarea, input, select) {
+  background: var(--color-surface);
+}
+.cv-tailor-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: var(--color-primary);
+}
+.cv-tailor-label > svg {
+  margin-top: 2px;
+}
+.cv-tailor-label > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cv-tailor-label strong {
+  font-size: 13px;
+  color: var(--color-foreground);
+}
+.cv-tailor-label span {
+  font-size: 10px;
+  color: var(--color-muted);
+}
+.cv-ai-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  color: var(--color-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.cv-ai-divider::before,
+.cv-ai-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--color-muted-line);
+}
 .cv-prompt-examples button {
   font-size: 11px;
   text-align: left;
@@ -478,6 +541,28 @@
   padding: 12px 15px;
   font-size: 12px;
   margin: 12px 0;
+}
+.cv-import-notice {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 18px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 12px;
+}
+.cv-import-notice p {
+  flex: 1;
+}
+.cv-import-notice button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .cv-ai-progress {
   margin: 20px 0;
@@ -626,6 +711,16 @@
   .cv-ai {
     padding-left: 18px;
     padding-right: 18px;
+  }
+  .cv-tailor-form {
+    padding: 15px;
+  }
+  .cv-ai-submit {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .cv-ai-submit > span {
+    max-width: none;
   }
   .cv-form-section > summary {
     padding: 18px;

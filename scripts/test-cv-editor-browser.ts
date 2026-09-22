@@ -98,12 +98,32 @@ async function main() {
       saved.set(body.documentId, entry);
       await route.fulfill({ json: entry });
     });
+    await page.route("**/api/cv/import", async (route) => {
+      await route.fulfill({
+        json: {
+          draft: {
+            ...cvFixture(),
+            title: "Imported operations CV",
+            personal: {
+              ...cvFixture().personal,
+              fullName: "Imported Candidate",
+            },
+            summary: "Imported CV summary ready for review.",
+          },
+          warnings: [],
+        },
+      });
+    });
     let delayedRevision: Route | null = null;
     let delayAi = false;
     let lastAiDraft: CvDraft | null = null;
+    let lastAiInstruction = "";
+    let lastAiScope = "";
     const aiResponse = async (route: Route) => {
       const body = route.request().postDataJSON();
       lastAiDraft = body.draft;
+      lastAiInstruction = body.instruction;
+      lastAiScope = body.scope;
       await route.fulfill({
         json: {
           message: "Refined your summary.",
@@ -142,6 +162,23 @@ async function main() {
       });
     });
     await page.goto(`http://127.0.0.1:${address.port}`);
+    await page.getByLabel("Upload an existing CV").setInputFiles({
+      name: "existing-cv.docx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      buffer: Buffer.from("browser import fixture"),
+    });
+    await expect(page.getByLabel("Document name", { exact: true })).toHaveValue(
+      "Imported operations CV",
+    );
+    await expect(page.getByLabel("Summary", { exact: true })).toHaveValue(
+      "Imported CV summary ready for review.",
+    );
+    await expect(
+      page.getByRole("status").filter({
+        hasText: "CV imported into the sections",
+      }),
+    ).toBeVisible();
     await page.getByLabel("Full name", { exact: true }).fill("Amina Mwangi");
     await page.getByLabel("Summary", { exact: true }).fill(cvFixture().summary);
     await expect(page.getByLabel("Live CV preview")).toContainText(
@@ -157,6 +194,17 @@ async function main() {
     );
 
     await page.getByRole("tab", { name: "Ask AI" }).click();
+    await page
+      .getByLabel("Job details", { exact: true })
+      .fill(
+        "Customer Operations Manager responsible for service reporting and team coordination.",
+      );
+    await page.getByRole("button", { name: "Tailor my CV" }).click();
+    await expect(
+      page.getByRole("button", { name: "Apply suggestion", exact: true }),
+    ).toBeVisible();
+    assert.match(lastAiInstruction, /Customer Operations Manager/);
+    assert.equal(lastAiScope, "all");
     await page
       .getByRole("button", { name: "Polish the summary more", exact: true })
       .click();

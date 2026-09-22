@@ -240,6 +240,13 @@ export function useCvDraft(
     if (!current.current.ready || (await saveNow()))
       install(crypto.randomUUID(), emptyCvDraft(), null);
   };
+  const createFrom = async (next: CvDraft) => {
+    if (current.current.ready && !(await saveNow())) return false;
+    install(crypto.randomUUID(), next, null);
+    current.current.savedText = "";
+    setStatus("unsaved");
+    return true;
+  };
   const saveCopy = async () => {
     if (saving.current) await saving.current;
     const next = {
@@ -261,6 +268,7 @@ export function useCvDraft(
     saveNow,
     open,
     create,
+    createFrom,
     saveCopy,
     getDraft: () => current.current.draft,
   };

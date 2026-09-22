@@ -101,9 +101,14 @@ export const aiRevisionSchema = z.object({
 export type CvRevision = z.infer<typeof aiRevisionSchema>;
 export const revisionRequestSchema = z.object({
   draft: cvDraftSchema,
-  instruction: z.string().trim().min(3).max(1_500),
+  instruction: z.string().trim().min(3).max(12_000),
   scope: z.string().max(120),
 });
+
+export type CvImportResult = {
+  draft: CvDraft;
+  warnings: string[];
+};
 
 export function emptyCvDraft(): CvDraft {
   return {

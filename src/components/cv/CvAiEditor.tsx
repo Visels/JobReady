@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, Check, Undo2, X } from "lucide-react";
+import { ArrowUp, BriefcaseBusiness, Check, Undo2, X } from "lucide-react";
 import {
   applyCvRevision,
   cvTextFields,
@@ -20,8 +20,12 @@ export function CvAiEditor({
   onChange: (draft: CvDraft) => void;
 }) {
   const [instruction, setInstruction] = useState("");
+  const [jobDetails, setJobDetails] = useState("");
   const [scope, setScope] = useState("all");
   const [pending, setPending] = useState(false);
+  const [pendingAction, setPendingAction] = useState<"tailor" | "edit" | null>(
+    null,
+  );
   const [revision, setRevision] = useState<CvRevision | null>(null);
   const [undo, setUndo] = useState<CvRevision | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +34,13 @@ export function CvAiEditor({
   const fields = cvTextFields(draft);
   useEffect(() => () => controller.current?.abort(), []);
 
-  async function ask() {
+  async function ask(input: {
+    instruction: string;
+    scope: string;
+    action: "tailor" | "edit";
+  }) {
     setPending(true);
+    setPendingAction(input.action);
     setError(null);
     setNotice(null);
     setRevision(null);
@@ -42,11 +51,13 @@ export function CvAiEditor({
         signal: controller.current.signal,
         body: JSON.stringify({
           draft: getDraft(),
-          instruction,
+          instruction: input.instruction,
           scope:
-            scope === "all" ||
-            cvTextFields(getDraft()).some((field) => field.id === scope)
-              ? scope
+            input.scope === "all" ||
+            cvTextFields(getDraft()).some(
+              (field) => field.id === input.scope,
+            )
+              ? input.scope
               : "all",
         }),
       });
@@ -56,6 +67,7 @@ export function CvAiEditor({
         setError(error.message);
     } finally {
       setPending(false);
+      setPendingAction(null);
     }
   }
 
@@ -97,15 +109,64 @@ export function CvAiEditor({
   return (
     <section className="cv-ai" aria-label="AI writing assistant">
       <div className="cv-section-intro">
-        <span className="cv-kicker">Your writing partner</span>
+        <span className="cv-kicker">Tailor in one prompt</span>
         <h2>
-          A little clearer.
-          <br />A little more you.
+          Bring the job.
+          <br />Keep your facts.
         </h2>
         <p>
-          Tell the AI what to improve. Your wording stays in place until you
-          apply a suggestion.
+          Paste the role details once. We&apos;ll suggest changes across the
+          relevant CV sections, and nothing changes until you approve it.
         </p>
+      </div>
+      <form
+        className="cv-tailor-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void ask({
+            action: "tailor",
+            scope: "all",
+            instruction: [
+              "Tailor this CV to the job details below. Prioritize the candidate's existing relevant experience and useful matching language. Keep every claim truthful and do not add qualifications, skills, employers, dates, responsibilities, or results that are not supported by the CV.",
+              "JOB DETAILS:",
+              jobDetails.trim(),
+            ].join("\n\n"),
+          });
+        }}
+      >
+        <div className="cv-tailor-label">
+          <BriefcaseBusiness size={17} />
+          <div>
+            <strong>Tailor to a job</strong>
+            <span>Job title, responsibilities, and requirements</span>
+          </div>
+        </div>
+        <label className="cv-field">
+          <span>Job details</span>
+          <textarea
+            aria-label="Job details"
+            rows={7}
+            maxLength={10_000}
+            value={jobDetails}
+            onChange={(event) => setJobDetails(event.target.value)}
+            placeholder="Paste the job title and description here…"
+          />
+        </label>
+        <div className="cv-ai-submit">
+          <span>You&apos;ll review every suggested change first.</span>
+          <button
+            className="cv-button cv-button-primary"
+            disabled={pending || jobDetails.trim().length < 10}
+            type="submit"
+          >
+            {pendingAction === "tailor" ? "Tailoring…" : "Tailor my CV"}
+            <ArrowUp size={16} />
+          </button>
+        </div>
+      </form>
+
+      <div className="cv-ai-divider">
+        <span>Or refine selected sections</span>
       </div>
       <div className="cv-prompt-examples">
         {[
@@ -121,7 +182,7 @@ export function CvAiEditor({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void ask();
+          void ask({ instruction, scope, action: "edit" });
         }}
       >
         <label className="cv-field">
@@ -156,7 +217,7 @@ export function CvAiEditor({
             disabled={pending || instruction.trim().length < 3}
             type="submit"
           >
-            {pending ? "Working on it…" : "Suggest edits"}
+            {pendingAction === "edit" ? "Working on it…" : "Suggest edits"}
             <ArrowUp size={16} />
           </button>
         </div>
@@ -168,7 +229,9 @@ export function CvAiEditor({
       </form>
       {pending && (
         <div className="cv-ai-progress" role="status">
-          Reading your latest draft and refining the wording…
+          {pendingAction === "tailor"
+            ? "Comparing the job details with your latest CV…"
+            : "Reading your latest draft and refining the wording…"}
         </div>
       )}
       {error && (

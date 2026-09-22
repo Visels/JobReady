@@ -7,11 +7,49 @@ import {
   cvDraftSchema,
   type CvRevision,
 } from "../src/lib/cv/contracts";
+import { draftFromImportedCvText } from "../src/lib/cv/import";
 import { validateCvRevision } from "../src/lib/cv/revisions";
 import { exportCvDocx, exportCvPdf } from "../src/lib/cv/export";
 import { cvFixture } from "./fixtures/cv-draft";
 
 async function main() {
+  const imported = draftFromImportedCvText({
+    fileName: "amina-mwangi-existing-cv.docx",
+    text: [
+      "Amina Mwangi",
+      "Customer Operations Specialist",
+      "amina@example.test | +254 712 345 678",
+      "Location: Nairobi, Kenya",
+      "Professional Summary",
+      "Customer operations specialist supporting digital service teams.",
+      "Work Experience",
+      "Customer Operations Lead at Kijani Markets",
+      "Jan 2022 - Present | Nairobi, Kenya",
+      "- Coordinated customer issue resolution across support teams.",
+      "Education",
+      "BSc Information Systems at University of Nairobi",
+      "2017 - 2021",
+      "Skills",
+      "Customer support, reporting, service operations",
+      "Certifications",
+      "Service Operations Foundations",
+      "Languages",
+      "English, Kiswahili",
+    ].join("\n"),
+  });
+  assert.equal(imported.title, "amina mwangi existing cv");
+  assert.equal(imported.personal.fullName, "Amina Mwangi");
+  assert.equal(imported.personal.email, "amina@example.test");
+  assert.equal(imported.personal.phone, "+254 712 345 678");
+  assert.equal(imported.personal.location, "Nairobi, Kenya");
+  assert.equal(imported.experience[0].role, "Customer Operations Lead");
+  assert.equal(imported.experience[0].company, "Kijani Markets");
+  assert.equal(imported.experience[0].startDate, "Jan 2022");
+  assert.equal(imported.experience[0].endDate, "Present");
+  assert.match(imported.experience[0].description, /Coordinated customer/);
+  assert.equal(imported.education[0].institution, "University of Nairobi");
+  assert.match(imported.skills, /service operations/i);
+
   const draft = cvFixture();
   const revision: CvRevision = {
     message: "Made the summary more concise.",
@@ -141,7 +179,7 @@ async function main() {
     ),
   ]);
   console.log(
-    "CV editor checks passed: revisions, stale-edit protection, evidence validation, full content, Unicode, and multipage exports.",
+    "CV editor checks passed: imports, revisions, stale-edit protection, evidence validation, full content, Unicode, and multipage exports.",
   );
 }
 main().catch((error) => {
