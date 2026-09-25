@@ -10,7 +10,6 @@ import { getDashboardData } from "@/lib/dashboard";
 import { generateSEO } from "@/lib/seo";
 import type {
   CandidateWorkspaceData,
-  WorkspaceActivity,
   WorkspaceApplication,
   WorkspaceDocument,
   WorkspaceInterview,
@@ -63,16 +62,20 @@ function PrimaryLink({
   href,
   children,
   subtle = false,
+  inverse = false,
 }: {
   href: string;
   children: React.ReactNode;
   subtle?: boolean;
+  inverse?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={
-        subtle
+        inverse
+          ? "inline-flex min-h-9 items-center justify-center rounded-lg bg-white px-3.5 text-[11px] font-semibold text-primary transition duration-200 ease-soft hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-press motion-reduce:transition-none"
+          : subtle
           ? "inline-flex min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3.5 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
           : "inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3.5 text-[11px] font-semibold text-white transition duration-200 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
       }
@@ -151,12 +154,11 @@ function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
               initialGreeting={greeting()}
             />
           </h1>
-          <p className="mt-3 max-w-[64ch] text-[13px] leading-[1.6] text-muted">
-            Pick up where you left off across jobs, applications, CV versions,
-            and interview practice.
+          <p className="mt-3 max-w-[52ch] text-[13px] leading-[1.6] text-muted">
+            Your next step and recent progress, all in one place.
           </p>
         </div>
-        <div className="min-w-[210px] rounded-xl border border-muted-line bg-surface px-4 py-3">
+        <div className="min-w-[210px] rounded-xl border border-primary/10 bg-primary-soft px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <p className="text-[10px] font-medium text-muted-subtle">Access</p>
             <span className="h-1.5 w-1.5 rounded-full bg-success" />
@@ -176,91 +178,71 @@ function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
 }
 
 function FirstLoginDashboard({ data }: { data: CandidateWorkspaceData }) {
+  const choiceStyles = {
+    jobs: {
+      card: "border-primary/10 bg-surface-info hover:border-primary/20",
+      icon: "bg-white/65 text-primary",
+      action: "bg-white/70 text-primary group-hover:bg-white",
+    },
+    cv: {
+      card: "border-primary/12 bg-primary-soft hover:border-primary/25",
+      icon: "bg-primary-tint text-primary",
+      action: "bg-white/70 text-primary group-hover:bg-white",
+    },
+    interview: {
+      card: "border-accent/20 bg-accent-surface hover:border-accent/35",
+      icon: "bg-accent-soft text-accent-strong",
+      action: "bg-white/70 text-accent-strong group-hover:bg-white",
+    },
+  } as const;
+  const choiceDescriptions = {
+    jobs: "Browse verified roles.",
+    cv: "Create a role-specific version.",
+    interview: "Practise for your target role.",
+  } as const;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div>
+        <p className="text-[10px] font-semibold text-muted-subtle">Start here</p>
+        <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.025em] text-foreground">
+          Choose one thing to do first
+        </h2>
+      </div>
       <section className="grid gap-3 lg:grid-cols-3">
-        {data.launchChoices.map((choice) => (
-          <Link
-            key={choice.id}
-            href={choice.href}
-            className="group flex min-h-[176px] flex-col justify-between rounded-2xl border border-muted-line bg-surface p-4 transition duration-200 ease-soft hover:-translate-y-0.5 hover:border-muted-line-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
-          >
-            <span>
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary-soft text-[9px] font-bold text-primary">
-                {choice.id === "jobs" ? "JB" : choice.id === "cv" ? "CV" : "MI"}
+        {data.launchChoices.map((choice) => {
+          const styles = choiceStyles[choice.id];
+          return (
+            <Link
+              key={choice.id}
+              href={choice.href}
+              className={`group flex min-h-[168px] flex-col justify-between rounded-2xl border p-4 transition duration-200 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none ${styles.card}`}
+            >
+              <span>
+                <span className={`grid h-8 w-8 place-items-center rounded-lg text-[9px] font-bold ${styles.icon}`}>
+                  {choice.id === "jobs" ? "JB" : choice.id === "cv" ? "CV" : "MI"}
+                </span>
+                <span className="mt-4 block text-[17px] font-semibold tracking-[-0.025em] text-foreground">
+                  {choice.title}
+                </span>
+                <span className="mt-2 block max-w-[34ch] text-[11px] leading-[1.5] text-muted">
+                  {choiceDescriptions[choice.id]}
+                </span>
               </span>
-              <span className="mt-4 block text-[17px] font-semibold tracking-[-0.025em] text-foreground">
-                {choice.title}
+              <span className={`mt-5 inline-flex min-h-9 items-center justify-center rounded-lg px-3 text-[11px] font-semibold transition duration-200 ease-soft ${styles.action}`}>
+                {choice.label}
               </span>
-              <span className="mt-2 block text-[11px] leading-[1.55] text-muted">
-                {choice.body}
-              </span>
-            </span>
-            <span className="mt-5 inline-flex min-h-9 items-center justify-center rounded-lg bg-primary-soft px-3 text-[11px] font-semibold text-primary transition duration-200 ease-soft group-hover:bg-primary group-hover:text-white motion-reduce:transition-none">
-              {choice.label}
-            </span>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </section>
-
-      <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <article className="rounded-2xl border border-muted-line bg-surface p-4">
-          <SectionHeader
-            eyebrow="Optional"
-            title="Role and location preferences"
-          />
-          <p className="mt-2 text-[11px] leading-[1.6] text-muted">
-            You can tell Jiandae what roles and locations you prefer, or skip
-            this and use the workspace immediately.
-          </p>
-          <div className="mt-4 grid gap-3">
-            <label className="grid gap-1.5 text-[11px] font-semibold text-foreground">
-              Target role
-              <input
-                type="text"
-                name="role"
-                placeholder="Product Manager, Software Engineer, Analyst"
-                className="min-h-10 rounded-lg border border-muted-line bg-surface-soft px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15 motion-reduce:transition-none"
-              />
-            </label>
-            <label className="grid gap-1.5 text-[11px] font-semibold text-foreground">
-              Preferred location
-              <input
-                type="text"
-                name="location"
-                placeholder="Nairobi, Mombasa, remote, East Africa"
-                className="min-h-10 rounded-lg border border-muted-line bg-surface-soft px-3 text-[11px] font-medium text-foreground outline-none transition duration-200 ease-soft placeholder:text-muted-subtle focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15 motion-reduce:transition-none"
-              />
-            </label>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <PrimaryLink href="/profile" subtle>
-              Save later in profile
-            </PrimaryLink>
-            <PrimaryLink href="/dashboard" subtle>
-              Skip for now
-            </PrimaryLink>
-          </div>
-        </article>
-
-        <article className="rounded-2xl border border-muted-line bg-surface p-4">
-          <SectionHeader
-            eyebrow="What appears next"
-            title="Your private workspace fills as you move"
-          />
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {data.firstLoginEmptyStates.map((state) => (
-              <EmptyNote
-                key={state.id}
-                title={state.title}
-                body={state.body}
-                href={state.href}
-                label={state.label}
-              />
-            ))}
-          </div>
-        </article>
-      </section>
+      <p className="text-[11px] text-muted">
+        Want more relevant suggestions?{" "}
+        <Link className="font-semibold text-primary hover:underline" href="/profile">
+          Add your target role and location
+        </Link>
+        .
+      </p>
     </div>
   );
 }
@@ -269,13 +251,13 @@ function NextBestAction({ data }: { data: CandidateWorkspaceData }) {
   const action = data.nextBestAction;
 
   return (
-    <section className="rounded-2xl border border-primary/15 bg-primary px-4 py-4 text-white md:px-5">
+    <section className="rounded-2xl border border-primary/12 bg-primary px-4 py-4 text-white md:px-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
         <div className="flex gap-3.5">
           <span
             className="grid h-9 w-9 flex-none place-items-center rounded-lg border border-white/15 bg-white/10 text-[9px] font-bold text-white"
           >
-            NBA
+            NEXT
           </span>
           <div>
             <p className="text-[10px] font-medium text-white/58">
@@ -287,25 +269,28 @@ function NextBestAction({ data }: { data: CandidateWorkspaceData }) {
             <p className="mt-1.5 max-w-3xl text-[11px] leading-[1.55] text-white/72">
               {action.body}
             </p>
-            <p className="mt-2 text-[10px] font-medium leading-4 text-white/58">
-              Why this: {action.reason}
-            </p>
           </div>
         </div>
-        <PrimaryLink href={action.href}>{action.label}</PrimaryLink>
+        <PrimaryLink href={action.href} inverse>{action.label}</PrimaryLink>
       </div>
     </section>
   );
 }
 
 function QuickStartRow({ data }: { data: CandidateWorkspaceData }) {
+  const choiceStyles = {
+    jobs: "border-primary/10 bg-surface-info hover:border-primary/20",
+    cv: "border-primary/12 bg-primary-soft hover:border-primary/25",
+    interview: "border-accent/20 bg-accent-surface hover:border-accent/35",
+  } as const;
+
   return (
     <section className="grid gap-3 lg:grid-cols-3">
       {data.launchChoices.map((choice) => (
         <Link
           key={choice.id}
           href={choice.href}
-          className="group flex items-center justify-between gap-3 rounded-xl border border-muted-line bg-surface px-3.5 py-3 transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+          className={`group flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 transition duration-200 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none ${choiceStyles[choice.id]}`}
         >
           <span>
             <span className="block text-[11px] font-semibold text-foreground">
@@ -354,7 +339,7 @@ function SavedJobRow({ job }: { job: WorkspaceSavedJob }) {
 
 function SavedJobsPanel({ jobs }: { jobs: WorkspaceSavedJob[] }) {
   return (
-    <article className="rounded-2xl border border-muted-line bg-surface p-4">
+    <article className="rounded-2xl border border-primary/10 bg-surface-info p-4">
       <SectionHeader
         eyebrow="Saved jobs"
         title="Closing soon or needs action"
@@ -366,7 +351,7 @@ function SavedJobsPanel({ jobs }: { jobs: WorkspaceSavedJob[] }) {
         ) : (
           <EmptyNote
             title="No urgent saved jobs"
-            body="Saved jobs that are closing soon, changed, closed, or expired will surface here without hiding your history."
+            body="Jobs that need your attention will appear here."
             href="/find-jobs"
             label="Find jobs"
           />
@@ -386,7 +371,7 @@ function ApplicationPipeline({
   const latest = applications[0] ?? null;
 
   return (
-    <article className="rounded-2xl border border-muted-line bg-surface p-4">
+    <article className="rounded-2xl border border-primary/12 bg-primary-soft p-4">
       <SectionHeader
         eyebrow="Applications"
         title="Private pipeline"
@@ -397,7 +382,7 @@ function ApplicationPipeline({
           {stages.map((stage) => (
             <div
               key={stage.status}
-              className="flex items-center justify-between rounded-xl border border-muted-line bg-surface-soft px-3.5 py-2.5"
+              className="flex items-center justify-between rounded-xl border border-primary/10 bg-white/65 px-3.5 py-2.5"
             >
               <span className="text-[11px] font-semibold text-foreground">
                 {stage.label}
@@ -427,7 +412,7 @@ function ApplicationPipeline({
         <div className="mt-4">
           <EmptyNote
             title="No tracked applications"
-            body="Start tracking from a saved public job or a private target. Jiandae never marks an application as applied unless you confirm it."
+            body="Track a saved job when you are ready to apply."
             href="/saved-jobs"
             label="Use saved jobs"
           />
@@ -445,7 +430,7 @@ function DocumentPanel({
   tailoredVersions: WorkspaceTailoredVersion[];
 }) {
   return (
-    <article className="rounded-2xl border border-muted-line bg-surface p-4">
+    <article className="rounded-2xl border border-accent/15 bg-surface-warm p-4">
       <SectionHeader
         eyebrow="CV & Resume"
         title="Base document and latest versions"
@@ -467,7 +452,7 @@ function DocumentPanel({
         ) : (
           <EmptyNote
             title="No base document yet"
-            body="Add a base CV/resume when you are ready. Jobs, applications, and interviews remain usable without it."
+            body="Add your base CV to create role-specific versions."
             href="/cv-resume"
             label="Open CV workspace"
           />
@@ -510,7 +495,7 @@ function InterviewPanel({
   trend: CandidateWorkspaceData["reportTrend"];
 }) {
   return (
-    <article className="rounded-2xl border border-muted-line bg-surface p-4">
+    <article className="rounded-2xl border border-accent/20 bg-accent-surface p-4">
       <SectionHeader
         eyebrow="Interviews"
         title="Reports and next practice"
@@ -551,7 +536,7 @@ function InterviewPanel({
         ) : (
           <EmptyNote
             title="No job interview report yet"
-            body="Start a text or voice mock interview. Reports compare scores only when rubric versions match."
+            body="Start a text or voice mock interview for your target role."
             href="/interviews/new"
             label="Set up practice"
           />
@@ -588,50 +573,6 @@ function InterviewPanel({
   );
 }
 
-function ActivityRow({ activity }: { activity: WorkspaceActivity }) {
-  return (
-    <Link
-      href={activity.href}
-      className="grid gap-1 rounded-xl border border-muted-line bg-surface-soft px-3.5 py-3 transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
-    >
-      <span className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-[11px] font-semibold text-foreground">
-          {activity.title}
-        </span>
-        <span className="text-[9px] font-medium text-muted-subtle">
-          {activity.actionLabel}
-        </span>
-      </span>
-      <span className="text-[10px] leading-4 text-muted">{activity.body}</span>
-      <span className="text-[9px] font-medium text-muted-subtle">
-        {formatDate(activity.occurredAt)}
-      </span>
-    </Link>
-  );
-}
-
-function RecentActivity({ activities }: { activities: WorkspaceActivity[] }) {
-  return (
-    <article className="rounded-2xl border border-muted-line bg-surface p-4">
-      <SectionHeader eyebrow="Activity" title="Recent movement" />
-      <div className="mt-4 grid gap-2.5">
-        {activities.length > 0 ? (
-          activities.map((activity) => (
-            <ActivityRow key={activity.id} activity={activity} />
-          ))
-        ) : (
-          <EmptyNote
-            title="No recent activity"
-            body="As soon as you save a job, tailor a document, track an application, or practise, direct resume actions appear here."
-            href="/find-jobs"
-            label="Start with jobs"
-          />
-        )}
-      </div>
-    </article>
-  );
-}
-
 function ReturningDashboard({ data }: { data: CandidateWorkspaceData }) {
   return (
     <div className="space-y-4">
@@ -657,8 +598,6 @@ function ReturningDashboard({ data }: { data: CandidateWorkspaceData }) {
           trend={data.reportTrend}
         />
       </section>
-
-      <RecentActivity activities={data.recentActivity} />
     </div>
   );
 }
