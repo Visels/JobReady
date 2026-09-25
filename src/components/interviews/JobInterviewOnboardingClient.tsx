@@ -2,10 +2,18 @@
 
 import {
   ArrowRight,
+  BarChart3,
   BriefcaseBusiness,
+  CalendarDays,
+  Check,
   ChevronDown,
+  Clock3,
+  Coins,
+  FileText,
+  ListChecks,
   MessageSquare,
   Mic,
+  Sparkles,
   SlidersHorizontal,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -38,7 +46,7 @@ import {
 const STORAGE_KEY = "jobready-interview-onboarding-draft-v1";
 const DRAFT_SCHEMA_VERSION = "task17.v2";
 const controlClass =
-  "min-h-[44px] w-full min-w-0 rounded-lg border border-muted-line bg-surface px-3 py-2 text-[14px] text-foreground outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-soft disabled:text-muted";
+  "min-h-[46px] w-full min-w-0 rounded-lg border border-muted-line bg-surface px-3.5 py-2 text-[14px] text-foreground outline-none transition duration-200 hover:border-muted-line-strong focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-surface-soft disabled:text-muted";
 const textButtonClass =
   "rounded-md text-[12px] font-semibold text-primary underline-offset-4 transition duration-200 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:opacity-50";
 
@@ -183,6 +191,17 @@ export function JobInterviewOnboardingClient({
     options.roleFamilies.find((family) => family.id === draft.roleFamilyId)
       ?.label ??
     "role";
+  const companyLabel =
+    (target?.companyLabel ??
+      options.companies.find((company) => company.id === draft.companyId)
+        ?.label ??
+      draft.otherCompanyName.trim()) ||
+    "General practice";
+  const seniorityLabel =
+    options.seniorityLevels.find(
+      (level) => level.id === draft.seniorityLevelId,
+    )?.label ?? "Choose a level";
+  const jobPathSelected = showJobs || Boolean(target);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -390,9 +409,14 @@ export function JobInterviewOnboardingClient({
       <div
         aria-label="Loading interview setup"
         role="status"
-        className="h-[460px] rounded-2xl border border-muted-line bg-surface p-6"
+        className="grid min-h-[620px] gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
-        <div className="h-full rounded-xl skeleton-shimmer" />
+        <div className="rounded-xl border border-muted-line bg-surface p-6">
+          <div className="h-full rounded-lg skeleton-shimmer" />
+        </div>
+        <div className="hidden rounded-xl bg-primary-soft p-6 lg:block">
+          <div className="h-full rounded-lg skeleton-shimmer" />
+        </div>
       </div>
     );
   }
@@ -404,7 +428,7 @@ export function JobInterviewOnboardingClient({
       noValidate
       aria-busy={pending}
       aria-label="Interview setup"
-      className="rounded-2xl border border-muted-line bg-surface"
+      className="relative grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]"
     >
       {pending ? (
         <InterviewRoomLaunchScreen
@@ -413,125 +437,140 @@ export function JobInterviewOnboardingClient({
           role={roleLabel}
         />
       ) : null}
-      <fieldset disabled={pending} className="min-w-0 p-5 sm:p-7">
+
+      <fieldset
+        disabled={pending}
+        className="min-w-0 overflow-hidden rounded-xl border border-muted-line bg-surface shadow-[0_18px_48px_rgba(27,36,48,0.045)] lg:max-h-[calc(100dvh-168px)] lg:overflow-y-auto lg:[scrollbar-width:thin]"
+      >
         <legend className="sr-only">Interview details</legend>
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-[16px] font-semibold tracking-[-0.02em]">
-            What are you preparing for?
-          </h2>
-          {hasJobs ? (
-            <button
-              type="button"
-              onClick={() => setShowJobs(!showJobs)}
-              aria-expanded={showJobs}
-              aria-controls="interview-job-picker"
-              className={`${textButtonClass} inline-flex shrink-0 items-center gap-1.5`}
-            >
-              <BriefcaseBusiness size={14} aria-hidden="true" />
-              {target ? "Change job" : "Use a job"}
-            </button>
-          ) : null}
-        </div>
-
-        {showJobs ? (
-          <div
-            id="interview-job-picker"
-            className="mb-5 grid gap-3 rounded-xl bg-surface-soft p-4"
-          >
-            <Field label="Search jobs">
-              {(props) => (
-                <input
-                  {...props}
-                  type="search"
-                  value={jobQuery}
-                  onChange={(event) => setJobQuery(event.target.value)}
-                  placeholder="Job title or company"
-                  className={controlClass}
-                />
-              )}
-            </Field>
-            <Field
-              label="Choose a job"
-              error={
-                fieldErrors.publicJobPostingVersionId ??
-                fieldErrors.privateJobTargetVersionId
-              }
-            >
-              {(props) => (
-                <select
-                  {...props}
-                  value={targetValue}
-                  onChange={(event) => chooseJob(event.target.value)}
-                  className={controlClass}
-                >
-                  <option value="">Choose a job to fill in the details</option>
-                  {publicJobs.length > 0 ? (
-                    <optgroup label="Public jobs">
-                      {publicJobs.map((item) => (
-                        <option
-                          key={item.jobPostingVersionId}
-                          value={`public:${item.jobPostingVersionId}`}
-                        >
-                          {item.title} at {item.companyLabel}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ) : null}
-                  {privateJobs.length > 0 ? (
-                    <optgroup label="Your saved targets">
-                      {privateJobs.map((item) => (
-                        <option
-                          key={item.privateJobTargetVersionId}
-                          value={`private:${item.privateJobTargetVersionId}`}
-                        >
-                          {item.title}
-                          {item.companyLabel ? ` at ${item.companyLabel}` : ""}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ) : null}
-                </select>
-              )}
-            </Field>
-            {!publicJobs.length && !privateJobs.length ? (
-              <p className="text-[12px] text-muted">
-                No matching jobs. Try another search or choose your own role
-                below.
+        <section className="p-4 sm:p-5">
+          <div className="flex items-start gap-4">
+            <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-primary-soft text-[16px] font-bold text-primary">
+              1
+            </span>
+            <div className="min-w-0 pt-0.5">
+              <h2 className="text-[17px] font-bold tracking-[-0.025em] text-foreground">
+                Interview target
+              </h2>
+              <p className="mt-1 text-[12px] leading-5 text-muted">
+                Choose a job or enter the details manually.
               </p>
+            </div>
+          </div>
+
+          <div className={`mt-4 grid gap-3 ${hasJobs ? "sm:grid-cols-2" : ""}`}>
+            <button
+              type="button"
+              onClick={() => clearJob()}
+              aria-pressed={!jobPathSelected}
+              className={`group flex min-h-[60px] items-center gap-3 rounded-lg border p-3 text-left outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-primary/25 active:scale-[0.99] ${!jobPathSelected ? "border-accent bg-accent-surface/65" : "border-muted-line hover:border-muted-line-strong hover:bg-surface-soft"}`}
+            >
+              <span className={`grid h-9 w-9 flex-none place-items-center rounded-full ${!jobPathSelected ? "bg-accent-soft text-accent-strong" : "bg-surface-soft text-muted"}`}>
+                <BriefcaseBusiness size={18} strokeWidth={2.2} aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] font-bold text-foreground">
+                  Enter details manually
+                </span>
+                <span className="mt-0.5 block text-[11px] leading-4 text-muted">
+                  Add a role, company and experience
+                </span>
+              </span>
+              <span className={`h-4 w-4 flex-none rounded-full border-[5px] ${!jobPathSelected ? "border-accent" : "border-muted-line-strong bg-surface"}`} aria-hidden="true" />
+            </button>
+
+            {hasJobs ? (
+              <button
+                type="button"
+                onClick={() => setShowJobs(true)}
+                aria-label="Use a job"
+                aria-pressed={jobPathSelected}
+                aria-expanded={showJobs}
+                aria-controls="interview-job-picker"
+                className={`group flex min-h-[60px] items-center gap-3 rounded-lg border p-3 text-left outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-primary/25 active:scale-[0.99] ${jobPathSelected ? "border-accent bg-accent-surface/65" : "border-muted-line hover:border-muted-line-strong hover:bg-surface-soft"}`}
+              >
+                <span className={`grid h-9 w-9 flex-none place-items-center rounded-full ${jobPathSelected ? "bg-accent-soft text-accent-strong" : "bg-surface-soft text-muted"}`}>
+                  <ListChecks size={19} strokeWidth={2.2} aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-bold text-foreground">
+                    Choose from jobs
+                  </span>
+                  <span className="mt-0.5 block text-[11px] leading-4 text-muted">
+                    Use a saved or reviewed job
+                  </span>
+                </span>
+                <span className={`h-4 w-4 flex-none rounded-full border-[5px] ${jobPathSelected ? "border-accent" : "border-muted-line-strong bg-surface"}`} aria-hidden="true" />
+              </button>
             ) : null}
-            <button
-              type="button"
-              onClick={clearJob}
-              className={`${textButtonClass} justify-self-start`}
-            >
-              Continue without a job
-            </button>
           </div>
-        ) : null}
 
-        {target && !showJobs ? (
-          <div className="mb-5 flex items-center justify-between gap-4 rounded-lg bg-primary-soft px-4 py-3">
-            <p className="min-w-0 text-[12px] leading-5 text-primary">
-              <span className="font-semibold">
-                {target.title}
-                {target.companyLabel ? ` at ${target.companyLabel}` : ""}
-              </span>
-              <span className="block">
-                Details filled in from{" "}
-                {privateTarget ? "your private saved job" : "this job"}.
-              </span>
-            </p>
-            <button
-              type="button"
-              onClick={clearJob}
-              className={`${textButtonClass} shrink-0`}
-            >
-              Remove
-            </button>
-          </div>
-        ) : null}
+          {showJobs ? (
+            <div id="interview-job-picker" className="mt-4 grid gap-3 rounded-lg bg-surface-soft p-4">
+              <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+                <Field label="Search jobs">
+                  {(props) => (
+                    <input
+                      {...props}
+                      type="search"
+                      value={jobQuery}
+                      onChange={(event) => setJobQuery(event.target.value)}
+                      placeholder="Job title or company"
+                      className={controlClass}
+                    />
+                  )}
+                </Field>
+                <Field
+                  label="Choose a job"
+                  error={fieldErrors.publicJobPostingVersionId ?? fieldErrors.privateJobTargetVersionId}
+                >
+                  {(props) => (
+                    <select
+                      {...props}
+                      value={targetValue}
+                      onChange={(event) => chooseJob(event.target.value)}
+                      className={controlClass}
+                    >
+                      <option value="">Choose a job to fill in the details</option>
+                      {publicJobs.length ? (
+                        <optgroup label="Public jobs">
+                          {publicJobs.map((item) => (
+                            <option key={item.jobPostingVersionId} value={`public:${item.jobPostingVersionId}`}>
+                              {item.title} at {item.companyLabel}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ) : null}
+                      {privateJobs.length ? (
+                        <optgroup label="Your saved targets">
+                          {privateJobs.map((item) => (
+                            <option key={item.privateJobTargetVersionId} value={`private:${item.privateJobTargetVersionId}`}>
+                              {item.title}{item.companyLabel ? ` at ${item.companyLabel}` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ) : null}
+                    </select>
+                  )}
+                </Field>
+              </div>
+              {!publicJobs.length && !privateJobs.length ? (
+                <p className="text-[12px] text-muted">No matching jobs. Try another search.</p>
+              ) : null}
+            </div>
+          ) : null}
 
-        <div className="grid gap-4">
+          {target && !showJobs ? (
+            <div className="mt-4 flex items-center justify-between gap-4 rounded-lg bg-primary-soft px-4 py-3">
+              <p className="min-w-0 text-[12px] leading-5 text-primary">
+                <span className="block truncate font-bold">{target.title}{target.companyLabel ? ` at ${target.companyLabel}` : ""}</span>
+                <span className="block text-primary/75">Details filled from {privateTarget ? "your saved job" : "a reviewed job"}.</span>
+              </p>
+              <button type="button" onClick={clearJob} className={`${textButtonClass} shrink-0`}>Remove</button>
+            </div>
+          ) : null}
+
+          <div className="mt-4 grid gap-4">
           <Field
             label="Role"
             error={fieldErrors.jobRoleId ?? fieldErrors.roleFamilyId}
@@ -579,7 +618,7 @@ export function JobInterviewOnboardingClient({
               </select>
             )}
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Company" error={fieldErrors.companyId}>
               {(props) => (
                 <select
@@ -648,95 +687,50 @@ export function JobInterviewOnboardingClient({
               )}
             </Field>
           ) : null}
-        </div>
+          </div>
+        </section>
 
-        <div className="mt-6 grid gap-4 border-t border-muted-line pt-5 sm:grid-cols-[1fr_160px]">
-          <fieldset className="min-w-0">
-            <legend className="mb-2 text-[13px] font-semibold">
-              Interview format
-            </legend>
-            <div className="grid grid-cols-2 gap-2">
-              {(
-                [
-                  {
-                    value: "text",
-                    title: "Text",
-                    description: "Type your answers",
-                    icon: MessageSquare,
-                  },
-                  {
-                    value: "voice",
-                    title: "Voice",
-                    description: "Practise out loud",
-                    icon: Mic,
-                  },
-                ] as const
-              ).map(({ value, title, description, icon: Icon }) => (
-                <label
-                  key={value}
-                  className={`flex min-h-[72px] cursor-pointer items-center gap-3 rounded-lg border px-3 py-3 transition duration-200 focus-within:ring-2 focus-within:ring-primary/30 ${draft.interviewMode === value ? "border-primary bg-primary-soft" : "border-muted-line hover:bg-surface-soft"}`}
-                >
-                  <input
-                    type="radio"
-                    name="interview-mode"
-                    value={value}
-                    checked={draft.interviewMode === value}
-                    onChange={() => patchDraft({ interviewMode: value })}
-                    className="sr-only"
-                  />
-                  <Icon
-                    size={18}
-                    className="shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  <span>
-                    <span className="block text-[13px] font-semibold">
-                      {title}
-                    </span>
-                    <span className="mt-0.5 block text-[11px] leading-4 text-muted">
-                      {description}
-                    </span>
-                  </span>
+        <section className="border-t border-muted-line p-4 sm:p-5">
+          <div className="flex items-start gap-4">
+            <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-primary-soft text-[16px] font-bold text-primary">2</span>
+            <div className="min-w-0 pt-0.5">
+              <h2 className="text-[17px] font-bold tracking-[-0.025em] text-foreground">Session length</h2>
+              <p className="mt-1 text-[12px] leading-5 text-muted">Choose how long you want to practise.</p>
+            </div>
+          </div>
+
+          <fieldset className="mt-4 min-w-0">
+            <legend className="sr-only">Duration choices</legend>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[...new Set([...INTERVIEW_DURATION_OPTIONS, draft.durationMinutes])].sort((a, b) => a - b).map((minutes) => (
+                <label key={minutes} className={`relative flex min-h-[64px] cursor-pointer flex-col justify-center rounded-lg border px-3.5 py-2.5 transition duration-200 focus-within:ring-2 focus-within:ring-primary/25 ${draft.durationMinutes === minutes ? "border-accent bg-accent-surface/65" : "border-muted-line hover:bg-surface-soft"}`}>
+                  <input type="radio" name="duration-choice" value={minutes} checked={draft.durationMinutes === minutes} onChange={() => patchDraft({ durationMinutes: minutes })} className="sr-only" />
+                  <span className="text-[12px] font-bold text-foreground">{minutes} minutes</span>
+                  <span className="mt-0.5 text-[10px] text-muted">{interviewCreditCost(minutes)} credits</span>
+                  <span className={`absolute right-3 top-3 h-3.5 w-3.5 rounded-full border-[4px] ${draft.durationMinutes === minutes ? "border-accent" : "border-muted-line-strong"}`} aria-hidden="true" />
                 </label>
               ))}
             </div>
+            <label className="sr-only" htmlFor="interview-duration-select">Duration</label>
+            <select id="interview-duration-select" aria-label="Duration" value={draft.durationMinutes} onChange={(event) => patchDraft({ durationMinutes: Number(event.target.value) })} className="sr-only">
+              {[...new Set([...INTERVIEW_DURATION_OPTIONS, draft.durationMinutes])].sort((a, b) => a - b).map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
+            </select>
           </fieldset>
-          <Field label="Duration">
-            {(props) => (
-              <select
-                {...props}
-                value={draft.durationMinutes}
-                onChange={(event) =>
-                  patchDraft({ durationMinutes: Number(event.target.value) })
-                }
-                className={`${controlClass} sm:min-h-[72px]`}
-              >
-                {[...new Set([...INTERVIEW_DURATION_OPTIONS, draft.durationMinutes])]
-                  .sort((a, b) => a - b)
-                  .map((minutes) => (
-                    <option key={minutes} value={minutes}>
-                      {minutes} minutes
-                    </option>
-                  ))}
-              </select>
-            )}
-          </Field>
-        </div>
 
         <details
           open={moreOptions}
           onToggle={(event) => setMoreOptions(event.currentTarget.open)}
-          className="group mt-5 border-t border-muted-line pt-4"
+          className="group mt-5 border-t border-muted-line pt-3"
         >
-          <summary className="flex min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
+          <summary className="flex min-h-[42px] cursor-pointer list-none items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
             <SlidersHorizontal
-              size={15}
-              className="text-muted"
+              size={17}
+              className="text-primary"
               aria-hidden="true"
             />
-            <span className="text-[13px] font-semibold">More options</span>
+            <span className="text-[12px] font-bold">More options</span>
             <span className="ml-1 hidden text-[11px] text-muted sm:inline">
-              Focus, CV & interview stage
+              Focus areas, interview stage, market and CV
             </span>
             <ChevronDown
               size={16}
@@ -745,6 +739,25 @@ export function JobInterviewOnboardingClient({
             />
           </summary>
           <div className="grid gap-4 pt-4">
+            <fieldset className="min-w-0">
+              <legend className="mb-2 text-[12px] font-bold text-foreground">Interview format</legend>
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  { value: "text", title: "Text", description: "Type your answers", icon: MessageSquare },
+                  { value: "voice", title: "Voice", description: "Practise out loud", icon: Mic },
+                ] as const).map(({ value, title, description, icon: Icon }) => (
+                  <label key={value} className={`flex min-h-[56px] cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-2.5 transition duration-200 focus-within:ring-2 focus-within:ring-primary/25 ${draft.interviewMode === value ? "border-primary bg-primary-soft" : "border-muted-line hover:bg-surface-soft"}`}>
+                    <input type="radio" name="interview-mode" value={value} checked={draft.interviewMode === value} onChange={() => patchDraft({ interviewMode: value })} className="sr-only" />
+                    <Icon size={17} className="shrink-0 text-primary" aria-hidden="true" />
+                    <span className="min-w-0">
+                      <span className="block text-[12px] font-bold text-foreground">{title}</span>
+                      <span className="block text-[10px] leading-4 text-muted">{description}</span>
+                    </span>
+                    {draft.interviewMode === value ? <Check size={15} className="ml-auto text-primary" aria-hidden="true" /> : null}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Question focus">
                 {(props) => (
@@ -883,15 +896,9 @@ export function JobInterviewOnboardingClient({
             </button>
           </div>
         </details>
-      </fieldset>
+        </section>
 
-      <div className="border-t border-muted-line px-5 py-5 sm:px-7">
-        <p className="mb-4 text-[12px] leading-5 text-muted">
-          {focusLabel} · {market?.label ?? "Choose a market"} · English ·{" "}
-          {draft.candidateDocumentChoice === "use"
-            ? "CV included"
-            : "No CV needed"}
-        </p>
+        <div className="sticky bottom-0 z-10 border-t border-muted-line bg-accent-surface/95 px-5 py-4 backdrop-blur sm:px-6">
         {formError ? (
           <p
             role="alert"
@@ -918,14 +925,18 @@ export function JobInterviewOnboardingClient({
             </button>
           </div>
         ) : null}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[12px] text-muted">
-            Uses {interviewCreditCost(draft.durationMinutes)} credits · 2 per minute
-          </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent-strong"><Coins size={19} aria-hidden="true" /></span>
+            <p>
+              <span className="block text-[14px] font-bold text-foreground">{draft.durationMinutes} minutes · {interviewCreditCost(draft.durationMinutes)} credits</span>
+              <span className="mt-0.5 block text-[10px] text-muted">{focusLabel} · {market?.label ?? "Choose a market"}</span>
+            </p>
+          </div>
           <button
             type="submit"
             disabled={pending || !reviewedPlanAvailable}
-            className="inline-flex min-h-[46px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[14px] font-semibold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-wait disabled:opacity-70"
+            className="inline-flex min-h-[46px] min-w-[190px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[13px] font-bold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-wait disabled:opacity-70"
           >
             Start interview
             <ArrowRight size={17} aria-hidden="true" />
@@ -935,6 +946,53 @@ export function JobInterviewOnboardingClient({
           {statusText}
         </p>
       </div>
+      </fieldset>
+
+      <aside className="rounded-xl bg-primary-soft/80 p-5 text-foreground shadow-[inset_0_0_0_1px_rgba(0,83,58,0.04)] lg:sticky lg:top-[86px] sm:p-6" aria-labelledby="interview-summary-title">
+        <div className="flex items-center gap-3 border-b border-primary/10 pb-4">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-white/70 text-primary"><CalendarDays size={18} aria-hidden="true" /></span>
+          <h2 id="interview-summary-title" className="text-[15px] font-bold tracking-[-0.02em]">Your interview</h2>
+        </div>
+
+        <dl className="mt-4 grid gap-4">
+          {([
+            { label: "Role", value: roleLabel === "role" ? "Choose a role" : roleLabel, icon: BriefcaseBusiness },
+            { label: "Company", value: companyLabel, icon: FileText },
+            { label: "Experience level", value: seniorityLabel, icon: BarChart3 },
+            { label: "Format", value: draft.interviewMode === "voice" ? "Voice practice" : "Text practice", icon: draft.interviewMode === "voice" ? Mic : MessageSquare },
+            { label: "Duration", value: `${draft.durationMinutes} minutes (${interviewCreditCost(draft.durationMinutes)} credits)`, icon: Clock3 },
+          ] as const).map(({ label, value, icon: Icon }) => (
+            <div key={label} className="grid grid-cols-[24px_1fr] gap-3">
+              <Icon size={17} className="mt-0.5 text-primary" strokeWidth={2.1} aria-hidden="true" />
+              <div className="min-w-0">
+                <dt className="text-[11px] text-muted">{label}</dt>
+                <dd className="mt-0.5 truncate text-[13px] font-medium text-foreground">{value}</dd>
+              </div>
+            </div>
+          ))}
+        </dl>
+
+        <div className="mt-5 border-t border-primary/10 pt-5">
+          <div className="flex items-center gap-3">
+            <Sparkles size={18} className="text-primary" aria-hidden="true" />
+            <h3 className="text-[13px] font-bold">What to expect</h3>
+          </div>
+          <ul className="mt-3 grid gap-2 text-[11px] leading-5 text-muted">
+            <li className="flex gap-2"><Check size={15} className="mt-0.5 flex-none text-primary" aria-hidden="true" /><span>Questions tailored to your role and level</span></li>
+            <li className="flex gap-2"><Check size={15} className="mt-0.5 flex-none text-primary" aria-hidden="true" /><span>Realistic, conversational practice</span></li>
+          </ul>
+        </div>
+
+        <div className="mt-6 overflow-hidden rounded-xl bg-white/45 p-4">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold text-primary">Ready when you are</p>
+              <p className="mt-1 max-w-[17rem] text-[10px] leading-4 text-muted">You can adjust every option before the interview begins.</p>
+            </div>
+            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-accent-soft text-accent-strong"><MessageSquare size={22} aria-hidden="true" /></span>
+          </div>
+        </div>
+      </aside>
     </form>
   );
 }

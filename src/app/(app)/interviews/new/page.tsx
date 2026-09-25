@@ -57,17 +57,14 @@ export default async function InterviewOnboardingPage({
   );
 
   return (
-    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-6 text-foreground md:px-6 md:py-8">
-      <div className="mx-auto grid max-w-[720px] gap-6">
+    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-5 text-foreground md:px-6 lg:py-5">
+      <div className="mx-auto grid max-w-[1180px] gap-4">
         <header>
-          <p className="text-[12px] font-semibold text-primary">
-            Mock interview
-          </p>
-          <h1 className="mt-2 text-[clamp(26px,3vw,34px)] font-semibold leading-tight tracking-[-0.04em] text-balance">
+          <h1 className="text-[clamp(28px,3.2vw,40px)] font-bold leading-[1.05] tracking-[-0.045em] text-balance">
             Set up your interview
           </h1>
-          <p className="mt-2 text-[14px] leading-6 text-muted">
-            Choose your role and format. We’ll take care of the questions.
+          <p className="mt-1.5 text-[14px] leading-6 text-muted">
+            We’ll tailor the questions to your role and experience.
           </p>
         </header>
 

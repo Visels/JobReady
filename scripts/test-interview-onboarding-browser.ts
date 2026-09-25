@@ -31,7 +31,7 @@ async function main() {
         const options = interviewOnboardingFixture();
         if (new URLSearchParams(location.search).has('empty')) { options.publicTargets=[]; options.privateTargets=[]; options.candidateDocuments=[]; }
         const initialDraft = createInitialInterviewOnboardingDraft({options, publicJobSlug: new URLSearchParams(location.search).get('job')});
-        createRoot(document.getElementById('root')).render(<main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-6 text-foreground md:px-6 md:py-8"><div className="mx-auto grid max-w-[720px] gap-6">${header}<JobInterviewOnboardingClient options={options} initialDraft={initialDraft}/></div></main>);`,
+        createRoot(document.getElementById('root')).render(<main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-5 text-foreground md:px-6 lg:py-5"><div className="mx-auto grid max-w-[1180px] gap-4">${header}<JobInterviewOnboardingClient options={options} initialDraft={initialDraft}/></div></main>);`,
       resolveDir: root,
       loader: "tsx",
     },
@@ -67,7 +67,7 @@ async function main() {
       if (url.pathname === "/") {
         response.setHeader("Content-Type", "text/html");
         response.end(
-          '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/form.css"><style>body{margin:0;padding-top:64px;font-family:Arial,sans-serif}#root{margin-left:220px}@media(max-width:767px){body{padding-top:16px}#root{margin-left:0}}</style></head><body><div id="root"></div><script src="/form.js"></script></body></html>',
+          '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/form.css"><style>body{margin:0;padding-top:64px;font-family:Arial,sans-serif}#root{margin-left:276px}@media(max-width:1023px){body{padding-top:16px}#root{margin-left:0}}</style></head><body><div id="root"></div><script src="/form.js"></script></body></html>',
         );
       } else {
         response.setHeader(
