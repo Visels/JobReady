@@ -329,8 +329,8 @@ function DesktopSidebar({
   return (
     <aside
       className={classes(
-        "fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-white/8 bg-primary px-2.5 py-4 text-white transition-[width] duration-300 ease-soft motion-reduce:transition-none lg:flex",
-        collapsed ? "w-[68px]" : "w-[216px]",
+        "fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-white/8 bg-[radial-gradient(circle_at_15%_4%,rgba(16,128,92,0.34),transparent_28%),var(--color-primary)] px-3 py-4 text-white transition-[width] duration-300 ease-soft motion-reduce:transition-none lg:flex",
+        collapsed ? "w-[72px]" : "w-[276px]",
       )}
       aria-label="Primary workspace navigation"
     >
@@ -380,7 +380,7 @@ function DesktopSidebar({
         )}
       </div>
 
-      <nav className="mt-6 flex-1 space-y-5">
+      <nav className="mt-6 flex-1 space-y-5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="space-y-1">
           {workspaceItems.map((item) => (
             <NavLink
@@ -740,7 +740,7 @@ function WorkspaceTopBar({
   }, [plan]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-muted-line bg-background/92 px-4 py-2 backdrop-blur md:px-5 lg:px-6">
+    <header className="sticky top-0 z-20 border-b border-muted-line bg-background/94 px-4 py-2 backdrop-blur md:px-6 lg:px-8">
       <div className="flex min-h-12 items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[9px] font-medium text-muted-subtle">
@@ -754,8 +754,16 @@ function WorkspaceTopBar({
         <div className="flex items-center gap-2">
           <Link
             href={context.action.href}
-            className="hidden min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3.5 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none sm:inline-flex"
+            className={classes(
+              "hidden min-h-9 items-center justify-center gap-2 rounded-lg border px-3.5 text-[11px] font-semibold transition duration-200 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none sm:inline-flex",
+              pathname === "/dashboard"
+                ? "border-accent bg-accent text-accent-foreground shadow-[0_8px_20px_rgba(216,161,46,0.2)] hover:bg-accent/90"
+                : "border-muted-line bg-surface text-foreground hover:border-muted-line-strong hover:bg-surface-soft",
+            )}
           >
+            {pathname === "/dashboard" ? (
+              <Mic className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+            ) : null}
             {context.action.label}
           </Link>
           <DashboardNotificationsPopover notifications={notifications} />
@@ -949,7 +957,7 @@ export function AppShell({
       <div
         className={classes(
           "min-h-[100dvh] bg-background pb-24 transition-[padding] duration-300 ease-soft motion-reduce:transition-none lg:pb-0",
-          collapsed ? "lg:pl-[68px]" : "lg:pl-[216px]",
+          collapsed ? "lg:pl-[72px]" : "lg:pl-[276px]",
         )}
       >
         <WorkspaceTopBar

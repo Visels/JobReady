@@ -2,6 +2,15 @@ import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Building2,
+  Coins,
+  FileText,
+  Mic,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { DashboardBodySkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { DashboardGreeting } from "@/components/dashboard/DashboardGreeting";
 import { CheckoutStatusToast } from "@/components/ui/CheckoutStatusToast";
@@ -74,10 +83,10 @@ function PrimaryLink({
       href={href}
       className={
         inverse
-          ? "inline-flex min-h-9 items-center justify-center rounded-lg bg-white px-3.5 text-[11px] font-semibold text-primary transition duration-200 ease-soft hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-press motion-reduce:transition-none"
+          ? "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-[12px] font-semibold text-primary shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition duration-200 ease-soft hover:-translate-y-0.5 hover:bg-white/94 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-press motion-reduce:transition-none"
           : subtle
-          ? "inline-flex min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3.5 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
-          : "inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3.5 text-[11px] font-semibold text-white transition duration-200 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+          ? "inline-flex min-h-9 items-center justify-center rounded-lg border border-muted-line bg-surface px-3.5 text-[11px] font-semibold text-foreground transition duration-200 ease-soft hover:-translate-y-0.5 hover:border-muted-line-strong hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+          : "inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3.5 text-[11px] font-semibold text-white transition duration-200 ease-soft hover:-translate-y-0.5 hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
       }
     >
       {children}
@@ -100,7 +109,7 @@ function SectionHeader({
         <p className="text-[10px] font-semibold text-muted-subtle">
           {eyebrow}
         </p>
-        <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground">
+        <h2 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-foreground">
           {title}
         </h2>
       </div>
@@ -121,20 +130,31 @@ function EmptyNote({
   body,
   href,
   label,
+  icon: Icon,
+  iconClassName = "bg-primary-soft text-primary",
 }: {
   title: string;
   body: string;
   href: string;
   label: string;
+  icon?: LucideIcon;
+  iconClassName?: string;
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-muted-line bg-surface-soft p-4">
-      <p className="text-[13px] font-semibold text-foreground">{title}</p>
-      <p className="mt-1.5 text-[11px] leading-[1.55] text-muted">{body}</p>
-      <div className="mt-3">
-        <PrimaryLink href={href} subtle>
-          {label}
-        </PrimaryLink>
+    <div className="flex min-h-[106px] items-center gap-4 rounded-xl border border-dashed border-muted-line bg-white/60 p-4">
+      {Icon ? (
+        <span className={`grid h-14 w-14 flex-none place-items-center rounded-full ${iconClassName}`}>
+          <Icon className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
+        </span>
+      ) : null}
+      <div className="min-w-0">
+        <p className="text-[13px] font-semibold text-foreground">{title}</p>
+        <p className="mt-0.5 text-[11px] leading-[1.5] text-muted">{body}</p>
+        <div className="mt-2.5">
+          <PrimaryLink href={href} subtle>
+            {label}
+          </PrimaryLink>
+        </div>
       </div>
     </div>
   );
@@ -142,13 +162,13 @@ function EmptyNote({
 
 function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
   return (
-    <header className="border-b border-muted-line pb-5 pt-1 md:pb-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <header className="border-b border-muted-line pb-5 pt-2 md:pb-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-[720px]">
           <p className="text-[11px] font-semibold text-primary">
             {data.isFirstLogin ? "First sign-in" : "Welcome back"}
           </p>
-          <h1 className="mt-1.5 text-[clamp(2rem,3.4vw,3.15rem)] font-semibold leading-[1.02] tracking-[-0.045em] text-foreground text-balance">
+          <h1 className="mt-1.5 text-[clamp(2.4rem,3.25vw,3.75rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-foreground text-balance">
             <DashboardGreeting
               name={displayFirstName(data.user.name)}
               initialGreeting={greeting()}
@@ -158,19 +178,26 @@ function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
             Your next step and recent progress, all in one place.
           </p>
         </div>
-        <div className="min-w-[210px] rounded-xl border border-primary/10 bg-primary-soft px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-[10px] font-medium text-muted-subtle">Access</p>
-            <span className="h-1.5 w-1.5 rounded-full bg-success" />
+        <div className="min-w-[290px] rounded-xl border border-primary/10 bg-primary-soft px-4 py-3.5">
+          <div className="flex items-center gap-3.5">
+            <span className="grid h-12 w-12 flex-none place-items-center rounded-xl bg-primary-tint text-primary">
+              <Coins className="h-6 w-6" strokeWidth={2.2} aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[10px] font-medium text-muted-subtle">Access</p>
+                <span className="h-2 w-2 rounded-full bg-success" />
+              </div>
+              <p className="mt-0.5 text-[13px] font-semibold text-foreground">
+                {data.user.planName}
+              </p>
+              <p className="mt-0.5 text-[10px] leading-4 text-muted">
+                {data.user.creditBalance > 0
+                  ? `${data.user.creditBalance} credit${data.user.creditBalance === 1 ? "" : "s"} available.`
+                  : "Jobs and application tracking remain available."}
+              </p>
+            </div>
           </div>
-          <p className="mt-1 text-[13px] font-semibold text-foreground">
-            {data.user.planName}
-          </p>
-          <p className="mt-0.5 text-[10px] leading-4 text-muted">
-            {data.user.creditBalance > 0
-              ? `${data.user.creditBalance} credit${data.user.creditBalance === 1 ? "" : "s"} available.`
-              : "Jobs and application tracking remain available."}
-          </p>
         </div>
       </div>
     </header>
@@ -251,11 +278,12 @@ function NextBestAction({ data }: { data: CandidateWorkspaceData }) {
   const action = data.nextBestAction;
 
   return (
-    <section className="rounded-2xl border border-primary/12 bg-primary px-4 py-4 text-white md:px-5">
+    <section className="relative overflow-hidden rounded-2xl border border-primary/12 bg-primary px-5 py-4.5 text-white md:px-6">
+      <span aria-hidden="true" className="pointer-events-none absolute -right-10 -top-32 h-72 w-72 rotate-[28deg] rounded-[4rem] border-[38px] border-white/[0.045]" />
       <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
-        <div className="flex gap-3.5">
+        <div className="relative flex gap-4">
           <span
-            className="grid h-9 w-9 flex-none place-items-center rounded-lg border border-white/15 bg-white/10 text-[9px] font-bold text-white"
+            className="grid h-9 min-w-12 flex-none place-items-center rounded-lg bg-accent px-2 text-[9px] font-bold text-accent-foreground shadow-[0_7px_18px_rgba(0,0,0,0.12)]"
           >
             NEXT
           </span>
@@ -271,7 +299,12 @@ function NextBestAction({ data }: { data: CandidateWorkspaceData }) {
             </p>
           </div>
         </div>
-        <PrimaryLink href={action.href} inverse>{action.label}</PrimaryLink>
+        <span className="relative">
+          <PrimaryLink href={action.href} inverse>
+            {action.label}
+            <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+          </PrimaryLink>
+        </span>
       </div>
     </section>
   );
@@ -279,30 +312,56 @@ function NextBestAction({ data }: { data: CandidateWorkspaceData }) {
 
 function QuickStartRow({ data }: { data: CandidateWorkspaceData }) {
   const choiceStyles = {
-    jobs: "border-primary/10 bg-surface-info hover:border-primary/20",
-    cv: "border-primary/12 bg-primary-soft hover:border-primary/25",
-    interview: "border-accent/20 bg-accent-surface hover:border-accent/35",
+    jobs: {
+      card: "border-[#bfd3ff] bg-[#eef4ff] hover:border-[#94b6ff]",
+      icon: "bg-[#dce8ff] text-[#2459c4]",
+      arrow: "bg-[#e2ecff] text-[#2459c4]",
+      Icon: BriefcaseBusiness,
+    },
+    cv: {
+      card: "border-primary/12 bg-primary-soft hover:border-primary/25",
+      icon: "bg-primary-tint text-primary",
+      arrow: "bg-white/55 text-primary",
+      Icon: FileText,
+    },
+    interview: {
+      card: "border-accent/20 bg-accent-surface hover:border-accent/35",
+      icon: "bg-accent-soft text-accent-strong",
+      arrow: "bg-white/55 text-accent-strong",
+      Icon: Mic,
+    },
   } as const;
 
   return (
     <section className="grid gap-3 lg:grid-cols-3">
-      {data.launchChoices.map((choice) => (
-        <Link
-          key={choice.id}
-          href={choice.href}
-          className={`group flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 transition duration-200 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none ${choiceStyles[choice.id]}`}
-        >
-          <span>
-            <span className="block text-[11px] font-semibold text-foreground">
-              {choice.title}
+      {data.launchChoices.map((choice) => {
+        const styles = choiceStyles[choice.id];
+        const Icon = styles.Icon;
+        return (
+          <Link
+            key={choice.id}
+            href={choice.href}
+            className={`group flex min-h-[66px] items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 transition duration-200 ease-soft hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none ${styles.card}`}
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <span className={`grid h-11 w-11 flex-none place-items-center rounded-xl ${styles.icon}`}>
+                <Icon className="h-5 w-5" strokeWidth={2.15} aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[13px] font-semibold text-foreground">
+                  {choice.title}
+                </span>
+                <span className="mt-0.5 block truncate text-[10px] text-muted">
+                  {choice.label}
+                </span>
+              </span>
             </span>
-            <span className="mt-0.5 block text-[10px] text-muted">
-              {choice.label}
+            <span className={`grid h-8 w-8 flex-none place-items-center rounded-full transition-transform duration-200 group-hover:translate-x-0.5 ${styles.arrow}`}>
+              <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
             </span>
-          </span>
-          <span className="text-[14px] text-muted-subtle transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </section>
   );
 }
@@ -354,6 +413,8 @@ function SavedJobsPanel({ jobs }: { jobs: WorkspaceSavedJob[] }) {
             body="Jobs that need your attention will appear here."
             href="/find-jobs"
             label="Find jobs"
+            icon={BriefcaseBusiness}
+            iconClassName="bg-[#dce8ff] text-[#2459c4]"
           />
         )}
       </div>
@@ -415,6 +476,7 @@ function ApplicationPipeline({
             body="Track a saved job when you are ready to apply."
             href="/saved-jobs"
             label="Use saved jobs"
+            icon={FileText}
           />
         </div>
       )}
@@ -454,7 +516,9 @@ function DocumentPanel({
             title="No base document yet"
             body="Add your base CV to create role-specific versions."
             href="/cv-resume"
-            label="Open CV workspace"
+            label="Create base document"
+            icon={FileText}
+            iconClassName="bg-accent-soft text-accent-strong"
           />
         )}
 
@@ -495,7 +559,7 @@ function InterviewPanel({
   trend: CandidateWorkspaceData["reportTrend"];
 }) {
   return (
-    <article className="rounded-2xl border border-accent/20 bg-accent-surface p-4">
+    <article className="rounded-2xl border border-[#bfd3ff] bg-[#eef4ff] p-4">
       <SectionHeader
         eyebrow="Interviews"
         title="Reports and next practice"
@@ -539,6 +603,8 @@ function InterviewPanel({
             body="Start a text or voice mock interview for your target role."
             href="/interviews/new"
             label="Set up practice"
+            icon={Building2}
+            iconClassName="bg-[#dce8ff] text-[#2459c4]"
           />
         )}
 
@@ -633,9 +699,9 @@ export default async function DashboardPage({
   const dataPromise = getDashboardData(user.id);
 
   return (
-    <main className="min-h-[calc(100dvh-72px)] px-4 py-4 text-foreground md:px-5 lg:px-6">
+    <main className="min-h-[calc(100dvh-64px)] px-4 py-4 text-foreground md:px-6 lg:px-8 lg:py-5">
       <CheckoutStatusToast status={params.checkout} />
-      <div className="mx-auto max-w-[1120px]">
+      <div className="mx-auto max-w-[1440px]">
         <Suspense fallback={<DashboardBodySkeleton />}>
           <DashboardBody dataPromise={dataPromise} />
         </Suspense>
