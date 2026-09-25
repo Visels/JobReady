@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
+  ArrowLeft,
   BarChart3,
   Bookmark,
   BookOpen,
@@ -200,7 +201,7 @@ const pageContexts = [
     match: (pathname: string) => pathname.startsWith("/billing"),
     title: "Credits & Billing",
     kicker: "Account access",
-    action: { href: "/interviews/new", label: "Use a credit" },
+    action: { href: "/dashboard", label: "Back to workspace" },
   },
   {
     match: (pathname: string) => pathname.startsWith("/admin"),
@@ -763,6 +764,8 @@ function WorkspaceTopBar({
           >
             {pathname === "/dashboard" ? (
               <Mic className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+            ) : pathname.startsWith("/billing") ? (
+              <ArrowLeft className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
             ) : null}
             {context.action.label}
           </Link>

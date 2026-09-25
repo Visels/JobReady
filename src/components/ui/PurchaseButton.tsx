@@ -85,7 +85,14 @@ export function PurchaseButton({
 }: {
   label: string;
   plan?: PaidPlan;
-  variant?: "pill" | "sidebar" | "dashboard" | "accountMenu" | "pricing";
+  variant?:
+    | "pill"
+    | "sidebar"
+    | "dashboard"
+    | "accountMenu"
+    | "pricing"
+    | "billing"
+    | "billingFeatured";
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -160,6 +167,10 @@ export function PurchaseButton({
         ? "group flex min-h-10 w-full items-center gap-2 rounded-lg px-2 text-left text-[12px] font-semibold leading-4 text-surface/86 transition hover:bg-surface/10 active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
       : variant === "pricing"
         ? "group inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-primary px-5 text-sm font-bold text-primary-contrast transition duration-500 ease-soft hover:bg-primary/92 active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+      : variant === "billingFeatured"
+        ? "group inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-white px-5 text-[13px] font-black text-primary shadow-[0_8px_22px_rgba(0,0,0,0.08)] transition duration-300 ease-soft hover:bg-[#f2faf6] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
+      : variant === "billing"
+        ? "group inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-primary bg-white px-5 text-[13px] font-black text-primary transition duration-300 ease-soft hover:bg-primary-soft active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
       : variant === "dashboard"
         ? "group inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-[#d6dfdc] bg-white px-3.5 text-[13px] font-medium text-primary shadow-[0_10px_28px_rgba(15,47,40,0.04)] transition duration-300 ease-soft hover:-translate-y-0.5 hover:border-[#b9cbc5] active:scale-press disabled:cursor-not-allowed disabled:opacity-60"
       : "group inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-surface py-1.5 pl-6 pr-1.5 text-sm font-bold text-primary transition duration-500 ease-soft hover:bg-primary-tint active:scale-press disabled:cursor-not-allowed disabled:opacity-60";
@@ -222,7 +233,10 @@ export function PurchaseButton({
         >
           {loading ? "Opening checkout" : label}
         </span>
-        {variant !== "dashboard" && variant !== "accountMenu" ? (
+        {variant !== "dashboard" &&
+        variant !== "accountMenu" &&
+        variant !== "billing" &&
+        variant !== "billingFeatured" ? (
           <span className={iconClass}>
             <Icon className="h-4 w-4" strokeWidth={1.35} />
           </span>
