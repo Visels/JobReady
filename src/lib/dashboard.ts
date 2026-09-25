@@ -33,7 +33,6 @@ type DashboardServiceInput = {
 };
 
 type UserPlanSource = {
-  credits: number;
   purchases: Array<{
     createdAt: Date;
     plan: string | null;
@@ -128,27 +127,22 @@ function addDays(date: Date, days: number) {
 
 function getPlan(
   source: UserPlanSource,
-  balances: { interviewCredits?: number; tailoringCredits?: number } = {},
+  balances: { creditBalance?: number } = {},
 ): SidebarPlan {
   const activeAccess = getActivePaidAccess(source.purchases);
   const daysRemaining = activeAccess?.daysRemaining ?? 0;
-  const interviewCredits = balances.interviewCredits ?? 0;
-  const tailoringCredits = balances.tailoringCredits ?? 0;
+  const creditBalance = balances.creditBalance ?? 0;
   const planName = activeAccess
     ? `${purchasePlanName(activeAccess.purchase)}`
-    : interviewCredits > 0 || tailoringCredits > 0
+    : creditBalance > 0
       ? "Jiandae credits"
-    : source.credits > 0
-      ? "Starter diagnostic"
-      : "No active credits";
+    : "No active credits";
 
   return {
     name: planName,
     daysRemaining,
-    freeSessionsRemaining: source.credits,
     hasUnlimitedSessions: false,
-    interviewCredits,
-    tailoringCredits,
+    creditBalance,
     currentVisaType: null,
   };
 }
@@ -156,7 +150,7 @@ function getPlan(
 async function ledgerBalance(
   db: PrismaClient,
   userId: string,
-  productAction: "interview" | "tailoring",
+  productAction: "credit",
 ) {
   const entries = await db.creditLedgerEntry.findMany({
     where: { userId, productAction },
@@ -965,7 +959,6 @@ export async function getDashboardSidebarPlan(
     db.user.findUnique({
       where: { id: userId },
       select: {
-        credits: true,
         purchases: {
           orderBy: { createdAt: "desc" },
           take: 5,
@@ -988,7 +981,7 @@ export async function getDashboardSidebarPlan(
       },
     }),
   ]);
-  const [candidateDocumentCount, urgentSavedJobCount, interviewCredits] =
+  const [candidateDocumentCount, urgentSavedJobCount, creditBalance] =
     await Promise.all([
       db.candidateDocument.count({
         where: { userId, deletedAt: null, status: "active" },
@@ -1005,13 +998,11 @@ export async function getDashboardSidebarPlan(
           },
         },
       }),
-      ledgerBalance(db, userId, "interview"),
+      ledgerBalance(db, userId, "credit"),
     ]);
-  const tailoringCredits = await ledgerBalance(db, userId, "tailoring");
 
-  const plan = getPlan(user ?? { credits: 0, purchases: [] }, {
-    interviewCredits,
-    tailoringCredits,
+  const plan = getPlan(user ?? { purchases: [] }, {
+    creditBalance,
   });
 
   return {
@@ -1022,11 +1013,7 @@ export async function getDashboardSidebarPlan(
     unreadNotificationCount:
       urgentSavedJobCount +
       (openApplicationCount > 0 ? 1 : 0) +
-      ((plan.interviewCredits ?? 0) === 0 &&
-      (plan.tailoringCredits ?? 0) === 0 &&
-      plan.freeSessionsRemaining === 0
-        ? 1
-        : 0),
+      (plan.creditBalance === 0 ? 1 : 0),
   };
 }
 
@@ -1046,7 +1033,6 @@ export async function getDashboardData(
         id: true,
         name: true,
         email: true,
-        credits: true,
         purchases: {
           orderBy: { createdAt: "desc" },
           take: 5,
@@ -1169,14 +1155,10 @@ export async function getDashboardData(
         take: 24,
       }),
     ]);
-  const [interviewCredits, tailoringCredits] = await Promise.all([
-    ledgerBalance(db, userId, "interview"),
-    ledgerBalance(db, userId, "tailoring"),
-  ]);
+  const creditBalance = await ledgerBalance(db, userId, "credit");
 
-  const plan = getPlan(user ?? { credits: 0, purchases: [] }, {
-    interviewCredits,
-    tailoringCredits,
+  const plan = getPlan(user ?? { purchases: [] }, {
+    creditBalance,
   });
   const savedJobs = mapSavedJobs(savedJobRecords, now);
   const documents = mapDocuments(documentRecords);
@@ -1218,7 +1200,7 @@ export async function getDashboardData(
       id: user?.id ?? userId,
       name: user?.name ?? null,
       email: user?.email ?? null,
-      freeSessionsRemaining: user?.credits ?? 0,
+      creditBalance,
       planName: plan.name,
       daysRemaining: plan.daysRemaining,
     },

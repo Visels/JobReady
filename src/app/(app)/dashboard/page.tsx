@@ -165,11 +165,9 @@ function DashboardHero({ data }: { data: CandidateWorkspaceData }) {
             {data.user.planName}
           </p>
           <p className="mt-0.5 text-[10px] leading-4 text-muted">
-            {data.user.daysRemaining > 0
-              ? `${data.user.daysRemaining} days of interview access remaining.`
-              : data.user.freeSessionsRemaining > 0
-                ? `${data.user.freeSessionsRemaining} free interview credit available.`
-                : "Jobs and application tracking remain available."}
+            {data.user.creditBalance > 0
+              ? `${data.user.creditBalance} credit${data.user.creditBalance === 1 ? "" : "s"} available.`
+              : "Jobs and application tracking remain available."}
           </p>
         </div>
       </div>

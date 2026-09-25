@@ -206,9 +206,9 @@ async function testFlutterwaveFulfillment(userId: string) {
 
   const reconciliation = await getEntitlementReconciliation({
     userId,
-    productAction: "interview",
+    productAction: "credit",
   });
-  assert.equal(reconciliation.balance, 1);
+  assert.equal(reconciliation.balance, 30);
 }
 
 async function testFailedThenPaidRecovery(userId: string) {
@@ -260,15 +260,15 @@ async function testFailedThenPaidRecovery(userId: string) {
 
   const reconciliation = await getEntitlementReconciliation({
     userId,
-    productAction: "tailoring",
+    productAction: "credit",
   });
-  assert.equal(reconciliation.balance, 1);
+  assert.equal(reconciliation.balance, 40);
 }
 
 async function testFailedPreparationPolicy(userId: string) {
   const grant = await grantEntitlement({
     userId,
-    productAction: "tailoring",
+    productAction: "credit",
     units: 1,
     idempotencyKey: `task22:tailoring-policy:grant:${userId}`,
     metadata: { source: "task22_failed_preparation_policy" },
@@ -277,22 +277,22 @@ async function testFailedPreparationPolicy(userId: string) {
 
   const reservation = await reserveEntitlement({
     userId,
-    productAction: "tailoring",
+    productAction: "credit",
     units: 1,
     idempotencyKey: `task22:tailoring-policy:reserve:${userId}`,
     expiresAt: new Date(Date.now() + 15 * 60 * 1000),
     metadata: { source: "task22_failed_preparation_policy" },
   });
-  assert.equal(reservation.reconciliation.balance, 1);
+  assert.equal(reservation.reconciliation.balance, 40);
 
   const release = await releaseReservation({
     userId,
-    productAction: "tailoring",
+    productAction: "credit",
     relatedEntryId: reservation.entry.id,
     idempotencyKey: `task22:tailoring-policy:release:${userId}`,
     metadata: { reason: "preparation_failed_before_chargeable_output" },
   });
-  assert.equal(release.reconciliation.balance, 2);
+  assert.equal(release.reconciliation.balance, 41);
 }
 
 async function testCostReporting(userId: string) {

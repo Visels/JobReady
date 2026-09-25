@@ -1,10 +1,10 @@
 import { Prisma, type CreditLedgerEntry } from "@prisma/client";
 import { publicProductConfig } from "@/config/public";
-import { FREE_SESSION_ALLOWANCE } from "@/lib/plans";
+import { SIGNUP_CREDITS } from "@/lib/credits";
 import { prisma } from "@/lib/prisma";
 
-export type LedgerProductActionName = "interview" | "tailoring";
-export type PaidPreparationAction = LedgerProductActionName;
+export type LedgerProductActionName = "credit";
+export type PaidPreparationAction = "interview" | "tailoring";
 export type FreeJobAction =
   | "browse_jobs"
   | "save_job"
@@ -122,7 +122,7 @@ export class EntitlementLedgerError extends Error {
 }
 
 function assertProductAction(value: LedgerProductActionName) {
-  if (!PAID_PREPARATION_ACTIONS.includes(value)) {
+  if (value !== "credit") {
     throw new EntitlementLedgerError(
       "invalid_input",
       `Unsupported paid preparation action: ${value}`,
@@ -444,28 +444,34 @@ export async function grantEntitlement(input: GrantEntitlementInput) {
 
 export async function ensureStarterInterviewEntitlement(input: {
   userId: string;
-  now?: Date;
 }) {
-  if (FREE_SESSION_ALLOWANCE <= 0) return;
+  if (SIGNUP_CREDITS <= 0) return;
 
-  const idempotencyKey = `starter-diagnostic:${input.userId}:interview`;
+  const idempotencyKey = `signup-credits:v2:${input.userId}`;
   const existing = await prisma.creditLedgerEntry.findUnique({
     where: { idempotencyKey },
     select: { id: true },
   });
   if (existing) return;
 
-  const now = input.now ?? new Date();
+  const legacyStarter = await prisma.creditLedgerEntry.findUnique({
+    where: { idempotencyKey: `starter-diagnostic:${input.userId}:interview` },
+    select: { units: true },
+  });
+  const units = Math.max(0, SIGNUP_CREDITS - (legacyStarter?.units ?? 0));
+  if (units === 0) return;
+
   await grantEntitlement({
     userId: input.userId,
-    productAction: "interview",
-    units: FREE_SESSION_ALLOWANCE,
+    productAction: "credit",
+    units,
     idempotencyKey,
-    expiresAt: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
     metadata: {
-      source: "starter_diagnostic",
+      source: "signup_credits",
       plan: "starter-diagnostic",
       lifecycle: "free_signup_allowance",
+      signupCredits: SIGNUP_CREDITS,
+      legacyStarterCredits: legacyStarter?.units ?? 0,
     },
   });
 }
@@ -925,7 +931,7 @@ export async function adjustEntitlement(input: AdjustmentInput) {
 export function requiresPaidEntitlement(
   action: PaidPreparationAction | FreeJobAction,
 ) {
-  return PAID_PREPARATION_ACTIONS.includes(action as LedgerProductActionName);
+  return PAID_PREPARATION_ACTIONS.includes(action as PaidPreparationAction);
 }
 
 export function isFreeJobAction(action: PaidPreparationAction | FreeJobAction) {

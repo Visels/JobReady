@@ -118,7 +118,7 @@ async function createTestUser(label: string) {
 async function grantInterviewCredits(userId: string, units: number) {
   await grantEntitlement({
     userId,
-    productAction: "interview",
+    productAction: "credit",
     units,
     idempotencyKey: `task13-grant-${userId}-${suffix()}`,
     metadata: {
@@ -140,8 +140,8 @@ async function main() {
     where: { id: JOBREADY_REFERENCE_FIXTURE_IDS.syntheticUser },
   });
   const otherUser = await createTestUser("other-user");
-  await grantInterviewCredits(fixtureUser.id, 20);
-  await grantInterviewCredits(otherUser.id, 2);
+  await grantInterviewCredits(fixtureUser.id, 600);
+  await grantInterviewCredits(otherUser.id, 60);
 
   const scenarioAInput = createJobInterviewSessionRequestSchema.parse({
     idempotencyKey: `scenario-a-${suffix()}`,

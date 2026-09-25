@@ -213,7 +213,7 @@ const textSessionInclude = {
   },
   creditLedgerEntries: {
     where: {
-      productAction: "interview",
+      productAction: "credit",
     },
     orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   },
@@ -1488,7 +1488,7 @@ export class JobInterviewTextSessionService {
     try {
       await consumeReservation({
         userId: input.userId,
-        productAction: "interview",
+        productAction: "credit",
         relatedEntryId: input.reserve.id,
         idempotencyKey: `job-interview-session:${input.sessionId}:consume:text-complete`,
         metadata: {

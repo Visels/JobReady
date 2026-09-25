@@ -280,6 +280,7 @@ enum CreditLedgerAction {
 }
 
 enum LedgerProductAction {
+  credit
   interview
   tailoring
 }

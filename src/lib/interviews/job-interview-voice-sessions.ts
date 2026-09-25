@@ -101,7 +101,7 @@ const voiceSessionInclude = {
   },
   creditLedgerEntries: {
     where: {
-      productAction: "interview",
+      productAction: "credit",
     },
     orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   },
@@ -1086,7 +1086,7 @@ export class JobInterviewVoiceSessionService {
     try {
       await consumeReservation({
         userId: input.userId,
-        productAction: "interview",
+        productAction: "credit",
         relatedEntryId: input.reserve.id,
         idempotencyKey: `job-interview-session:${input.sessionId}:consume:voice-complete`,
         metadata: {

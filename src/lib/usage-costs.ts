@@ -1,6 +1,6 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { prisma as defaultPrisma } from "@/lib/prisma";
-import type { LedgerProductActionName } from "@/lib/plans";
+type UsageProductActionName = "interview" | "tailoring";
 
 type UsageCostServiceInput = {
   prisma?: PrismaClient;
@@ -10,7 +10,7 @@ type RecordModelUsageInput = {
   userId?: string | null;
   interviewSessionId?: string | null;
   tailoringRunId?: string | null;
-  productAction?: LedgerProductActionName | null;
+  productAction?: UsageProductActionName | null;
   pricingPlanSlug?: string | null;
   preparationMode?: string | null;
   provider: string;
@@ -43,7 +43,7 @@ type RecordModelUsageInput = {
 type RecordStorageUsageInput = {
   userId?: string | null;
   documentVersionId?: string | null;
-  productAction?: LedgerProductActionName | null;
+  productAction?: UsageProductActionName | null;
   pricingPlanSlug?: string | null;
   preparationMode?: string | null;
   operation:

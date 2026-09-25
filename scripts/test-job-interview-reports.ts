@@ -40,7 +40,7 @@ function suffix() {
 async function grantInterviewCredits(userId: string, units: number) {
   await grantEntitlement({
     userId,
-    productAction: "interview",
+    productAction: "credit",
     units,
     idempotencyKey: `task19-grant-${userId}-${suffix()}`,
     metadata: {
@@ -280,7 +280,7 @@ async function main() {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: JOBREADY_REFERENCE_FIXTURE_IDS.syntheticUser },
   });
-  await grantInterviewCredits(user.id, 100);
+  await grantInterviewCredits(user.id, 1000);
 
   const sessionService = new JobInterviewSessionService({
     prisma,

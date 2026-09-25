@@ -45,7 +45,7 @@ function assertTextSessionError(
 async function grantInterviewCredits(userId: string, units: number) {
   await grantEntitlement({
     userId,
-    productAction: "interview",
+    productAction: "credit",
     units,
     idempotencyKey: `task18-grant-${userId}-${suffix()}`,
     metadata: {
@@ -126,7 +126,7 @@ async function reserveAndConsumeCounts(sessionId: string) {
   const reserve = await prisma.creditLedgerEntry.findFirst({
     where: {
       interviewSessionId: sessionId,
-      productAction: "interview",
+      productAction: "credit",
       action: "reserve",
     },
   });
@@ -134,7 +134,7 @@ async function reserveAndConsumeCounts(sessionId: string) {
 
   const consumeCount = await prisma.creditLedgerEntry.count({
     where: {
-      productAction: "interview",
+      productAction: "credit",
       action: "consume",
       relatedEntryId: reserve.id,
     },
@@ -316,8 +316,8 @@ async function main() {
     where: { id: JOBREADY_REFERENCE_FIXTURE_IDS.syntheticUser },
   });
   const otherUser = await createOtherUser();
-  await grantInterviewCredits(fixtureUser.id, 120);
-  await grantInterviewCredits(otherUser.id, 2);
+  await grantInterviewCredits(fixtureUser.id, 600);
+  await grantInterviewCredits(otherUser.id, 60);
 
   const sessionService = new JobInterviewSessionService({
     prisma,

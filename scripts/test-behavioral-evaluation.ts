@@ -120,7 +120,7 @@ function assertImprovedAnswerDoesNotInventFixtureFacts(
 async function grantInterviewCredits(userId: string, units: number) {
   await grantEntitlement({
     userId,
-    productAction: "interview",
+    productAction: "credit",
     units,
     idempotencyKey: `task15-grant-${userId}-${suffix()}`,
     metadata: {
@@ -351,7 +351,7 @@ async function main() {
   const fixtureUser = await prisma.user.findUniqueOrThrow({
     where: { id: JOBREADY_REFERENCE_FIXTURE_IDS.syntheticUser },
   });
-  await grantInterviewCredits(fixtureUser.id, 40);
+  await grantInterviewCredits(fixtureUser.id, 400);
 
   const sessionService = new JobInterviewSessionService({
     prisma,

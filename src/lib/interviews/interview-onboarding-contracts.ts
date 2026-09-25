@@ -29,7 +29,7 @@ export const interviewOnboardingDraftSchema = z
     interviewStageId: z.string().trim().optional().default(""),
     focusMode: jobInterviewFocusModeSchema.default("recommended"),
     interviewMode: jobInterviewModeSchema.default("text"),
-    durationMinutes: z.number().int().min(5).max(120).default(30),
+    durationMinutes: z.number().int().min(5).max(120).default(15),
     language: z.literal("en").default("en"),
     candidateDocumentChoice: interviewOnboardingCvChoiceSchema.default("skip"),
     candidateDocumentVersionId: z.string().trim().optional().default(""),
@@ -177,7 +177,7 @@ export type InterviewOnboardingOptions = {
     seniorityLevelId: string;
     focusMode: "recommended";
     interviewMode: "text";
-    durationMinutes: 30;
+    durationMinutes: number;
     language: "en";
   };
   markets: InterviewOnboardingMarketOption[];

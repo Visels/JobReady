@@ -1,14 +1,16 @@
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+// Legacy visa-session allowance. Job preparation now uses the unified ledger.
 export const FREE_SESSION_ALLOWANCE = 1;
 
 export const WEEKLY_ACCESS_DURATION_DAYS = 7;
 export const MONTHLY_ACCESS_DURATION_DAYS = 30;
 export const INTERVIEW_READY_DURATION_DAYS = MONTHLY_ACCESS_DURATION_DAYS;
 
-export type LedgerProductActionName = "interview" | "tailoring";
+export type LedgerProductActionName = "credit";
 export type PricingPlanCategory =
   | "starter"
+  | "credits"
   | "interview"
   | "tailoring"
   | "bundle"
@@ -63,121 +65,110 @@ const regionalPrices = (prices: {
 const PLAN_DEFINITIONS = {
   "starter-diagnostic": {
     slug: "starter-diagnostic",
-    name: "Free diagnostic",
-    productName: "Jiandae Free Text Diagnostic",
+    name: "30 free credits",
+    productName: "Jiandae Signup Credits",
     description:
-      "A short starter diagnostic for candidates who want to test the interview flow before buying preparation credits.",
+      "A free signup balance that covers one 15-minute interview or three CV tailoring runs.",
     category: "starter",
     durationDays: 14,
     displayOrder: 0,
     checkoutEnabled: false,
-    modeLabel: "text diagnostic",
+    modeLabel: "signup credits",
     budgetLimitUsd: "0.015",
-    durationLimitMinutes: 8,
-    entitlements: [{ productAction: "interview", units: 1, expiresAfterDays: 14 }],
+    durationLimitMinutes: 15,
+    entitlements: [{ productAction: "credit", units: 30 }],
     prices: regionalPrices({ usd: 0, kes: 0, ngn: 0, zar: 0, ghs: 0 }),
   },
   "interview-standard": {
     slug: "interview-standard",
-    name: "Standard interview",
-    productName: "Jiandae Standard Mock Interview",
+    name: "30 credits",
+    productName: "Jiandae 30 Credit Pack",
     description:
-      "One focused text or voice mock interview for a specific role, company, stage, or general job target.",
-    category: "interview",
+      "Enough for one 15-minute interview, three CV tailoring runs, or any combination you choose.",
+    category: "credits",
     durationDays: 30,
     displayOrder: 10,
     checkoutEnabled: true,
-    modeLabel: "standard interview",
+    modeLabel: "starter credit pack",
     budgetLimitUsd: "0.085",
-    durationLimitMinutes: 20,
-    entitlements: [{ productAction: "interview", units: 1, expiresAfterDays: 30 }],
+    entitlements: [{ productAction: "credit", units: 30 }],
     prices: regionalPrices({ usd: 125, kes: 15000, ngn: 190000, zar: 2200, ghs: 1600 }),
   },
   "interview-extended": {
     slug: "interview-extended",
-    name: "Extended interview",
-    productName: "Jiandae Extended or Mixed Mock Interview",
+    name: "60 credits",
+    productName: "Jiandae 60 Credit Pack",
     description:
-      "One longer or mixed-mode interview for candidates preparing for deeper panels, cases, or technical rounds.",
-    category: "interview",
+      "Enough for one 30-minute interview, two 15-minute interviews, or six CV tailoring runs.",
+    category: "credits",
     durationDays: 30,
     displayOrder: 20,
     checkoutEnabled: true,
     highlighted: true,
-    modeLabel: "extended interview",
+    modeLabel: "popular credit pack",
     budgetLimitUsd: "0.14",
-    durationLimitMinutes: 35,
-    entitlements: [{ productAction: "interview", units: 1, expiresAfterDays: 30 }],
+    entitlements: [{ productAction: "credit", units: 60 }],
     prices: regionalPrices({ usd: 195, kes: 24900, ngn: 300000, zar: 3500, ghs: 2600 }),
   },
   "interview-pack-3": {
     slug: "interview-pack-3",
-    name: "Three-interview pack",
-    productName: "Jiandae Three Mock Interview Pack",
+    name: "100 credits",
+    productName: "Jiandae 100 Credit Pack",
     description:
-      "Three interview credits for candidates practising across multiple roles, stages, or retry loops.",
-    category: "interview",
+      "A flexible practice balance for longer interviews, CV tailoring, and repeat preparation.",
+    category: "credits",
     durationDays: 45,
     displayOrder: 30,
     checkoutEnabled: true,
-    modeLabel: "interview pack",
+    modeLabel: "flex credit pack",
     budgetLimitUsd: "0.24",
-    durationLimitMinutes: 20,
-    entitlements: [{ productAction: "interview", units: 3, expiresAfterDays: 45 }],
+    entitlements: [{ productAction: "credit", units: 100 }],
     prices: regionalPrices({ usd: 310, kes: 40000, ngn: 480000, zar: 5600, ghs: 4100 }),
   },
   "tailoring-single": {
     slug: "tailoring-single",
-    name: "CV tailoring",
-    productName: "Jiandae Single CV or Resume Tailoring",
+    name: "10 credits",
+    productName: "Jiandae 10 Credit Pack",
     description:
-      "One truthful CV or resume tailoring action linked to a public job, private target, or company-role brief.",
-    category: "tailoring",
+      "A small top-up that covers one truthful CV or resume tailoring run.",
+    category: "credits",
     durationDays: 30,
     displayOrder: 40,
-    checkoutEnabled: true,
-    modeLabel: "cv tailoring",
+    checkoutEnabled: false,
+    modeLabel: "credit top-up",
     budgetLimitUsd: "0.075",
-    entitlements: [{ productAction: "tailoring", units: 1, expiresAfterDays: 30 }],
+    entitlements: [{ productAction: "credit", units: 10 }],
     prices: regionalPrices({ usd: 160, kes: 3000, ngn: 240000, zar: 2800, ghs: 2100 }),
   },
   "job-readiness-bundle": {
     slug: "job-readiness-bundle",
-    name: "Readiness bundle",
-    productName: "Jiandae CV and Interview Bundle",
+    name: "150 credits",
+    productName: "Jiandae 150 Credit Pack",
     description:
-      "One tailored document plus two interview credits for candidates preparing around a real target role.",
-    category: "bundle",
+      "A larger balance for candidates preparing across several interviews and tailored applications.",
+    category: "credits",
     durationDays: 45,
     displayOrder: 50,
     checkoutEnabled: true,
     highlighted: true,
-    modeLabel: "connected job preparation",
+    modeLabel: "value credit pack",
     budgetLimitUsd: "0.22",
-    durationLimitMinutes: 25,
-    entitlements: [
-      { productAction: "tailoring", units: 1, expiresAfterDays: 45 },
-      { productAction: "interview", units: 2, expiresAfterDays: 45 },
-    ],
+    entitlements: [{ productAction: "credit", units: 150 }],
     prices: regionalPrices({ usd: 425, kes: 54900, ngn: 650000, zar: 7700, ghs: 5600 }),
   },
   "candidate-monthly-fair-use": {
     slug: "candidate-monthly-fair-use",
-    name: "Monthly candidate",
-    productName: "Jiandae Monthly Candidate Fair-Use Plan",
+    name: "300 credits",
+    productName: "Jiandae 300 Credit Pack",
     description:
-      "A finite monthly allowance for active candidates: interview practice and CV tailoring without an unlimited-cost promise.",
-    category: "subscription",
+      "The best-value balance for active candidates. Credits are spent only when you use a preparation tool.",
+    category: "credits",
     durationDays: 30,
     displayOrder: 60,
     checkoutEnabled: true,
-    modeLabel: "fair-use monthly",
+    modeLabel: "best-value credit pack",
     budgetLimitUsd: "0.48",
-    durationLimitMinutes: 25,
-    entitlements: [
-      { productAction: "interview", units: 8, expiresAfterDays: 30 },
-      { productAction: "tailoring", units: 4, expiresAfterDays: 30 },
-    ],
+    entitlements: [{ productAction: "credit", units: 300 }],
     prices: regionalPrices({ usd: 695, kes: 89900, ngn: 1070000, zar: 12600, ghs: 9200 }),
   },
   weekly: {

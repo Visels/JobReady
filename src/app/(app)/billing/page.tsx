@@ -13,6 +13,11 @@ import { getDashboardSidebarPlan } from "@/lib/dashboard";
 import { pricingCatalogForHeaders } from "@/lib/pricing";
 import { prisma } from "@/lib/prisma";
 import { generateSEO } from "@/lib/seo";
+import {
+  CV_TAILORING_CREDITS,
+  INTERVIEW_CREDITS_PER_MINUTE,
+  SIGNUP_CREDITS,
+} from "@/lib/credits";
 
 export const dynamic = "force-dynamic";
 
@@ -37,13 +42,8 @@ function formatMoney(amount: number, currency: string) {
 function entitlementLabel(entitlements: Array<{ productAction: string; units: number }>) {
   if (entitlements.length === 0) return "No paid credits";
 
-  return entitlements
-    .map((entitlement) =>
-      entitlement.productAction === "tailoring"
-        ? `${entitlement.units} CV tailoring`
-        : `${entitlement.units} interview`,
-    )
-    .join(" + ");
+  const credits = entitlements.reduce((total, entitlement) => total + entitlement.units, 0);
+  return `${credits} credit${credits === 1 ? "" : "s"}`;
 }
 
 function stateTone(state: string) {
@@ -91,41 +91,23 @@ export default async function BillingPage() {
   return (
     <WorkspacePageFrame
       eyebrow="Account"
-      title="Credits and billing are measured, finite, and auditable."
-      body="Job discovery and application tracking remain free. Paid preparation grants interview or CV tailoring credits that can be reconciled from purchase to consumption."
+      title="One credit balance. Use it your way."
+      body="Buy credits once, then spend them as you go on interview time or CV tailoring. Job discovery and application tracking remain free."
       action={{ href: "/dashboard", label: "Back home" }}
     >
       <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
         <WorkspaceCard>
           <WorkspaceSectionTitle eyebrow="Current balance" title={plan.name} />
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[1.35rem] border border-muted-line bg-surface-soft p-5">
-              <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
-                Interview credits
-              </p>
-              <p className="mt-3 text-[34px] font-black tracking-[-0.06em] text-foreground">
-                {plan.interviewCredits ?? 0}
-              </p>
-            </div>
-            <div className="rounded-[1.35rem] border border-muted-line bg-surface-soft p-5">
-              <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
-                CV credits
-              </p>
-              <p className="mt-3 text-[34px] font-black tracking-[-0.06em] text-foreground">
-                {plan.tailoringCredits ?? 0}
-              </p>
-            </div>
-            <div className="rounded-[1.35rem] border border-muted-line bg-surface-soft p-5">
-              <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
-                Starter
-              </p>
-              <p className="mt-3 text-[34px] font-black tracking-[-0.06em] text-foreground">
-                {plan.freeSessionsRemaining}
-              </p>
-              <p className="mt-1 text-[12px] leading-5 text-muted">
-                diagnostic allowance
-              </p>
-            </div>
+          <div className="mt-5 rounded-[1.35rem] border border-muted-line bg-surface-soft p-5">
+            <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
+              Available credits
+            </p>
+            <p className="mt-3 text-[44px] font-black tracking-[-0.06em] text-foreground">
+              {plan.creditBalance}
+            </p>
+            <p className="mt-1 text-[12px] leading-5 text-muted">
+              Your balance is shared across every paid preparation tool.
+            </p>
           </div>
 
           <div className="mt-5 rounded-[1.35rem] border border-muted-line bg-surface-soft p-4">
@@ -134,8 +116,8 @@ export default async function BillingPage() {
               links.
             </p>
             <p className="mt-2 text-[12px] leading-5 text-muted">
-              Credits are used only for preparation actions: mock interviews and
-              truthful CV/resume tailoring.
+              Interviews use {INTERVIEW_CREDITS_PER_MINUTE} credits per minute.
+              CV or resume tailoring uses {CV_TAILORING_CREDITS} credits per run.
             </p>
           </div>
         </WorkspaceCard>
@@ -143,19 +125,19 @@ export default async function BillingPage() {
         <WorkspaceCard>
           <WorkspaceSectionTitle
             eyebrow="Starter"
-            title={starter?.name ?? "Free diagnostic"}
+            title={starter?.name ?? `${SIGNUP_CREDITS} free credits`}
           />
           <p className="mt-3 text-[13px] leading-6 text-muted">
             {starter?.description ??
-              "A short starter diagnostic is available outside paid checkout."}
+              "Every user receives a free credit balance at signup."}
           </p>
           <div className="mt-4 rounded-[1.35rem] border border-dashed border-muted-line bg-background p-4">
             <p className="text-[28px] font-black tracking-[-0.06em] text-foreground">
               {starter?.display ?? "Free"}
             </p>
             <p className="mt-2 text-[12px] leading-5 text-muted">
-              {starter ? entitlementLabel(starter.entitlements) : "1 interview"}.
-              Paid checkout is intentionally disabled for the free starter.
+              {starter ? entitlementLabel(starter.entitlements) : `${SIGNUP_CREDITS} credits`}.
+              That covers one 15-minute interview or three CV tailoring runs.
             </p>
           </div>
         </WorkspaceCard>
@@ -163,8 +145,8 @@ export default async function BillingPage() {
 
       <WorkspaceCard>
         <WorkspaceSectionTitle
-          eyebrow="Sandbox products"
-          title="Choose finite Jiandae preparation credits."
+          eyebrow="Credit packs"
+          title="Top up your shared balance."
         />
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-3">
           {checkoutPlans.map((item) => (
@@ -203,8 +185,8 @@ export default async function BillingPage() {
                 </p>
                 <div className="mt-4 grid gap-2 text-[12px] font-bold">
                   <span>{entitlementLabel(item.entitlements)}</span>
-                  <span>{item.planDays} day expiry window</span>
-                  <span>Budget cap: USD {item.budgetLimitUsd}</span>
+                  <span>Use across interviews and CV tailoring</span>
+                  <span>Credits do not expire</span>
                 </div>
               </div>
               <div className="mt-5">

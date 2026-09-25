@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 
   const checkoutMetadata: Record<string, string> = {
     userId: user.id,
-    credits: "0",
+    credits: String(entitlements.reduce((total, item) => total + item.units, 0)),
     plan,
     planDays: String(price.planDays),
     returnPath,

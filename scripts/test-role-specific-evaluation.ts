@@ -89,7 +89,7 @@ function assertPositiveScoresHaveEvidence(evaluation: RoleSpecificTurnEvaluation
 async function grantInterviewCredits(userId: string, units: number) {
   await grantEntitlement({
     userId,
-    productAction: "interview",
+    productAction: "credit",
     units,
     idempotencyKey: `task16-grant-${userId}-${suffix()}`,
     metadata: {
@@ -393,7 +393,7 @@ async function main() {
   const fixtureUser = await prisma.user.findUniqueOrThrow({
     where: { id: JOBREADY_REFERENCE_FIXTURE_IDS.syntheticUser },
   });
-  await grantInterviewCredits(fixtureUser.id, 80);
+  await grantInterviewCredits(fixtureUser.id, 800);
 
   const sessionService = new JobInterviewSessionService({
     prisma,

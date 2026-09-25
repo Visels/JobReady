@@ -15,6 +15,7 @@ import {
   reserveEntitlement,
 } from "../src/lib/entitlements";
 import { prisma } from "../src/lib/prisma";
+import { CV_TAILORING_CREDITS } from "../src/lib/credits";
 
 function assertLocalDatabase() {
   assert.equal(
@@ -68,7 +69,7 @@ async function main() {
 
     const grant = await grantEntitlement({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       units: 1,
       idempotencyKey: `${prefix}:interview:grant:1`,
       metadata: { test: "concurrent-reservation" },
@@ -78,7 +79,7 @@ async function main() {
 
     const duplicateGrant = await grantEntitlement({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       units: 1,
       idempotencyKey: `${prefix}:interview:grant:1`,
       metadata: { test: "concurrent-reservation" },
@@ -90,14 +91,14 @@ async function main() {
     const concurrentReservations = await Promise.allSettled([
       reserveEntitlement({
         userId: user.id,
-        productAction: "interview",
+        productAction: "credit",
         units: 1,
         idempotencyKey: `${prefix}:interview:reserve:a`,
         expiresAt: reservationExpiresAt,
       }),
       reserveEntitlement({
         userId: user.id,
-        productAction: "interview",
+        productAction: "credit",
         units: 1,
         idempotencyKey: `${prefix}:interview:reserve:b`,
         expiresAt: reservationExpiresAt,
@@ -122,7 +123,7 @@ async function main() {
 
     const consume = await consumeReservation({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       relatedEntryId: reservation.id,
       idempotencyKey: `${prefix}:interview:consume:report`,
       metadata: { operation: "report-generation" },
@@ -134,7 +135,7 @@ async function main() {
 
     const sameConsumeRetry = await consumeReservation({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       relatedEntryId: reservation.id,
       idempotencyKey: `${prefix}:interview:consume:report`,
       metadata: { operation: "report-generation-retry" },
@@ -145,7 +146,7 @@ async function main() {
 
     const differentConsumeRetry = await consumeReservation({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       relatedEntryId: reservation.id,
       idempotencyKey: `${prefix}:interview:consume:failed-report-retry`,
       metadata: { operation: "failed-report-retry" },
@@ -157,7 +158,7 @@ async function main() {
 
     const refund = await refundConsumption({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       relatedEntryId: consume.entry.id,
       idempotencyKey: `${prefix}:interview:refund:1`,
       metadata: { reason: "manual-test-refund" },
@@ -167,7 +168,7 @@ async function main() {
 
     const duplicateRefund = await refundConsumption({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       relatedEntryId: consume.entry.id,
       idempotencyKey: `${prefix}:interview:refund:retry`,
       metadata: { reason: "duplicate-refund-guard" },
@@ -178,7 +179,7 @@ async function main() {
 
     const expiryGrant = await grantEntitlement({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       units: 2,
       idempotencyKey: `${prefix}:interview:grant:expires`,
       expiresAt: new Date(Date.now() - 60_000),
@@ -188,7 +189,7 @@ async function main() {
 
     const expiry = await expireEntitlement({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       relatedEntryId: expiryGrant.entry.id,
       units: 1,
       idempotencyKey: `${prefix}:interview:expire:1`,
@@ -199,7 +200,7 @@ async function main() {
 
     const negativeAdjustment = await adjustEntitlement({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       units: -1,
       idempotencyKey: `${prefix}:interview:adjust:-1`,
       reason: "test negative adjustment",
@@ -208,7 +209,7 @@ async function main() {
 
     const positiveAdjustment = await adjustEntitlement({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
       units: 1,
       idempotencyKey: `${prefix}:interview:adjust:+1`,
       reason: "test positive adjustment",
@@ -217,48 +218,54 @@ async function main() {
 
     const tailoringGrant = await grantEntitlement({
       userId: user.id,
-      productAction: "tailoring",
-      units: 1,
+      productAction: "credit",
+      units: CV_TAILORING_CREDITS,
       idempotencyKey: `${prefix}:tailoring:grant:1`,
       metadata: { test: "failed-tailoring-release" },
     });
-    assert.equal(tailoringGrant.reconciliation.balance, 1);
+    assert.equal(tailoringGrant.reconciliation.balance, 2 + CV_TAILORING_CREDITS);
 
     const tailoringReservation = await reserveEntitlement({
       userId: user.id,
-      productAction: "tailoring",
-      units: 1,
+      productAction: "credit",
+      units: CV_TAILORING_CREDITS,
       idempotencyKey: `${prefix}:tailoring:reserve:1`,
       expiresAt: reservationExpiresAt,
       metadata: { operation: "cv-tailoring" },
     });
-    assert.equal(tailoringReservation.reconciliation.balance, 0);
-    assert.equal(tailoringReservation.reconciliation.openReservationUnits, 1);
+    assert.equal(tailoringReservation.reconciliation.balance, 2);
+    assert.equal(
+      tailoringReservation.reconciliation.openReservationUnits,
+      CV_TAILORING_CREDITS,
+    );
 
     const tailoringRelease = await releaseReservation({
       userId: user.id,
-      productAction: "tailoring",
+      productAction: "credit",
       relatedEntryId: tailoringReservation.entry.id,
       idempotencyKey: `${prefix}:tailoring:release:failed-run`,
       metadata: { failure: "model-timeout" },
     });
     assert.equal(tailoringRelease.created, true);
-    assert.equal(tailoringRelease.reconciliation.balance, 1);
+    assert.equal(
+      tailoringRelease.reconciliation.balance,
+      2 + CV_TAILORING_CREDITS,
+    );
     assert.equal(tailoringRelease.reconciliation.openReservationUnits, 0);
 
     const tailoringRetryReservation = await reserveEntitlement({
       userId: user.id,
-      productAction: "tailoring",
-      units: 1,
+      productAction: "credit",
+      units: CV_TAILORING_CREDITS,
       idempotencyKey: `${prefix}:tailoring:reserve:retry-after-release`,
       expiresAt: reservationExpiresAt,
     });
     assert.equal(tailoringRetryReservation.created, true);
-    assert.equal(tailoringRetryReservation.reconciliation.balance, 0);
+    assert.equal(tailoringRetryReservation.reconciliation.balance, 2);
 
     const finalInterviewReconciliation = await getEntitlementReconciliation({
       userId: user.id,
-      productAction: "interview",
+      productAction: "credit",
     });
     assert.equal(
       finalInterviewReconciliation.balance,
@@ -269,10 +276,10 @@ async function main() {
       finalInterviewReconciliation.lastBalanceAfter,
     );
     assert.deepEqual(finalInterviewReconciliation.totals, {
-      granted: 3,
-      reserved: 1,
+      granted: 3 + CV_TAILORING_CREDITS,
+      reserved: 1 + CV_TAILORING_CREDITS * 2,
       consumed: 1,
-      released: 0,
+      released: CV_TAILORING_CREDITS,
       refunded: 1,
       expired: 1,
       adjusted: 0,
@@ -281,19 +288,17 @@ async function main() {
 
     const finalTailoringReconciliation = await getEntitlementReconciliation({
       userId: user.id,
-      productAction: "tailoring",
+      productAction: "credit",
     });
-    assert.equal(finalTailoringReconciliation.balance, 0);
-    assert.equal(finalTailoringReconciliation.openReservationUnits, 1);
-    assert.deepEqual(finalTailoringReconciliation.totals, {
-      granted: 1,
-      reserved: 2,
-      consumed: 0,
-      released: 1,
-      refunded: 0,
-      expired: 0,
-      adjusted: 0,
-    });
+    assert.equal(finalTailoringReconciliation.balance, 2);
+    assert.equal(
+      finalTailoringReconciliation.openReservationUnits,
+      CV_TAILORING_CREDITS,
+    );
+    assert.deepEqual(
+      finalTailoringReconciliation.totals,
+      finalInterviewReconciliation.totals,
+    );
 
     console.log(
       JSON.stringify(

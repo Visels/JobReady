@@ -17,7 +17,7 @@ export interface DashboardUser {
   id: string;
   name: string | null;
   email: string | null;
-  freeSessionsRemaining: number;
+  creditBalance: number;
   planName: string;
   daysRemaining: number;
 }
@@ -89,10 +89,8 @@ export interface DashboardData {
 export interface SidebarPlan {
   name: string;
   daysRemaining: number;
-  freeSessionsRemaining: number;
   hasUnlimitedSessions: boolean;
-  interviewCredits?: number;
-  tailoringCredits?: number;
+  creditBalance: number;
   currentVisaType: string | null;
   savedJobCount?: number;
   openApplicationCount?: number;

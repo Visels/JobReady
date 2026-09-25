@@ -463,7 +463,7 @@ export async function getJobInterviewOnboardingOptions(
       seniorityLevelId: defaultSeniority?.id ?? "",
       focusMode: "recommended",
       interviewMode: "text",
-      durationMinutes: 30,
+      durationMinutes: 15,
       language: "en",
     },
     markets: marketOptions,

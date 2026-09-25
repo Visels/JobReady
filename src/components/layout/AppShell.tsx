@@ -253,30 +253,15 @@ function accountInitial(user: SidebarUser) {
 }
 
 function planSummary(plan: SidebarPlan) {
-  const balances = [
-    plan.interviewCredits && plan.interviewCredits > 0
-      ? `${plan.interviewCredits} interview`
-      : null,
-    plan.tailoringCredits && plan.tailoringCredits > 0
-      ? `${plan.tailoringCredits} CV`
-      : null,
-  ].filter(Boolean);
-
-  if (balances.length > 0) {
-    return `${balances.join(" / ")} credit${balances.length === 1 ? "" : "s"}`;
+  if (plan.creditBalance > 0) {
+    return `${plan.creditBalance} credit${plan.creditBalance === 1 ? "" : "s"}`;
   }
 
   if (plan.daysRemaining > 0) {
     return `${plan.daysRemaining} days active`;
   }
 
-  if (plan.freeSessionsRemaining > 0) {
-    return `${plan.freeSessionsRemaining} free credit${
-      plan.freeSessionsRemaining === 1 ? "" : "s"
-    }`;
-  }
-
-  return "No active interview credits";
+  return "No credits available";
 }
 
 function NavLink({
@@ -629,15 +614,15 @@ function AccountMenuPanel({
             </Link>
           ))}
 
-          {(plan.interviewCredits ?? 0) === 0 && (plan.tailoringCredits ?? 0) === 0 ? (
+          {plan.creditBalance === 0 ? (
             <div className="grid gap-2 rounded-2xl border border-muted-line bg-surface-soft p-3 sm:grid-cols-2">
               <PurchaseButton
-                label="Standard interview"
+                label="Buy 30 credits"
                 plan="interview-standard"
                 variant="accountMenu"
               />
               <PurchaseButton
-                label="CV plus interviews"
+                label="Buy 150 credits"
                 plan="job-readiness-bundle"
                 variant="accountMenu"
               />
@@ -741,14 +726,12 @@ function WorkspaceTopBar({
       });
     }
     if (
-      (plan.interviewCredits ?? 0) === 0 &&
-      (plan.tailoringCredits ?? 0) === 0 &&
-      plan.freeSessionsRemaining === 0
+      plan.creditBalance === 0
     ) {
       items.push({
         id: "credits",
-        title: "Interview credits",
-        body: "You can still browse jobs and manage applications. New paid prep requires access.",
+        title: "Credits running low",
+        body: "You can still browse jobs and manage applications. Buy credits when you need more preparation.",
         time: "Account",
       });
     }

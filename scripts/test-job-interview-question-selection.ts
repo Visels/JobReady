@@ -42,7 +42,7 @@ function normalizedPrompt(value: string) {
 async function grantInterviewCredits(userId: string, units: number) {
   await grantEntitlement({
     userId,
-    productAction: "interview",
+    productAction: "credit",
     units,
     idempotencyKey: `task14-grant-${userId}-${suffix()}`,
     metadata: {
@@ -246,7 +246,7 @@ async function main() {
   const fixtureUser = await prisma.user.findUniqueOrThrow({
     where: { id: JOBREADY_REFERENCE_FIXTURE_IDS.syntheticUser },
   });
-  await grantInterviewCredits(fixtureUser.id, 20);
+  await grantInterviewCredits(fixtureUser.id, 300);
 
   const scenarioA = await service.createSession(
     fixtureUser.id,

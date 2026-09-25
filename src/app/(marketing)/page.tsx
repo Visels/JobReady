@@ -200,7 +200,7 @@ const faqItems = [
   {
     question: "Is Jiandae free to use?",
     answer:
-      "Yes. You can browse jobs, open official application links, save opportunities, and start preparing for free. Paid plans add finite interview or CV tailoring credits when you need deeper practice.",
+      "Yes. You can browse jobs, open official application links, save opportunities, and receive 30 free signup credits. Buy more credits when you want additional interview time or CV tailoring.",
   },
   {
     question: "How does the interview practice work?",
@@ -378,39 +378,15 @@ function candidateHref(path: string) {
 function entitlementSummary(entitlements: PlanPrice["entitlements"]) {
   if (entitlements.length === 0) return "No paid credits";
 
-  return entitlements
-    .map((entitlement) =>
-      entitlement.productAction === "tailoring"
-        ? `${entitlement.units} CV tailoring`
-        : `${entitlement.units} interview`,
-    )
-    .join(" + ");
+  const credits = entitlements.reduce((total, item) => total + item.units, 0);
+  return `${credits} credit${credits === 1 ? "" : "s"}`;
 }
 
-function pricingFeatures(plan: PlanPrice) {
-  const interviewCredits =
-    plan.entitlements.find((entitlement) => entitlement.productAction === "interview")
-      ?.units ?? 0;
-
-  if (plan.category === "tailoring") {
-    return [
-      "CV revamping",
-      "Cover letter revamping",
-    ];
-  }
-
-  if (interviewCredits > 1) {
-    return [
-      `${interviewCredits} realistic mock interviews`,
-      "AI-powered feedback",
-      "Performance report",
-    ];
-  }
-
+function pricingFeatures() {
   return [
-    "1 realistic mock interview",
-    "AI-powered feedback",
-    "Performance report",
+    "2 credits per interview minute",
+    "10 credits per CV tailoring run",
+    "Use your balance whenever you need it",
   ];
 }
 
@@ -475,9 +451,9 @@ async function getPricingPlans() {
       publicProductConfig.market.defaultCountryCode,
     );
     const preferredPlans = [
-      "tailoring-single",
       "interview-standard",
       "interview-pack-3",
+      "candidate-monthly-fair-use",
     ];
 
     return preferredPlans
@@ -1183,28 +1159,15 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
 
         <div className="mt-[52px] grid gap-6 lg:grid-cols-3">
           {plans.map((plan) => {
-            const interviewCredits =
-              plan.entitlements.find(
-                (entitlement) => entitlement.productAction === "interview",
-              )?.units ?? 0;
-            const isTailoring = plan.category === "tailoring";
-            const CardIcon = isTailoring
-              ? FileText
-              : interviewCredits > 1
-                ? Users
-                : Monitor;
+            const credits = plan.entitlements.reduce(
+              (total, entitlement) => total + entitlement.units,
+              0,
+            );
+            const CardIcon = credits >= 300 ? Users : credits >= 100 ? FileText : Monitor;
             const price = pricingPriceParts(plan.display);
-            const features = pricingFeatures(plan);
-            const title = isTailoring
-              ? "CV & cover letter"
-              : interviewCredits > 1
-                ? `${interviewCredits} mock interviews`
-                : "1 mock interview";
-            const description = isTailoring
-              ? "Get your CV and cover letter professionally tailored."
-              : interviewCredits > 1
-                ? "More practice. More feedback. Better results."
-                : "Practice one-on-one with our AI interviewer.";
+            const features = pricingFeatures();
+            const title = `${credits} credits`;
+            const description = plan.description;
             return (
               <article
                 key={plan.plan}
@@ -1240,8 +1203,7 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
                     </span>
                   </p>
                   <p className="mt-3 text-sm font-semibold leading-6 text-[#52605b]">
-                    {entitlementSummary(plan.entitlements)}. Credits expire after{" "}
-                    {plan.planDays} days.
+                    {entitlementSummary(plan.entitlements)}. Credits do not expire.
                   </p>
                 </div>
 
@@ -1251,7 +1213,7 @@ function PricingSection({ plans }: { plans: PlanPrice[] }) {
                   data-analytics-product={plan.plan}
                   className="mt-6 inline-flex min-h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#004735] px-7 text-[1rem] font-bold text-white shadow-[0_11px_22px_rgba(0,71,53,0.16)] transition hover:-translate-y-px hover:bg-[#00372b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#006148] active:scale-[0.98]"
                 >
-                  {isTailoring ? "Get started" : "Book now"}
+                  Buy credits
                 </Link>
 
                 <ul className="mt-5 grid gap-3 text-[0.98rem] font-medium leading-5 text-[#384557]">

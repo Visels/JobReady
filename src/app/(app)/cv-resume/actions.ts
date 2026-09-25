@@ -15,6 +15,7 @@ import {
   releaseReservation,
   reserveEntitlement,
 } from "@/lib/entitlements";
+import { CV_TAILORING_CREDITS } from "@/lib/credits";
 import { CloudflareR2ObjectStorage } from "@/lib/storage/r2-storage";
 import { buildR2StorageConfig } from "@/lib/storage";
 import {
@@ -149,7 +150,7 @@ function safeError(error: unknown) {
     return {
       error:
         error.code === "insufficient_balance"
-          ? "You do not have an available CV tailoring credit yet."
+          ? `You need ${CV_TAILORING_CREDITS} credits to tailor a CV or resume.`
           : error.message,
       code: error.code,
     };
@@ -222,7 +223,7 @@ async function openTailoringReservation(input: {
     where: {
       userId: input.userId,
       tailoringRunId: input.tailoringRunId,
-      productAction: "tailoring",
+      productAction: "credit",
       action: "reserve",
     },
     orderBy: { createdAt: "desc" },
@@ -289,8 +290,8 @@ export async function createTailoringRunAction(
 
     const reservation = await reserveEntitlement({
       userId: user.id,
-      productAction: "tailoring",
-      units: 1,
+      productAction: "credit",
+      units: CV_TAILORING_CREDITS,
       idempotencyKey: `cv-tailoring:${user.id}:${runIdempotencyKey}:reserve`,
       expiresAt: new Date(Date.now() + 30 * 60 * 1000),
       metadata: {
@@ -336,7 +337,7 @@ export async function createTailoringRunAction(
     if (reservationId && userId) {
       await releaseReservation({
         userId,
-        productAction: "tailoring",
+        productAction: "credit",
         relatedEntryId: reservationId,
         idempotencyKey: `cv-tailoring:${userId}:${reservationId}:release-after-failed-run`,
         metadata: { source: "cv_resume_browser_builder" },
@@ -425,7 +426,7 @@ export async function finalizeTailoringRunAction(
     if (reservation) {
       await consumeReservation({
         userId: user.id,
-        productAction: "tailoring",
+        productAction: "credit",
         relatedEntryId: reservation.id,
         idempotencyKey: `cv-tailoring:${user.id}:${result.runId}:consume`,
         metadata: {

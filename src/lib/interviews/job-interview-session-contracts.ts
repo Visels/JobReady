@@ -50,7 +50,7 @@ export const createJobInterviewSessionRequestSchema = z
     preferredFrameworkKey: z.string().trim().min(1).max(80).optional(),
     focusMode: jobInterviewFocusModeSchema.default("recommended"),
     interviewMode: jobInterviewModeSchema.default("text"),
-    durationMinutes: z.number().int().min(5).max(120).default(30),
+    durationMinutes: z.number().int().min(5).max(120).default(15),
     language: languageSchema.default("en"),
     target: jobInterviewTargetRequestSchema.default({ type: "none" }),
     candidateDocument: jobInterviewCandidateDocumentRequestSchema.optional(),

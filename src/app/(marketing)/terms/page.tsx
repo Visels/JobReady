@@ -170,7 +170,7 @@ export default function TermsPage() {
             <>
               <p>
                 Some features may be offered for free, while others require
-                payment. Paid access, pricing, included credits, expiry windows,
+                payment. Paid access, pricing, included credits, credit usage,
                 and any renewal terms will be shown before purchase.
               </p>
               <p>

@@ -8,6 +8,11 @@ import {
   getCanonicalDomainRedirectUrl,
   resolveSiteUrl,
 } from "../src/lib/site-url";
+import {
+  CV_TAILORING_CREDITS,
+  SIGNUP_CREDITS,
+  interviewCreditCost,
+} from "../src/lib/credits";
 
 function relativeLuminance(hex: string) {
   const channels = hex
@@ -40,6 +45,11 @@ function contrastRatio(foreground: string, background: string) {
 assert.equal(parseFeatureFlag("true", false), true);
 assert.equal(parseFeatureFlag("0", true), false);
 assert.equal(parseFeatureFlag("unexpected", true), true);
+assert.equal(SIGNUP_CREDITS, 30);
+assert.equal(interviewCreditCost(15), 30);
+assert.equal(interviewCreditCost(30), 60);
+assert.equal(CV_TAILORING_CREDITS, 10);
+assert.throws(() => interviewCreditCost(0), /positive whole number/);
 
 const config = buildPublicProductConfig({
   NEXT_PUBLIC_APP_URL: "https://preview.example.com",

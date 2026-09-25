@@ -30,6 +30,10 @@ import {
   type InterviewOnboardingOptions,
 } from "@/lib/interviews/interview-onboarding-contracts";
 import { InterviewRoomLaunchScreen } from "@/components/interviews/InterviewRoomLaunchScreen";
+import {
+  INTERVIEW_DURATION_OPTIONS,
+  interviewCreditCost,
+} from "@/lib/credits";
 
 const STORAGE_KEY = "jobready-interview-onboarding-draft-v1";
 const DRAFT_SCHEMA_VERSION = "task17.v2";
@@ -707,7 +711,7 @@ export function JobInterviewOnboardingClient({
                 }
                 className={`${controlClass} sm:min-h-[72px]`}
               >
-                {[...new Set([15, 25, 30, 45, 60, draft.durationMinutes])]
+                {[...new Set([...INTERVIEW_DURATION_OPTIONS, draft.durationMinutes])]
                   .sort((a, b) => a - b)
                   .map((minutes) => (
                     <option key={minutes} value={minutes}>
@@ -915,7 +919,9 @@ export function JobInterviewOnboardingClient({
           </div>
         ) : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[12px] text-muted">Reserves 1 interview credit</p>
+          <p className="text-[12px] text-muted">
+            Uses {interviewCreditCost(draft.durationMinutes)} credits · 2 per minute
+          </p>
           <button
             type="submit"
             disabled={pending || !reviewedPlanAvailable}

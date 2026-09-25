@@ -14,6 +14,10 @@ import {
 } from "@/lib/entitlements";
 import { getCommercialLimits } from "@/lib/commercial-limits";
 import {
+  INTERVIEW_CREDITS_PER_MINUTE,
+  interviewCreditCost,
+} from "@/lib/credits";
+import {
   type ComposedInterviewPlanDto,
   InterviewContentError,
   InterviewContentService,
@@ -156,7 +160,7 @@ const jobInterviewSessionInclude = {
   creditLedgerEntries: {
     where: {
       action: "reserve",
-      productAction: "interview",
+      productAction: "credit",
     },
     orderBy: { createdAt: "asc" },
   },
@@ -313,7 +317,7 @@ function mapLedgerError(error: EntitlementLedgerError): JobInterviewSessionError
   if (error.code === "insufficient_balance") {
     return new JobInterviewSessionError(
       "insufficient_credits",
-      "You need an interview credit before starting this job interview session.",
+      "You do not have enough credits for this interview duration.",
     );
   }
 
@@ -513,8 +517,8 @@ export class JobInterviewSessionService {
     try {
       const reservation = await reserveEntitlement({
         userId,
-        productAction: "interview",
-        units: 1,
+        productAction: "credit",
+        units: interviewCreditCost(input.durationMinutes),
         idempotencyKey,
         expiresAt: new Date(this.now().getTime() + 30 * 60 * 1000),
         metadata: {
@@ -523,6 +527,8 @@ export class JobInterviewSessionService {
           targetType: target.type,
           focusMode: input.focusMode,
           interviewMode: input.interviewMode,
+          durationMinutes: input.durationMinutes,
+          creditsPerMinute: INTERVIEW_CREDITS_PER_MINUTE,
         },
       });
 

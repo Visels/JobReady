@@ -127,7 +127,7 @@ function parseCheckoutEntitlements(value: unknown): CheckoutGrantEntitlement[] {
           : Number(record.expiresAfterDays);
 
       if (
-        (productAction !== "interview" && productAction !== "tailoring") ||
+        productAction !== "credit" ||
         !Number.isInteger(units) ||
         units <= 0 ||
         (expiresAfterDays !== null &&
@@ -210,8 +210,8 @@ function entitlementExpiresAt(
   planDays: number,
   entitlement: CheckoutGrantEntitlement,
 ) {
-  const days = entitlement.expiresAfterDays ?? planDays;
-  return paidAccessExpiresAt(now, days);
+  if (entitlement.expiresAfterDays === null) return null;
+  return paidAccessExpiresAt(now, entitlement.expiresAfterDays || planDays);
 }
 
 function fulfillmentTimestamps(state: PurchaseLifecycleState, now: Date) {
@@ -281,7 +281,7 @@ async function ensurePurchaseGrants(
 async function grantPurchaseAccess(input: PurchaseGrantInput) {
   const userId = input.userId;
   const ids = paymentIds(input);
-  const credits = Number(input.credits);
+  const requestedCredits = Number(input.credits);
   const planDays = input.planDays > 0 ? input.planDays : paidPlanDays(input.plan);
   const referredByUserId =
     input.referredByUserId && input.referredByUserId !== userId
@@ -290,9 +290,13 @@ async function grantPurchaseAccess(input: PurchaseGrantInput) {
   const entitlements = input.entitlements.filter(
     (entitlement) => entitlement.units > 0,
   );
+  const credits = entitlements.reduce(
+    (total, entitlement) => total + entitlement.units,
+    0,
+  );
   const state = purchaseLifecycleState(input.isPaid, input.paymentStatus);
 
-  if (!userId || ids.length === 0 || credits < 0 || planDays <= 0) {
+  if (!userId || ids.length === 0 || requestedCredits < 0 || planDays <= 0) {
     return {
       granted: false,
       returnPath: input.returnPath,
