@@ -330,7 +330,7 @@ function DesktopSidebar({
   return (
     <aside
       className={classes(
-        "fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-white/8 bg-[radial-gradient(circle_at_15%_4%,rgba(16,128,92,0.34),transparent_28%),var(--color-primary)] px-3 py-4 text-white transition-[width] duration-300 ease-soft motion-reduce:transition-none lg:flex",
+        "fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-white/8 bg-primary px-3 py-4 text-white transition-[width] duration-300 ease-soft motion-reduce:transition-none lg:flex",
         collapsed ? "w-[72px]" : "w-[276px]",
       )}
       aria-label="Primary workspace navigation"
