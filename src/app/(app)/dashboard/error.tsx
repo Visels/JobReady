@@ -3,10 +3,10 @@
 import Link from "next/link";
 
 export default function DashboardError({
-  reset,
+  unstable_retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  unstable_retry: () => void;
 }) {
   return (
     <main className="min-h-[calc(100dvh-86px)] px-4 py-5 text-foreground md:px-6 lg:px-7">
@@ -28,7 +28,7 @@ export default function DashboardError({
         <div className="mt-5 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={reset}
+            onClick={() => unstable_retry()}
             className="min-h-10 rounded-full bg-primary px-4 text-[12px] font-black text-white transition duration-300 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
           >
             Try again

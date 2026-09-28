@@ -6,6 +6,7 @@ import type {
   SessionStatus,
   TailoringStatus,
 } from "@prisma/client";
+import { cache } from "react";
 import { publicProductConfig } from "@/config/public";
 import { ledgerBalanceEffect } from "@/lib/entitlements";
 import { getActivePaidAccess, purchasePlanName } from "@/lib/plans";
@@ -152,17 +153,77 @@ async function ledgerBalance(
   userId: string,
   productAction: "credit",
 ) {
-  const entries = await db.creditLedgerEntry.findMany({
-    where: { userId, productAction },
-    select: {
-      action: true,
-      units: true,
-      relatedEntryId: true,
+  const entries = await db.creditLedgerEntry.groupBy({
+    by: ["action"],
+    where: {
+      userId,
+      productAction,
+      OR: [
+        { action: { not: "consume" } },
+        { action: "consume", relatedEntryId: null },
+      ],
     },
-    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    _sum: { units: true },
   });
 
-  return entries.reduce((total, entry) => total + ledgerBalanceEffect(entry), 0);
+  return entries.reduce(
+    (total, entry) =>
+      total +
+      ledgerBalanceEffect({
+        action: entry.action,
+        units: entry._sum.units ?? 0,
+        relatedEntryId: null,
+      }),
+    0,
+  );
+}
+
+async function loadDashboardAccount(db: PrismaClient, userId: string) {
+  return db.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      purchases: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          createdAt: true,
+          plan: true,
+          planDays: true,
+          accessExpiresAt: true,
+          fulfillmentState: true,
+        },
+      },
+      _count: {
+        select: {
+          savedJobs: { where: { deletedAt: null } },
+          jobApplications: {
+            where: {
+              deletedAt: null,
+              currentStatus: { notIn: ["rejected", "withdrawn"] },
+            },
+          },
+          candidateDocuments: {
+            where: { deletedAt: null, status: "active" },
+          },
+        },
+      },
+    },
+  });
+}
+
+const loadDefaultDashboardAccount = cache((userId: string) =>
+  loadDashboardAccount(defaultPrisma, userId),
+);
+
+const loadDefaultCreditBalance = cache((userId: string) =>
+  ledgerBalance(defaultPrisma, userId, "credit"),
+);
+
+function hasCustomDashboardInput(input: DashboardServiceInput) {
+  return input.prisma !== undefined || input.now !== undefined;
 }
 
 function titleCaseEnum(value: string | null | undefined) {
@@ -946,60 +1007,38 @@ export function getReadinessCopy(criteria: CriterionScore[]) {
   return `${strongest.label} is strongest right now, while ${weakest.label.toLowerCase()} needs the next practice block.`;
 }
 
-export async function getDashboardSidebarPlan(
+async function loadDashboardSidebarPlan(
   userId: string,
   input: DashboardServiceInput = {},
 ): Promise<SidebarPlan> {
   const db = input.prisma ?? defaultPrisma;
   const now = input.now ?? new Date();
   const soon = addDays(now, 7);
-  // Keep each burst below the configured Prisma pool size. One large
-  // Promise.all can leave later reads in Prisma's FIFO queue until P2024.
-  const [user, savedJobCount, openApplicationCount] = await Promise.all([
-    db.user.findUnique({
-      where: { id: userId },
-      select: {
-        purchases: {
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          select: {
-            createdAt: true,
-            plan: true,
-            planDays: true,
-            accessExpiresAt: true,
-            fulfillmentState: true,
-          },
-        },
-      },
-    }),
-    db.savedJob.count({ where: { userId, deletedAt: null } }),
-    db.jobApplication.count({
+  const useRequestCache = !hasCustomDashboardInput(input);
+  const [user, urgentSavedJobCount, creditBalance] = await Promise.all([
+    useRequestCache
+      ? loadDefaultDashboardAccount(userId)
+      : loadDashboardAccount(db, userId),
+    db.savedJob.count({
       where: {
         userId,
         deletedAt: null,
-        currentStatus: { notIn: ["rejected", "withdrawn"] },
+        jobPosting: {
+          OR: [
+            { status: { in: ["expired", "closed"] } },
+            { closesAt: { lte: soon, gt: now } },
+          ],
+        },
       },
     }),
+    useRequestCache
+      ? loadDefaultCreditBalance(userId)
+      : ledgerBalance(db, userId, "credit"),
   ]);
-  const [candidateDocumentCount, urgentSavedJobCount, creditBalance] =
-    await Promise.all([
-      db.candidateDocument.count({
-        where: { userId, deletedAt: null, status: "active" },
-      }),
-      db.savedJob.count({
-        where: {
-          userId,
-          deletedAt: null,
-          jobPosting: {
-            OR: [
-              { status: { in: ["expired", "closed"] } },
-              { closesAt: { lte: soon, gt: now } },
-            ],
-          },
-        },
-      }),
-      ledgerBalance(db, userId, "credit"),
-    ]);
+
+  const savedJobCount = user?._count.savedJobs ?? 0;
+  const openApplicationCount = user?._count.jobApplications ?? 0;
+  const candidateDocumentCount = user?._count.candidateDocuments ?? 0;
 
   const plan = getPlan(user ?? { purchases: [] }, {
     creditBalance,
@@ -1017,41 +1056,46 @@ export async function getDashboardSidebarPlan(
   };
 }
 
-export async function getDashboardData(
+const loadDefaultDashboardSidebarPlan = cache((userId: string) =>
+  loadDashboardSidebarPlan(userId),
+);
+
+export function getDashboardSidebarPlan(
+  userId: string,
+  input: DashboardServiceInput = {},
+): Promise<SidebarPlan> {
+  return hasCustomDashboardInput(input)
+    ? loadDashboardSidebarPlan(userId, input)
+    : loadDefaultDashboardSidebarPlan(userId);
+}
+
+async function loadDashboardData(
   userId: string,
   input: DashboardServiceInput = {},
 ): Promise<CandidateWorkspaceData> {
   const db = input.prisma ?? defaultPrisma;
   const now = input.now ?? new Date();
+  const useRequestCache = !hasCustomDashboardInput(input);
 
   // Bound each burst so concurrent layout and page rendering cannot enqueue
   // the entire dashboard behind a small Prisma connection pool.
   const [user, savedJobRecords, applicationRecords] = await Promise.all([
-    db.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        purchases: {
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          select: {
-            createdAt: true,
-            plan: true,
-            planDays: true,
-            accessExpiresAt: true,
-            fulfillmentState: true,
-          },
-        },
-      },
-    }),
+    useRequestCache
+      ? loadDefaultDashboardAccount(userId)
+      : loadDashboardAccount(db, userId),
     db.savedJob.findMany({
       where: { userId, deletedAt: null },
-      include: {
+      select: {
+        id: true,
+        savedVersionId: true,
+        createdAt: true,
         jobPosting: {
-          include: {
-            company: true,
+          select: {
+            slug: true,
+            status: true,
+            closesAt: true,
+            currentVersionId: true,
+            company: { select: { displayName: true } },
             currentVersion: { select: { title: true } },
           },
         },
@@ -1062,24 +1106,41 @@ export async function getDashboardData(
     }),
     db.jobApplication.findMany({
       where: { userId, deletedAt: null },
-      include: {
+      select: {
+        id: true,
+        currentStatus: true,
+        appliedAt: true,
+        nextActionAt: true,
+        documentVersionId: true,
+        updatedAt: true,
         jobPostingVersion: {
-          include: {
+          select: {
+            id: true,
+            title: true,
             posting: {
-              include: {
-                company: true,
+              select: {
+                slug: true,
+                status: true,
+                closesAt: true,
+                currentVersionId: true,
+                company: { select: { displayName: true } },
               },
             },
           },
         },
         privateJobTargetVersion: {
-          include: {
-            privateJobTarget: true,
+          select: {
+            id: true,
+            roleTitle: true,
+            companyName: true,
+            privateJobTarget: { select: { deletedAt: true } },
           },
         },
         documentVersion: {
-          include: {
-            document: true,
+          select: {
+            id: true,
+            deletedAt: true,
+            document: { select: { title: true, deletedAt: true } },
           },
         },
       },
@@ -1091,9 +1152,18 @@ export async function getDashboardData(
     await Promise.all([
       db.candidateDocument.findMany({
         where: { userId, status: "active", deletedAt: null },
-        include: {
+        select: {
+          id: true,
+          title: true,
+          kind: true,
+          status: true,
+          updatedAt: true,
+          currentVersionId: true,
           currentVersion: {
-            include: {
+            select: {
+              id: true,
+              version: true,
+              status: true,
               _count: { select: { facts: true } },
             },
           },
@@ -1103,17 +1173,30 @@ export async function getDashboardData(
       }),
       db.tailoringRun.findMany({
         where: { userId },
-        include: {
+        select: {
+          id: true,
+          targetType: true,
+          companyName: true,
+          roleTitle: true,
+          status: true,
+          completedAt: true,
+          outputDocumentVersionId: true,
+          jobPostingVersionId: true,
+          privateJobTargetVersionId: true,
           jobPostingVersion: {
-            include: {
+            select: {
+              title: true,
               posting: {
-                include: {
-                  company: true,
+                select: {
+                  slug: true,
+                  company: { select: { displayName: true } },
                 },
               },
             },
           },
-          privateJobTargetVersion: true,
+          privateJobTargetVersion: {
+            select: { id: true, roleTitle: true, companyName: true },
+          },
           exports: {
             where: { deletedAt: null },
             select: { format: true },
@@ -1125,20 +1208,33 @@ export async function getDashboardData(
       }),
       db.interviewSession.findMany({
         where: { userId, sessionKind: "job_interview" },
-        include: {
-          company: true,
-          roleFamily: true,
-          jobRole: true,
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          focusMode: true,
+          interviewMode: true,
+          rubricVersion: true,
+          jobPostingVersionId: true,
+          privateJobTargetVersionId: true,
+          company: { select: { displayName: true } },
+          roleFamily: { select: { name: true } },
+          jobRole: { select: { name: true } },
           jobPostingVersion: {
-            include: {
+            select: {
+              title: true,
               posting: {
-                include: {
-                  company: true,
+                select: {
+                  slug: true,
+                  company: { select: { displayName: true } },
                 },
               },
             },
           },
-          privateJobTargetVersion: true,
+          privateJobTargetVersion: {
+            select: { roleTitle: true, companyName: true },
+          },
           interviewReports: {
             orderBy: { createdAt: "desc" },
             take: 1,
@@ -1155,7 +1251,9 @@ export async function getDashboardData(
         take: 24,
       }),
     ]);
-  const creditBalance = await ledgerBalance(db, userId, "credit");
+  const creditBalance = useRequestCache
+    ? await loadDefaultCreditBalance(userId)
+    : await ledgerBalance(db, userId, "credit");
 
   const plan = getPlan(user ?? { purchases: [] }, {
     creditBalance,
@@ -1228,4 +1326,17 @@ export async function getDashboardData(
     reportTrend: reportTrend(interviews),
     recentActivity,
   };
+}
+
+const loadDefaultDashboardData = cache((userId: string) =>
+  loadDashboardData(userId),
+);
+
+export function getDashboardData(
+  userId: string,
+  input: DashboardServiceInput = {},
+): Promise<CandidateWorkspaceData> {
+  return hasCustomDashboardInput(input)
+    ? loadDashboardData(userId, input)
+    : loadDefaultDashboardData(userId);
 }

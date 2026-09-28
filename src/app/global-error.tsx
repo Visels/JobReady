@@ -5,10 +5,10 @@ import { useEffect } from "react";
 
 export default function GlobalError({
   error,
-  reset,
+  unstable_retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  unstable_retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -36,7 +36,7 @@ export default function GlobalError({
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={reset}
+                  onClick={() => unstable_retry()}
                   className="min-h-12 rounded-full bg-[#00533f] px-6 text-sm font-black uppercase tracking-[0.14em] text-white transition hover:bg-[#063c31]"
                 >
                   Try again
