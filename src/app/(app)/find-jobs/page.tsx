@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import {
-  JobCard,
   JobsEmptyState,
-  JobsFilterForm,
   JobsPagination,
 } from "@/components/jobs/PublicJobsMarketplace";
-import { WorkspacePageFrame } from "@/components/workspace/WorkspacePage";
+import {
+  WorkspaceJobCard,
+  WorkspaceJobsFilters,
+  WorkspaceJobsHero,
+} from "@/components/jobs/WorkspaceJobsMarketplace";
 import {
   getPublicJobFilterOptions,
   searchPublicJobs,
@@ -34,42 +36,42 @@ export default async function FindJobsPage({
   const filterOptions = await getPublicJobFilterOptions();
 
   return (
-    <WorkspacePageFrame
-      eyebrow="Job discovery"
-      title="Find verified jobs before you prepare."
-      body="Search active public roles, save the ones that matter, and keep job discovery independent from paid preparation."
-      action={{ href: "/saved-jobs", label: "Saved jobs" }}
-    >
-      <section className="grid gap-4">
-        <JobsFilterForm
+    <main className="min-h-[calc(100dvh-64px)] bg-[radial-gradient(circle_at_60%_10%,rgba(255,237,225,0.42),transparent_26%),var(--color-background)] px-4 py-4 text-foreground md:px-6 lg:px-8 lg:py-5">
+      <div className="mx-auto max-w-[1440px]">
+        <WorkspaceJobsHero total={result.total} />
+        <WorkspaceJobsFilters
           filters={result.filters}
           options={filterOptions}
-          action="/find-jobs"
-          resetHref="/find-jobs"
-          compact
         />
 
-        <div aria-live="polite">
-          <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-[10px] font-semibold text-muted-subtle">
-                Active verified vacancies
-              </p>
-              <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.025em] text-foreground tabular-nums">
-                {result.total.toLocaleString()} job
-                {result.total === 1 ? "" : "s"} found
-              </h2>
-            </div>
-            <p className="max-w-xl text-[10px] leading-4 text-muted">
-              Advanced filters live here rather than on the dashboard. Public
-              job detail pages keep official application access free.
-            </p>
+        <section className="pt-5" aria-live="polite">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-foreground tabular-nums">
+              {result.total.toLocaleString()} job{result.total === 1 ? "" : "s"} found
+            </h2>
+            <label className="flex items-center gap-2 text-[10px] font-medium text-muted">
+              Sort by
+              <span className="relative">
+                <select
+                  aria-label="Sort jobs"
+                  defaultValue="recent"
+                  className="h-10 min-w-[142px] appearance-none rounded-xl border border-muted-line bg-white pl-3 pr-8 text-[10px] font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/12"
+                >
+                  <option value="recent">Most recent</option>
+                </select>
+                <span aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">⌄</span>
+              </span>
+            </label>
           </div>
 
           {result.jobs.length > 0 ? (
-            <div className="grid gap-3">
-              {result.jobs.map((job) => (
-                <JobCard key={job.id} job={job} authenticated />
+            <div className="grid gap-2.5">
+              {result.jobs.map((job, index) => (
+                <WorkspaceJobCard
+                  key={job.id}
+                  job={job}
+                  priorityLogo={index < 3}
+                />
               ))}
             </div>
           ) : (
@@ -77,8 +79,8 @@ export default async function FindJobsPage({
           )}
 
           <JobsPagination result={result} basePath="/find-jobs" compact />
-        </div>
-      </section>
-    </WorkspacePageFrame>
+        </section>
+      </div>
+    </main>
   );
 }
