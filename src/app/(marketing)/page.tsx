@@ -3,6 +3,7 @@ import { join } from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -27,6 +28,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { publicProductConfig } from "@/config/public";
 import { TestimonialsCarousel } from "@/components/marketing/TestimonialsCarousel";
+import { getCurrentUser } from "@/lib/auth";
 import type { PublicJobOption, PublicJobSummary } from "@/lib/jobs";
 import {
   getPublicJobFilterOptions,
@@ -1483,6 +1485,12 @@ function FinalCtaFooter() {
 }
 
 export default async function Home() {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
   const jobs = await getLandingJobs();
   const plans = await getPricingPlans();
   const searchOptions = await getLandingSearchOptions(jobs);
