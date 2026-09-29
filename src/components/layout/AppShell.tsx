@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -10,10 +10,19 @@ import {
   BookOpen,
   BriefcaseBusiness,
   ClipboardList,
+  ChevronRight,
+  CreditCard,
   FileText,
+  Gift,
   Home,
+  LifeBuoy,
+  LockKeyhole,
+  LogOut,
   Mic,
+  PlusCircle,
   ShieldCheck,
+  UserRound,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,6 +47,7 @@ type AccountItem = {
   label: string;
   href: string;
   description: string;
+  icon: LucideIcon;
 };
 
 const workspaceItems: NavItem[] = [
@@ -117,26 +127,31 @@ const accountItems: AccountItem[] = [
     label: "Credits & Billing",
     href: "/billing",
     description: "View access, free credits, and purchase options.",
+    icon: CreditCard,
   },
   {
     label: "Help",
     href: "/help",
     description: "Get support for jobs, CV/resume prep, or interviews.",
+    icon: LifeBuoy,
   },
   {
     label: "Profile & Preferences",
     href: "/profile",
     description: "Keep optional role and location preferences lightweight.",
+    icon: UserRound,
   },
   {
     label: "Referrals",
     href: "/refer-friends",
     description: "Invite friends without crowding your primary workspace.",
+    icon: Gift,
   },
   {
     label: "Privacy & Data",
     href: "/privacy-data",
     description: "Review private data controls and public policy links.",
+    icon: LockKeyhole,
   },
 ];
 
@@ -538,85 +553,97 @@ function AccountMenuPanel({
   plan,
   onClose,
   onSignOut,
-  mobile,
 }: {
   user: SidebarUser;
   plan: SidebarPlan;
   onClose: () => void;
   onSignOut: () => void;
-  mobile: boolean;
 }) {
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="account-menu-title"
-      className="fixed inset-0 z-50 grid bg-primary/18 px-4 py-5 backdrop-blur-sm lg:place-items-center"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-primary/35 pt-6 backdrop-blur-[3px] lg:items-center lg:px-5 lg:py-6"
     >
-      <div
-        className={classes(
-          "w-full overflow-hidden border border-muted-line bg-surface text-foreground shadow-shell",
-          mobile
-            ? "mt-auto rounded-t-[2rem]"
-            : "max-w-[440px] rounded-[1.6rem]",
-        )}
-      >
-        <div className="border-b border-muted-line bg-surface-soft p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-badge text-muted-subtle">
-                Account
-              </p>
-              <h2
-                id="account-menu-title"
-                className="mt-2 truncate text-[22px] font-black tracking-[-0.04em] text-foreground"
-              >
-                {accountName(user)}
-              </h2>
-              <p className="mt-1 truncate text-[12px] font-semibold text-muted">
-                {user.email ?? "No email available"}
-              </p>
-            </div>
+      <div className="max-h-[calc(100dvh-1.5rem)] w-full overflow-y-auto overscroll-contain rounded-t-[24px] bg-surface text-foreground shadow-shell sm:max-w-[520px] lg:rounded-[24px]">
+        <header className="bg-primary px-5 pb-5 pt-5 text-white sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-[10px] font-semibold uppercase tracking-badge text-white/65">
+              Account
+            </p>
             <button
               type="button"
               onClick={onClose}
-              className="grid h-10 w-10 flex-none place-items-center rounded-full border border-muted-line bg-surface text-[13px] font-black text-muted transition duration-300 ease-soft hover:border-muted-line-strong hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+              autoFocus
+              className="grid h-9 w-9 flex-none place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition duration-200 ease-soft hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-press motion-reduce:transition-none"
               aria-label="Close account menu"
             >
-              <span aria-hidden="true">X</span>
+              <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
-
-          <div className="mt-4 rounded-2xl border border-muted-line bg-surface p-4">
-            <p className="text-[13px] font-black text-foreground">
-              {planSummary(plan)}
-            </p>
-            <p className="mt-1 text-[12px] leading-5 text-muted">
-              {plan.name}. Saved jobs, applications, reports, and CV/resume
-              files remain private to this account.
-            </p>
+          <div className="mt-2 flex min-w-0 items-center gap-3">
+            <span className="grid h-12 w-12 flex-none place-items-center overflow-hidden rounded-xl border border-white/20 bg-white/15 text-[18px] font-semibold text-white">
+              {user.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.image} alt="" className="h-full w-full object-cover" />
+              ) : (
+                accountInitial(user)
+              )}
+            </span>
+            <div className="min-w-0">
+              <h2 id="account-menu-title" className="truncate text-[22px] font-semibold leading-tight tracking-[-0.035em]">
+                {accountName(user)}
+              </h2>
+              <p className="mt-0.5 truncate text-[12px] text-white/70">
+                {user.email ?? "No email available"}
+              </p>
+            </div>
           </div>
-        </div>
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-white/15 bg-white/10 px-3.5 py-3">
+            <span className="mt-0.5 grid h-8 w-8 flex-none place-items-center rounded-lg bg-accent text-accent-foreground">
+              <CreditCard className="h-4 w-4" strokeWidth={1.9} aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold leading-5">{planSummary(plan)}</p>
+              <p className="mt-0.5 text-[11px] leading-[1.45] text-white/70">
+                {plan.name}. Saved jobs, applications, reports, and CV/resume
+                files remain private to this account.
+              </p>
+            </div>
+          </div>
+        </header>
 
-        <div className="grid gap-2 p-3">
+        <nav aria-label="Account settings" className="divide-y divide-muted-line px-4 py-2 sm:px-5">
           {accountItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className="rounded-2xl border border-transparent px-3 py-3 transition duration-300 ease-soft hover:border-muted-line hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none"
+              className="group flex min-h-[62px] items-center gap-3 rounded-lg px-2 py-2.5 transition duration-200 ease-soft hover:bg-surface-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
             >
-              <span className="block text-[13px] font-black text-foreground">
-                {item.label}
+              <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-primary-soft text-primary transition-colors duration-200 group-hover:bg-primary-tint">
+                <item.icon className="h-[17px] w-[17px]" strokeWidth={1.8} aria-hidden="true" />
               </span>
-              <span className="mt-1 block text-[11px] leading-4 text-muted">
-                {item.description}
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] font-semibold leading-5 text-foreground">{item.label}</span>
+                <span className="block text-[11px] leading-4 text-muted">{item.description}</span>
               </span>
+              <ChevronRight className="h-4 w-4 flex-none text-muted-subtle transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary" strokeWidth={1.8} aria-hidden="true" />
             </Link>
           ))}
+        </nav>
 
-          {plan.creditBalance === 0 ? (
-            <div className="grid gap-2 rounded-2xl border border-muted-line bg-surface-soft p-3 sm:grid-cols-2">
+        {plan.creditBalance === 0 ? (
+          <section aria-label="Add credits" className="mx-4 mb-3 rounded-xl border border-muted-line bg-surface-warm p-3 sm:mx-5">
+            <div className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-foreground">
+              <PlusCircle className="h-4 w-4 text-primary" strokeWidth={1.8} aria-hidden="true" />
+              Add credits
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <PurchaseButton
                 label="Buy 30 credits"
                 plan="interview-standard"
@@ -628,13 +655,16 @@ function AccountMenuPanel({
                 variant="accountMenu"
               />
             </div>
-          ) : null}
+          </section>
+        ) : null}
 
+        <div className="border-t border-muted-line bg-surface-soft px-4 py-2.5 sm:px-5">
           <button
             type="button"
             onClick={onSignOut}
-            className="min-h-11 rounded-2xl border border-muted-line bg-surface px-4 text-left text-[13px] font-black text-danger transition duration-300 ease-soft hover:bg-danger-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
+            className="flex min-h-10 w-full items-center gap-3 rounded-lg px-2 text-left text-[12px] font-semibold text-danger transition duration-200 ease-soft hover:bg-danger-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press motion-reduce:transition-none"
           >
+            <LogOut className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
             Sign Out
           </button>
         </div>
@@ -895,7 +925,6 @@ export function AppShell({
   const router = useRouter();
   const portalTarget =
     typeof document === "undefined" ? null : document.body;
-  const accountPanelRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [cvSidebarState, setCvSidebarState] = useState({ pathname: "", expanded: false });
   const [loadedPreference, setLoadedPreference] = useState(false);
@@ -990,11 +1019,10 @@ export function AppShell({
 
       {accountOpen && portalTarget
         ? createPortal(
-            <div ref={accountPanelRef}>
+            <div>
               <AccountMenuPanel
                 user={user}
                 plan={plan}
-                mobile={window.matchMedia("(max-width: 1023px)").matches}
                 onClose={() => setAccountOpen(false)}
                 onSignOut={() => {
                   setAccountOpen(false);
