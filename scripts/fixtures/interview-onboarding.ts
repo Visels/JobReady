@@ -17,7 +17,7 @@ export function interviewOnboardingFixture(): InterviewOnboardingOptions {
       jobRoleId: "pm",
       seniorityLevelId: "mid",
       focusMode: "recommended",
-      interviewMode: "text",
+      interviewMode: "voice",
       durationMinutes: 30,
       language: "en",
     },

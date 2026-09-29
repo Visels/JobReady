@@ -23,12 +23,15 @@ export const interviewOnboardingDraftSchema = z
     marketId: z.string().trim().optional().default(""),
     companyId: z.string().trim().optional().default(""),
     otherCompanyName: z.string().trim().max(120).optional().default(""),
+    manualJobTitle: z.string().trim().max(200).optional().default(""),
+    manualJobDescription: z.string().trim().max(12000).optional().default(""),
+    targetSelection: z.enum(["site", "manual"]).optional().default("site"),
     roleFamilyId: z.string().trim().optional().default(""),
     jobRoleId: z.string().trim().optional().default(""),
     seniorityLevelId: z.string().trim().optional().default(""),
     interviewStageId: z.string().trim().optional().default(""),
     focusMode: jobInterviewFocusModeSchema.default("recommended"),
-    interviewMode: jobInterviewModeSchema.default("text"),
+    interviewMode: jobInterviewModeSchema.default("voice"),
     durationMinutes: z.number().int().min(5).max(120).default(15),
     language: z.literal("en").default("en"),
     candidateDocumentChoice: interviewOnboardingCvChoiceSchema.default("skip"),
@@ -176,7 +179,7 @@ export type InterviewOnboardingOptions = {
     jobRoleId: string;
     seniorityLevelId: string;
     focusMode: "recommended";
-    interviewMode: "text";
+    interviewMode: "voice";
     durationMinutes: number;
     language: "en";
   };
@@ -288,6 +291,7 @@ export function createDefaultInterviewOnboardingDraft(
 ): InterviewOnboardingDraft {
   return sanitizeInterviewOnboardingDraft({
     entryPath: "standalone",
+    targetSelection: "site",
     marketId: options.defaults.marketId,
     companyId: options.defaults.companyId,
     roleFamilyId: options.defaults.roleFamilyId,
@@ -397,6 +401,7 @@ export function prefillDraftFromPublicTarget(
   return sanitizeInterviewOnboardingDraft({
     ...draft,
     entryPath: "public_job",
+    targetSelection: "site",
     publicJobPostingVersionId: target.jobPostingVersionId,
     marketId: target.marketId,
     companyId: target.companyId,
@@ -420,6 +425,7 @@ export function prefillDraftFromPrivateTarget(
   return sanitizeInterviewOnboardingDraft({
     ...draft,
     entryPath: "private_job",
+    targetSelection: "site",
     privateJobTargetVersionId: target.privateJobTargetVersionId,
     marketId: target.marketId ?? draft.marketId,
     companyId: target.companyId ?? "",
@@ -434,6 +440,22 @@ export function requiredOnboardingMissingFields(
   options: InterviewOnboardingOptions,
 ) {
   const fieldErrors: Record<string, string> = {};
+
+  if (draft.targetSelection === "site" && draft.entryPath === "standalone") {
+    fieldErrors.publicJobPostingVersionId = "Select a job from the search results.";
+  }
+
+  if (draft.targetSelection === "manual") {
+    if (draft.manualJobTitle.trim().length < 2) {
+      fieldErrors.manualJobTitle = "Enter a job title.";
+    }
+    if (draft.otherCompanyName.trim().length < 2) {
+      fieldErrors.otherCompanyName = "Enter a company name.";
+    }
+    if (draft.manualJobDescription.trim().length < 20) {
+      fieldErrors.manualJobDescription = "Enter a job description of at least 20 characters.";
+    }
+  }
 
   if (draft.entryPath === "public_job" && !publicTargetForDraft(draft, options)) {
     fieldErrors.publicJobPostingVersionId =
@@ -512,7 +534,11 @@ export function buildJobInterviewSessionRequestFromDraft(input: {
   const draft = sanitizeInterviewOnboardingDraft(input.draft);
   const fieldErrors = requiredOnboardingMissingFields(draft, input.options);
 
-  if (draft.entryPath === "standalone" && !draft.companyId) {
+  if (![15, 30, 60].includes(draft.durationMinutes)) {
+    fieldErrors.durationMinutes = "Choose 15, 30, or 60 minutes.";
+  }
+
+  if (draft.targetSelection === "manual" && !draft.companyId) {
     const otherCompanyName = draft.otherCompanyName.trim();
     if (otherCompanyName.length > 0 && otherCompanyName.length < 2) {
       fieldErrors.otherCompanyName =
@@ -525,7 +551,14 @@ export function buildJobInterviewSessionRequestFromDraft(input: {
   }
 
   const target =
-    draft.entryPath === "public_job"
+    draft.targetSelection === "manual"
+      ? {
+          type: "manual_job" as const,
+          roleTitle: draft.manualJobTitle.trim(),
+          companyName: draft.otherCompanyName.trim(),
+          description: draft.manualJobDescription.trim(),
+        }
+      : draft.entryPath === "public_job"
       ? {
           type: "public_job" as const,
           jobPostingVersionId: draft.publicJobPostingVersionId,
@@ -550,7 +583,7 @@ export function buildJobInterviewSessionRequestFromDraft(input: {
   const request = {
     idempotencyKey: input.idempotencyKey,
     marketId: draft.marketId,
-    companyId: draft.companyId || undefined,
+    companyId: draft.targetSelection === "manual" ? undefined : draft.companyId || undefined,
     roleFamilyId: draft.roleFamilyId,
     jobRoleId: draft.jobRoleId || undefined,
     seniorityLevelId: draft.seniorityLevelId,
@@ -560,7 +593,7 @@ export function buildJobInterviewSessionRequestFromDraft(input: {
         ? roleSpecific.preferredFrameworkKey
         : undefined,
     focusMode: draft.focusMode,
-    interviewMode: draft.interviewMode,
+    interviewMode: "voice" as const,
     durationMinutes: draft.durationMinutes,
     language: draft.language,
     target,

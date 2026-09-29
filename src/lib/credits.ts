@@ -2,7 +2,7 @@ export const SIGNUP_CREDITS = 30;
 export const INTERVIEW_CREDITS_PER_MINUTE = 2;
 export const CV_TAILORING_CREDITS = 10;
 
-export const INTERVIEW_DURATION_OPTIONS = [15, 25, 30, 45, 60] as const;
+export const INTERVIEW_DURATION_OPTIONS = [15, 30, 60] as const;
 
 export function interviewCreditCost(durationMinutes: number) {
   if (!Number.isInteger(durationMinutes) || durationMinutes <= 0) {

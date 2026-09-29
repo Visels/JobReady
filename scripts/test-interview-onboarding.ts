@@ -133,19 +133,28 @@ async function main() {
   );
 
   const defaultDraft = createDefaultInterviewOnboardingDraft(options);
+  const manualDraft = sanitizeInterviewOnboardingDraft({
+    ...defaultDraft,
+    targetSelection: "manual",
+    companyId: "",
+    manualJobTitle: "Product Manager",
+    otherCompanyName: "Mwangaza Studio",
+    manualJobDescription:
+      "Lead customer research and prioritize the product roadmap with the team.",
+  });
   const scenarioAInput = requireBuild(
     buildJobInterviewSessionRequestFromDraft({
-      draft: defaultDraft,
+      draft: manualDraft,
       options,
       idempotencyKey: `task17-scenario-a-${suffix()}`,
     }),
   );
   const scenarioA = await service.createSession(user.id, scenarioAInput);
-  assert.equal(scenarioA.session.target.type, "none");
-  assert.equal(scenarioA.session.support.noPosting, true);
+  assert.equal(scenarioA.session.target.type, "private_job");
+  assert.equal(scenarioA.session.support.noPosting, false);
   assert.equal(scenarioA.session.support.noCv, true);
   assert.equal(scenarioA.session.focusMode, "recommended");
-  assert.equal(scenarioA.session.context.company?.label, "Safaricom");
+  assert.equal(scenarioA.session.context.company, null);
   assert.ok(scenarioA.session.questionSet.persisted);
 
   const publicDraft = prefillDraftFromPublicTarget(
@@ -175,7 +184,7 @@ async function main() {
       draft: sanitizeInterviewOnboardingDraft({
         ...publicDraft,
         interviewMode: "voice",
-        durationMinutes: 45,
+        durationMinutes: 60,
         candidateDocumentChoice: "use",
         candidateDocumentVersionId: candidateDocument.versionId,
       }),
@@ -194,8 +203,12 @@ async function main() {
   const unsupportedCompanyDraft = sanitizeInterviewOnboardingDraft({
     ...defaultDraft,
     entryPath: "standalone",
+    targetSelection: "manual",
     companyId: "",
     otherCompanyName: "Unlisted Nairobi Fintech",
+    manualJobTitle: "Product Manager",
+    manualJobDescription:
+      "Lead product discovery and delivery for a Nairobi fintech team.",
     marketId: kenya.id,
     roleFamilyId: productFamily.id,
     jobRoleId: productManager.id,
@@ -223,7 +236,7 @@ async function main() {
   assert.equal(unsupportedCompany.session.context.company, null);
   assert.equal(unsupportedCompany.session.plan.source, "reviewed_plan");
   assert.match(unsupportedCompany.session.plan.slug, /role-fallback/);
-  assert.equal(unsupportedCompany.session.support.noPosting, true);
+  assert.equal(unsupportedCompany.session.support.noPosting, false);
   assert.ok(unsupportedCompany.session.questionSet.turnCount > 0);
 
   assertKeyboardNativeControls();

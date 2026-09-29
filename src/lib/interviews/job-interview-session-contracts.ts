@@ -28,6 +28,12 @@ export const jobInterviewTargetRequestSchema = z.discriminatedUnion("type", [
     type: z.literal("private_job"),
     privateJobTargetVersionId: canonicalIdSchema,
   }),
+  z.object({
+    type: z.literal("manual_job"),
+    roleTitle: z.string().trim().min(2).max(200),
+    companyName: z.string().trim().min(2).max(120),
+    description: z.string().trim().min(20).max(12000),
+  }),
 ]);
 
 export const jobInterviewCandidateDocumentRequestSchema = z

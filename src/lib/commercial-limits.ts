@@ -47,7 +47,7 @@ export function getCommercialLimits(env: EnvLike = process.env): CommercialLimit
     extendedInterviewMinutes: intFromEnv(
       env,
       "JOBREADY_EXTENDED_INTERVIEW_MINUTES",
-      45,
+      60,
       10,
       90,
     ),
@@ -68,7 +68,7 @@ export function getCommercialLimits(env: EnvLike = process.env): CommercialLimit
     realtimeAudioSeconds: intFromEnv(
       env,
       "JOBREADY_REALTIME_AUDIO_SECONDS",
-      2700,
+      3600,
       300,
       7200,
     ),

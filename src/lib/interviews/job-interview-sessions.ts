@@ -87,6 +87,12 @@ type ResolvedTarget =
       createData: { privateJobTargetVersionId: string };
       snapshot: Prisma.InputJsonObject;
       selectionSignals: string[];
+    }
+  | {
+      type: "manual_job";
+      createData: Record<string, never>;
+      snapshot: Prisma.InputJsonObject;
+      selectionSignals: string[];
     };
 
 type ResolvedDocumentContext = {
@@ -387,6 +393,55 @@ export class JobInterviewSessionService {
           return lockedReservation.interviewSessionId;
         }
 
+        let targetData = target.createData;
+        let sessionTarget = target;
+        if (input.target.type === "manual_job") {
+          const manual = input.target;
+          const privateTarget = await tx.privateJobTarget.create({
+            data: {
+              userId,
+              marketId: context.market.id,
+              companyId: context.company?.id,
+              jobRoleId: context.jobRole?.id,
+              title: `${manual.roleTitle} at ${manual.companyName}`,
+            },
+          });
+          const version = await tx.privateJobTargetVersion.create({
+            data: {
+              privateJobTargetId: privateTarget.id,
+              version: 1,
+              roleTitle: manual.roleTitle,
+              companyName: manual.companyName,
+              description: manual.description,
+              contentHash: createHash("sha256")
+                .update(JSON.stringify(manual))
+                .digest("hex"),
+            },
+          });
+          await tx.privateJobTarget.update({
+            where: { id: privateTarget.id },
+            data: { currentVersionId: version.id },
+          });
+          targetData = { privateJobTargetVersionId: version.id };
+          sessionTarget = {
+            type: "private_job",
+            createData: targetData,
+            snapshot: {
+              type: "private_job",
+              privateJobTargetId: privateTarget.id,
+              privateJobTargetVersionId: version.id,
+              version: 1,
+              title: manual.roleTitle,
+              company: {
+                id: context.company?.id ?? "private-company-name",
+                slug: context.company?.slug ?? null,
+                label: manual.companyName,
+              },
+            },
+            selectionSignals: target.selectionSignals,
+          };
+        }
+
         const session = await tx.interviewSession.create({
           data: {
             userId,
@@ -397,7 +452,7 @@ export class JobInterviewSessionService {
             onboardingData: this.buildOnboardingSnapshot({
               input,
               context,
-              target,
+              target: sessionTarget,
               documentContext,
               composedPlan,
               reservationId: reservation.entry.id,
@@ -408,7 +463,7 @@ export class JobInterviewSessionService {
             jobRoleId: context.jobRole?.id ?? null,
             seniorityLevelId: context.seniorityLevel.id,
             interviewStageId: context.interviewStage?.id ?? null,
-            ...target.createData,
+            ...targetData,
             ...documentContext.createData,
             interviewPlanId: composedPlan.plan.id,
             focusMode: composedPlan.plan.focusMode,
@@ -731,6 +786,19 @@ export class JobInterviewSessionService {
 
     if (input.target.type === "public_job") {
       return this.resolvePublicTarget(input.target.jobPostingVersionId, context);
+    }
+
+    if (input.target.type === "manual_job") {
+      return {
+        type: "manual_job",
+        createData: {},
+        snapshot: { type: "manual_job", title: input.target.roleTitle },
+        selectionSignals: [
+          input.target.roleTitle,
+          input.target.companyName,
+          input.target.description,
+        ],
+      };
     }
 
     return this.resolvePrivateTarget(

@@ -11,7 +11,6 @@ import {
   Coins,
   FileText,
   ListChecks,
-  MessageSquare,
   Mic,
   Sparkles,
   SlidersHorizontal,
@@ -44,7 +43,7 @@ import {
 } from "@/lib/credits";
 
 const STORAGE_KEY = "jobready-interview-onboarding-draft-v1";
-const DRAFT_SCHEMA_VERSION = "task17.v2";
+const DRAFT_SCHEMA_VERSION = "task17.v3";
 const controlClass =
   "min-h-[46px] w-full min-w-0 rounded-lg border border-muted-line bg-surface px-3.5 py-2 text-[14px] text-foreground outline-none transition duration-200 hover:border-muted-line-strong focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-surface-soft disabled:text-muted";
 const textButtonClass =
@@ -119,7 +118,6 @@ export function JobInterviewOnboardingClient({
   const [submitting, setSubmitting] = useState(false);
   const [launchStep, setLaunchStep] = useState(0);
   const [isNavigating, startTransition] = useTransition();
-  const [showJobs, setShowJobs] = useState(false);
   const [jobQuery, setJobQuery] = useState("");
   const [moreOptions, setMoreOptions] = useState(false);
   const pending = submitting || isNavigating;
@@ -141,11 +139,7 @@ export function JobInterviewOnboardingClient({
       : undefined;
   const target = publicTarget ?? privateTarget;
   const roleLocked = Boolean(publicTarget || privateTarget?.jobRoleId);
-  const companyLocked = Boolean(publicTarget || privateTarget?.companyId);
   const marketLocked = Boolean(publicTarget || privateTarget?.marketId);
-  const companies = options.companies.filter(
-    (company) => company.marketId === draft.marketId,
-  );
   const roles = options.jobRoles.filter(
     (role) =>
       (!role.marketId || role.marketId === draft.marketId) &&
@@ -182,17 +176,15 @@ export function JobInterviewOnboardingClient({
         .toLowerCase()
         .includes(normalizedQuery),
   );
-  const hasJobs =
-    options.publicTargets.length + options.privateTargets.length > 0;
   const reviewedPlanAvailable = hasReviewedPlanForDraft(draft, options);
   const roleLabel =
-    target?.title ??
+    (draft.targetSelection === "manual" ? draft.manualJobTitle.trim() || undefined : target?.title) ??
     options.jobRoles.find((role) => role.id === draft.jobRoleId)?.label ??
     options.roleFamilies.find((family) => family.id === draft.roleFamilyId)
       ?.label ??
     "role";
   const companyLabel =
-    (target?.companyLabel ??
+    ((draft.targetSelection === "manual" ? draft.otherCompanyName.trim() || undefined : target?.companyLabel) ??
       options.companies.find((company) => company.id === draft.companyId)
         ?.label ??
       draft.otherCompanyName.trim()) ||
@@ -201,7 +193,6 @@ export function JobInterviewOnboardingClient({
     options.seniorityLevels.find(
       (level) => level.id === draft.seniorityLevelId,
     )?.label ?? "Choose a level";
-  const jobPathSelected = showJobs || Boolean(target);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -223,7 +214,13 @@ export function JobInterviewOnboardingClient({
             next.privateJobTargetVersionId,
           );
         }
-        setDraft(next);
+        setDraft({
+          ...next,
+          interviewMode: "voice",
+          durationMinutes: INTERVIEW_DURATION_OPTIONS.includes(next.durationMinutes as 15 | 30 | 60)
+            ? next.durationMinutes
+            : 15,
+        });
       } catch {
         setDraft(initialDraft);
       } finally {
@@ -302,23 +299,35 @@ export function JobInterviewOnboardingClient({
         prefillDraftFromPrivateTarget(draft, options, value.slice(8)),
       );
     }
-    setShowJobs(false);
     setJobQuery("");
   }
 
   function clearJob() {
     patchDraft({
       entryPath: "standalone",
+      targetSelection: "site",
       publicJobPostingVersionId: "",
       privateJobTargetVersionId: "",
     });
-    setShowJobs(false);
+  }
+
+  function updateManualTitle(title: string) {
+    const normalized = title.trim().toLowerCase();
+    const matchedRole = options.jobRoles
+      .filter((role) => !role.companyId && (!role.marketId || role.marketId === draft.marketId))
+      .sort((left, right) => right.label.length - left.label.length)
+      .find((role) => normalized.includes(role.label.toLowerCase()));
+    patchDraft({
+      manualJobTitle: title,
+      ...(matchedRole
+        ? { jobRoleId: matchedRole.id, roleFamilyId: matchedRole.roleFamilyId }
+        : {}),
+    });
   }
 
   function resetToDefaults() {
     removeStoredDraft();
     updateDraft(createDefaultInterviewOnboardingDraft(options));
-    setShowJobs(false);
     setMoreOptions(false);
     setStatusText("Setup reset.");
   }
@@ -342,17 +351,8 @@ export function JobInterviewOnboardingClient({
         build.fieldErrors.form ??
           "Check the highlighted details to start your interview.",
       );
-      if (
-        build.fieldErrors.marketId ||
-        build.fieldErrors.interviewStageId ||
-        build.fieldErrors.candidateDocumentVersionId
-      )
+      if (build.fieldErrors.marketId || build.fieldErrors.interviewStageId)
         setMoreOptions(true);
-      if (
-        build.fieldErrors.publicJobPostingVersionId ||
-        build.fieldErrors.privateJobTargetVersionId
-      )
-        setShowJobs(true);
       window.requestAnimationFrame(() =>
         formRef.current
           ?.querySelector<HTMLElement>('[aria-invalid="true"]')
@@ -458,121 +458,61 @@ export function JobInterviewOnboardingClient({
             </div>
           </div>
 
-          <div className={`mt-4 grid gap-3 ${hasJobs ? "sm:grid-cols-2" : ""}`}>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <button
               type="button"
-              onClick={() => clearJob()}
-              aria-pressed={!jobPathSelected}
-              className={`group flex min-h-[60px] items-center gap-3 rounded-lg border p-3 text-left outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-primary/25 active:scale-[0.99] ${!jobPathSelected ? "border-accent bg-accent-surface/65" : "border-muted-line hover:border-muted-line-strong hover:bg-surface-soft"}`}
+              onClick={() => { if (draft.targetSelection === "manual") clearJob(); }}
+              aria-pressed={draft.targetSelection === "site"}
+              className={`group flex min-h-[60px] items-center gap-3 rounded-lg border p-3 text-left outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-primary/25 ${draft.targetSelection === "site" ? "border-accent bg-accent-surface/65" : "border-muted-line hover:bg-surface-soft"}`}
             >
-              <span className={`grid h-9 w-9 flex-none place-items-center rounded-full ${!jobPathSelected ? "bg-accent-soft text-accent-strong" : "bg-surface-soft text-muted"}`}>
-                <BriefcaseBusiness size={18} strokeWidth={2.2} aria-hidden="true" />
+              <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-accent-soft text-accent-strong">
+                <ListChecks size={18} strokeWidth={2.2} aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-[13px] font-bold text-foreground">
-                  Enter details manually
+                  Select a job from Jiandae
                 </span>
                 <span className="mt-0.5 block text-[11px] leading-4 text-muted">
-                  Add a role, company and experience
+                  Search our jobs and select one
                 </span>
               </span>
-              <span className={`h-4 w-4 flex-none rounded-full border-[5px] ${!jobPathSelected ? "border-accent" : "border-muted-line-strong bg-surface"}`} aria-hidden="true" />
+              <span className={`h-4 w-4 flex-none rounded-full border-[5px] ${draft.targetSelection === "site" ? "border-accent" : "border-muted-line-strong"}`} aria-hidden="true" />
             </button>
-
-            {hasJobs ? (
-              <button
-                type="button"
-                onClick={() => setShowJobs(true)}
-                aria-label="Use a job"
-                aria-pressed={jobPathSelected}
-                aria-expanded={showJobs}
-                aria-controls="interview-job-picker"
-                className={`group flex min-h-[60px] items-center gap-3 rounded-lg border p-3 text-left outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-primary/25 active:scale-[0.99] ${jobPathSelected ? "border-accent bg-accent-surface/65" : "border-muted-line hover:border-muted-line-strong hover:bg-surface-soft"}`}
-              >
-                <span className={`grid h-9 w-9 flex-none place-items-center rounded-full ${jobPathSelected ? "bg-accent-soft text-accent-strong" : "bg-surface-soft text-muted"}`}>
-                  <ListChecks size={19} strokeWidth={2.2} aria-hidden="true" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[13px] font-bold text-foreground">
-                    Choose from jobs
-                  </span>
-                  <span className="mt-0.5 block text-[11px] leading-4 text-muted">
-                    Use a saved or reviewed job
-                  </span>
-                </span>
-                <span className={`h-4 w-4 flex-none rounded-full border-[5px] ${jobPathSelected ? "border-accent" : "border-muted-line-strong bg-surface"}`} aria-hidden="true" />
-              </button>
-            ) : null}
+            <button
+              type="button"
+              onClick={() => updateDraft({ ...draft, entryPath: "standalone", targetSelection: "manual", publicJobPostingVersionId: "", privateJobTargetVersionId: "", companyId: "", otherCompanyName: draft.targetSelection === "site" ? "" : draft.otherCompanyName, roleFamilyId: draft.targetSelection === "site" ? "" : draft.roleFamilyId, jobRoleId: draft.targetSelection === "site" ? "" : draft.jobRoleId })}
+              aria-pressed={draft.targetSelection === "manual"}
+              className={`group flex min-h-[60px] items-center gap-3 rounded-lg border p-3 text-left outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-primary/25 ${draft.targetSelection === "manual" ? "border-accent bg-accent-surface/65" : "border-muted-line hover:bg-surface-soft"}`}
+            >
+              <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-surface-soft text-primary"><BriefcaseBusiness size={18} aria-hidden="true" /></span>
+              <span className="min-w-0 flex-1"><span className="block text-[13px] font-bold text-foreground">Enter details manually</span><span className="mt-0.5 block text-[11px] leading-4 text-muted">Add the title, company and description</span></span>
+              <span className={`h-4 w-4 flex-none rounded-full border-[5px] ${draft.targetSelection === "manual" ? "border-accent" : "border-muted-line-strong"}`} aria-hidden="true" />
+            </button>
           </div>
 
-          {showJobs ? (
+          {draft.targetSelection === "site" ? (
             <div id="interview-job-picker" className="mt-4 grid gap-3 rounded-lg bg-surface-soft p-4">
-              <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-                <Field label="Search jobs">
-                  {(props) => (
-                    <input
-                      {...props}
-                      type="search"
-                      value={jobQuery}
-                      onChange={(event) => setJobQuery(event.target.value)}
-                      placeholder="Job title or company"
-                      className={controlClass}
-                    />
-                  )}
-                </Field>
-                <Field
-                  label="Choose a job"
-                  error={fieldErrors.publicJobPostingVersionId ?? fieldErrors.privateJobTargetVersionId}
-                >
-                  {(props) => (
-                    <select
-                      {...props}
-                      value={targetValue}
-                      onChange={(event) => chooseJob(event.target.value)}
-                      className={controlClass}
-                    >
-                      <option value="">Choose a job to fill in the details</option>
-                      {publicJobs.length ? (
-                        <optgroup label="Public jobs">
-                          {publicJobs.map((item) => (
-                            <option key={item.jobPostingVersionId} value={`public:${item.jobPostingVersionId}`}>
-                              {item.title} at {item.companyLabel}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ) : null}
-                      {privateJobs.length ? (
-                        <optgroup label="Your saved targets">
-                          {privateJobs.map((item) => (
-                            <option key={item.privateJobTargetVersionId} value={`private:${item.privateJobTargetVersionId}`}>
-                              {item.title}{item.companyLabel ? ` at ${item.companyLabel}` : ""}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ) : null}
-                    </select>
-                  )}
-                </Field>
+              <Field label="Search jobs" error={fieldErrors.publicJobPostingVersionId ?? fieldErrors.privateJobTargetVersionId}>
+                {(props) => <input {...props} type="search" value={jobQuery} onChange={(event) => setJobQuery(event.target.value)} placeholder="Search by job title or company" className={controlClass} />}
+              </Field>
+              {target && !jobQuery ? <p className="text-[12px] font-semibold text-primary">Selected: {target.title}{target.companyLabel ? ` at ${target.companyLabel}` : ""}</p> : null}
+              <div className="max-h-52 overflow-y-auto rounded-lg border border-muted-line bg-surface">
+                {publicJobs.map((item) => <button key={item.jobPostingVersionId} type="button" onClick={() => chooseJob(`public:${item.jobPostingVersionId}`)} aria-pressed={targetValue === `public:${item.jobPostingVersionId}`} className="block w-full border-b border-muted-line px-4 py-3 text-left last:border-0 hover:bg-primary-soft focus-visible:bg-primary-soft"><span className="block text-[13px] font-semibold">{item.title}</span><span className="text-[11px] text-muted">{item.companyLabel}{item.location ? ` · ${item.location}` : ""}</span></button>)}
+                {privateJobs.map((item) => <button key={item.privateJobTargetVersionId} type="button" onClick={() => chooseJob(`private:${item.privateJobTargetVersionId}`)} aria-pressed={targetValue === `private:${item.privateJobTargetVersionId}`} className="block w-full border-b border-muted-line px-4 py-3 text-left last:border-0 hover:bg-primary-soft focus-visible:bg-primary-soft"><span className="block text-[13px] font-semibold">{item.title}</span><span className="text-[11px] text-muted">{item.companyLabel ?? "Saved target"}</span></button>)}
+                {!publicJobs.length && !privateJobs.length ? <p className="px-4 py-3 text-[12px] text-muted">No matching jobs. Try another search or enter the details manually.</p> : null}
               </div>
-              {!publicJobs.length && !privateJobs.length ? (
-                <p className="text-[12px] text-muted">No matching jobs. Try another search.</p>
-              ) : null}
             </div>
-          ) : null}
-
-          {target && !showJobs ? (
-            <div className="mt-4 flex items-center justify-between gap-4 rounded-lg bg-primary-soft px-4 py-3">
-              <p className="min-w-0 text-[12px] leading-5 text-primary">
-                <span className="block truncate font-bold">{target.title}{target.companyLabel ? ` at ${target.companyLabel}` : ""}</span>
-                <span className="block text-primary/75">Details filled from {privateTarget ? "your saved job" : "a reviewed job"}.</span>
-              </p>
-              <button type="button" onClick={clearJob} className={`${textButtonClass} shrink-0`}>Remove</button>
+          ) : (
+            <div className="mt-4 grid gap-4">
+              <Field label="Job title" error={fieldErrors.manualJobTitle}>{(props) => <input {...props} value={draft.manualJobTitle} onChange={(event) => updateManualTitle(event.target.value)} placeholder="e.g. Product Manager" maxLength={200} className={controlClass} />}</Field>
+              <Field label="Company" error={fieldErrors.otherCompanyName}>{(props) => <input {...props} value={draft.otherCompanyName} onChange={(event) => patchDraft({ otherCompanyName: event.target.value })} placeholder="Company name" maxLength={120} className={controlClass} />}</Field>
+              <Field label="Job description" error={fieldErrors.manualJobDescription}>{(props) => <textarea {...props} value={draft.manualJobDescription} onChange={(event) => patchDraft({ manualJobDescription: event.target.value })} placeholder="Paste or describe the role and its responsibilities" rows={5} maxLength={12000} className={controlClass} />}</Field>
             </div>
-          ) : null}
+          )}
 
           <div className="mt-4 grid gap-4">
           <Field
-            label="Role"
+            label="Role area for questions"
             error={fieldErrors.jobRoleId ?? fieldErrors.roleFamilyId}
           >
             {(props) => (
@@ -618,30 +558,10 @@ export function JobInterviewOnboardingClient({
               </select>
             )}
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Company" error={fieldErrors.companyId}>
-              {(props) => (
-                <select
-                  {...props}
-                  disabled={companyLocked}
-                  value={draft.companyId}
-                  onChange={(event) =>
-                    changeContext({
-                      companyId: event.target.value,
-                      otherCompanyName: "",
-                    })
-                  }
-                  className={controlClass}
-                >
-                  <option value="">Any company / other</option>
-                  {companies.map((company) => (
-                    <option key={company.id} value={company.id}>
-                      {company.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </Field>
+          {draft.targetSelection === "manual" && !draft.roleFamilyId ? (
+            <p className="text-[12px] text-muted">Choose the closest role area so we can select relevant questions.</p>
+          ) : null}
+          <div className="grid gap-4">
             <Field
               label="Experience level"
               error={fieldErrors.seniorityLevelId}
@@ -668,25 +588,6 @@ export function JobInterviewOnboardingClient({
               )}
             </Field>
           </div>
-          {!draft.companyId ? (
-            <Field
-              label="Company name (optional)"
-              error={fieldErrors.otherCompanyName}
-            >
-              {(props) => (
-                <input
-                  {...props}
-                  value={draft.otherCompanyName}
-                  maxLength={120}
-                  onChange={(event) =>
-                    patchDraft({ otherCompanyName: event.target.value })
-                  }
-                  placeholder="Leave blank for general role practice"
-                  className={controlClass}
-                />
-              )}
-            </Field>
-          ) : null}
           </div>
         </section>
 
@@ -701,8 +602,8 @@ export function JobInterviewOnboardingClient({
 
           <fieldset className="mt-4 min-w-0">
             <legend className="sr-only">Duration choices</legend>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {[...new Set([...INTERVIEW_DURATION_OPTIONS, draft.durationMinutes])].sort((a, b) => a - b).map((minutes) => (
+            <div className="grid grid-cols-3 gap-3">
+              {INTERVIEW_DURATION_OPTIONS.map((minutes) => (
                 <label key={minutes} className={`relative flex min-h-[64px] cursor-pointer flex-col justify-center rounded-lg border px-3.5 py-2.5 transition duration-200 focus-within:ring-2 focus-within:ring-primary/25 ${draft.durationMinutes === minutes ? "border-accent bg-accent-surface/65" : "border-muted-line hover:bg-surface-soft"}`}>
                   <input type="radio" name="duration-choice" value={minutes} checked={draft.durationMinutes === minutes} onChange={() => patchDraft({ durationMinutes: minutes })} className="sr-only" />
                   <span className="text-[12px] font-bold text-foreground">{minutes} minutes</span>
@@ -713,7 +614,7 @@ export function JobInterviewOnboardingClient({
             </div>
             <label className="sr-only" htmlFor="interview-duration-select">Duration</label>
             <select id="interview-duration-select" aria-label="Duration" value={draft.durationMinutes} onChange={(event) => patchDraft({ durationMinutes: Number(event.target.value) })} className="sr-only">
-              {[...new Set([...INTERVIEW_DURATION_OPTIONS, draft.durationMinutes])].sort((a, b) => a - b).map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
+              {INTERVIEW_DURATION_OPTIONS.map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
             </select>
           </fieldset>
 
@@ -730,7 +631,7 @@ export function JobInterviewOnboardingClient({
             />
             <span className="text-[12px] font-bold">More options</span>
             <span className="ml-1 hidden text-[11px] text-muted sm:inline">
-              Focus areas, interview stage, market and CV
+              Focus area, interview stage and market
             </span>
             <ChevronDown
               size={16}
@@ -739,25 +640,6 @@ export function JobInterviewOnboardingClient({
             />
           </summary>
           <div className="grid gap-4 pt-4">
-            <fieldset className="min-w-0">
-              <legend className="mb-2 text-[12px] font-bold text-foreground">Interview format</legend>
-              <div className="grid grid-cols-2 gap-3">
-                {([
-                  { value: "text", title: "Text", description: "Type your answers", icon: MessageSquare },
-                  { value: "voice", title: "Voice", description: "Practise out loud", icon: Mic },
-                ] as const).map(({ value, title, description, icon: Icon }) => (
-                  <label key={value} className={`flex min-h-[56px] cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-2.5 transition duration-200 focus-within:ring-2 focus-within:ring-primary/25 ${draft.interviewMode === value ? "border-primary bg-primary-soft" : "border-muted-line hover:bg-surface-soft"}`}>
-                    <input type="radio" name="interview-mode" value={value} checked={draft.interviewMode === value} onChange={() => patchDraft({ interviewMode: value })} className="sr-only" />
-                    <Icon size={17} className="shrink-0 text-primary" aria-hidden="true" />
-                    <span className="min-w-0">
-                      <span className="block text-[12px] font-bold text-foreground">{title}</span>
-                      <span className="block text-[10px] leading-4 text-muted">{description}</span>
-                    </span>
-                    {draft.interviewMode === value ? <Check size={15} className="ml-auto text-primary" aria-hidden="true" /> : null}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Question focus">
                 {(props) => (
@@ -827,66 +709,6 @@ export function JobInterviewOnboardingClient({
                 )}
               </Field>
             ) : null}
-            <Field
-              label="Personalize with a CV (optional)"
-              error={fieldErrors.candidateDocumentVersionId}
-            >
-              {(props) => (
-                <select
-                  {...props}
-                  value={
-                    draft.candidateDocumentChoice === "use"
-                      ? draft.candidateDocumentVersionId
-                      : ""
-                  }
-                  onChange={(event) =>
-                    patchDraft({
-                      candidateDocumentChoice: event.target.value
-                        ? "use"
-                        : "skip",
-                      candidateDocumentVersionId: event.target.value,
-                    })
-                  }
-                  className={controlClass}
-                >
-                  <option value="">Skip CV</option>
-                  {options.candidateDocuments.map((document) => (
-                    <option key={document.versionId} value={document.versionId}>
-                      {document.title} — version {document.versionNumber}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </Field>
-            <p className="text-[12px] leading-5 text-muted">
-              {cvDocument && draft.candidateDocumentChoice === "use"
-                ? "By selecting this CV, you allow Jiandae to use up to 10 facts about your roles and skills, with short supporting excerpts, to personalize questions. Your raw CV text is not shared."
-                : options.candidateDocuments.length
-                  ? "Your CV is only used if you select it here."
-                  : "No saved CV yet. You can start with just your role."}
-            </p>
-            {cvDocument &&
-            draft.candidateDocumentChoice === "use" &&
-            cvDocument.facts.length > 0 ? (
-              <details className="rounded-lg bg-surface-soft px-4 py-3">
-                <summary className="cursor-pointer text-[12px] font-semibold text-primary focus-visible:outline-2 focus-visible:outline-primary">
-                  Preview CV details
-                </summary>
-                <ul className="mt-3 grid gap-2 text-[12px] leading-5 text-muted">
-                  {cvDocument.facts.map((fact) => (
-                    <li key={fact.id}>
-                      <span className="font-semibold text-foreground">
-                        {fact.label}
-                      </span>
-                      {fact.skillName ? ` · ${fact.skillName}` : ""}
-                      {fact.sourceExcerpt ? (
-                        <span className="block">{fact.sourceExcerpt}</span>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ) : null}
             <button
               type="button"
               onClick={resetToDefaults}
@@ -907,7 +729,7 @@ export function JobInterviewOnboardingClient({
             {formError}
           </p>
         ) : null}
-        {!reviewedPlanAvailable && !formError ? (
+        {!reviewedPlanAvailable && draft.roleFamilyId && !formError ? (
           <div
             role="status"
             className="mb-4 rounded-lg bg-warning/10 px-4 py-3 text-[13px] leading-5 text-foreground"
@@ -935,8 +757,8 @@ export function JobInterviewOnboardingClient({
           </div>
           <button
             type="submit"
-            disabled={pending || !reviewedPlanAvailable}
-            className="inline-flex min-h-[46px] min-w-[190px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[13px] font-bold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-wait disabled:opacity-70"
+            disabled={pending || !reviewedPlanAvailable || (draft.targetSelection === "site" && !target)}
+            className="inline-flex min-h-[46px] min-w-[190px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[13px] font-bold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-not-allowed disabled:opacity-40"
           >
             Start interview
             <ArrowRight size={17} aria-hidden="true" />
@@ -956,10 +778,10 @@ export function JobInterviewOnboardingClient({
 
         <dl className="mt-4 grid gap-4">
           {([
-            { label: "Role", value: roleLabel === "role" ? "Choose a role" : roleLabel, icon: BriefcaseBusiness },
-            { label: "Company", value: companyLabel, icon: FileText },
+            { label: "Role", value: draft.targetSelection === "site" && !target ? "Select a job" : roleLabel === "role" ? "Choose a role" : roleLabel, icon: BriefcaseBusiness },
+            { label: "Company", value: draft.targetSelection === "site" && !target ? "Select a job" : draft.targetSelection === "manual" && !draft.otherCompanyName.trim() ? "Enter company" : companyLabel, icon: FileText },
             { label: "Experience level", value: seniorityLabel, icon: BarChart3 },
-            { label: "Format", value: draft.interviewMode === "voice" ? "Voice practice" : "Text practice", icon: draft.interviewMode === "voice" ? Mic : MessageSquare },
+            { label: "Format", value: "Audio practice", icon: Mic },
             { label: "Duration", value: `${draft.durationMinutes} minutes (${interviewCreditCost(draft.durationMinutes)} credits)`, icon: Clock3 },
           ] as const).map(({ label, value, icon: Icon }) => (
             <div key={label} className="grid grid-cols-[24px_1fr] gap-3">
@@ -971,6 +793,34 @@ export function JobInterviewOnboardingClient({
             </div>
           ))}
         </dl>
+
+        <fieldset disabled={pending} className="mt-5 border-t border-primary/10 pt-5">
+          <legend className="text-[13px] font-bold">Optional resume</legend>
+          <p className="mb-3 mt-1 text-[11px] leading-5 text-muted">Use a saved CV or resume to tailor your questions.</p>
+          <Field label="Personalize with a CV or resume" error={fieldErrors.candidateDocumentVersionId}>
+            {(props) => (
+              <select {...props} value={draft.candidateDocumentChoice === "use" ? draft.candidateDocumentVersionId : ""} onChange={(event) => patchDraft({ candidateDocumentChoice: event.target.value ? "use" : "skip", candidateDocumentVersionId: event.target.value })} className={controlClass}>
+                <option value="">Skip resume</option>
+                {options.candidateDocuments.map((document) => <option key={document.versionId} value={document.versionId}>{document.title} — version {document.versionNumber}</option>)}
+              </select>
+            )}
+          </Field>
+          <p className="mt-2 text-[11px] leading-5 text-muted">
+            {cvDocument && draft.candidateDocumentChoice === "use"
+              ? "Jiandae uses up to 10 saved facts to personalize questions. Your full document is not shared."
+              : options.candidateDocuments.length
+                ? "Your document is only used if you select it."
+                : "No saved CV or resume yet. You can continue without one."}
+          </p>
+          {cvDocument && draft.candidateDocumentChoice === "use" && cvDocument.facts.length > 0 ? (
+            <details className="mt-3 rounded-lg bg-white/60 px-3 py-2">
+              <summary className="cursor-pointer text-[11px] font-semibold text-primary">Preview saved details</summary>
+              <ul className="mt-2 grid gap-2 text-[11px] leading-4 text-muted">
+                {cvDocument.facts.map((fact) => <li key={fact.id}><span className="font-semibold text-foreground">{fact.label}</span>{fact.skillName ? ` · ${fact.skillName}` : ""}{fact.sourceExcerpt ? <span className="block">{fact.sourceExcerpt}</span> : null}</li>)}
+              </ul>
+            </details>
+          ) : null}
+        </fieldset>
 
         <div className="mt-5 border-t border-primary/10 pt-5">
           <div className="flex items-center gap-3">
@@ -989,7 +839,7 @@ export function JobInterviewOnboardingClient({
               <p className="text-[10px] font-bold text-primary">Ready when you are</p>
               <p className="mt-1 max-w-[17rem] text-[10px] leading-4 text-muted">You can adjust every option before the interview begins.</p>
             </div>
-            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-accent-soft text-accent-strong"><MessageSquare size={22} aria-hidden="true" /></span>
+            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-accent-soft text-accent-strong"><Mic size={22} aria-hidden="true" /></span>
           </div>
         </div>
       </aside>
