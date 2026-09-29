@@ -72,7 +72,9 @@ export async function generateMetadata({
   return generateSEO({
     title: `${job.title} at ${job.companyName}`,
     description: excerpt(
-      `${job.companyName} is hiring ${job.title}. View source, verification, closing date, and the reviewed official application destination.`,
+      job.availability === "active" || job.availability === "closing_soon"
+        ? `${job.companyName} is hiring ${job.title}. View source, verification, closing date, and the reviewed official application destination.`
+        : `${job.title} at ${job.companyName} is not accepting applications. Review the role and practise an interview for it.`,
     ),
     slug: job.detailHref,
     keywords: [
@@ -174,6 +176,9 @@ export default async function JobDetailPage({
   }
 
   const jobPostingJsonLd = buildJobPostingJsonLd(job);
+  const acceptingApplications =
+    job.applicationReviewed &&
+    (job.availability === "active" || job.availability === "closing_soon");
   const applyUnavailable = query?.apply === "unavailable";
   const intent = query?.intent;
 
@@ -260,9 +265,16 @@ export default async function JobDetailPage({
         <header className="rounded-xl border border-[#e0e6e2] bg-white p-6 shadow-[0_14px_44px_rgba(19,55,43,0.045)] md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div className="min-w-0">
-              <span className="inline-flex rounded-md bg-[#e9f3ed] px-2.5 py-1 text-xs font-semibold text-[#00533f]">
-                {publicJobEnumLabel(job.employmentType)}
-              </span>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex rounded-md bg-[#e9f3ed] px-2.5 py-1 text-xs font-semibold text-[#00533f]">
+                  {publicJobEnumLabel(job.employmentType)}
+                </span>
+                {!acceptingApplications ? (
+                  <span className="inline-flex rounded-md bg-[#f7efe5] px-2.5 py-1 text-xs font-semibold text-[#67594a]">
+                    {publicJobStatusLabel(job.availability)} · Not accepting applications
+                  </span>
+                ) : null}
+              </div>
               <h1 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-bold leading-[0.98] tracking-[-0.055em] text-[#101916] text-balance">
                 {job.title}
               </h1>
@@ -298,9 +310,11 @@ export default async function JobDetailPage({
           </dl>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <a href={job.applyHref} className="inline-flex min-h-12 items-center justify-center rounded-md bg-[#00533f] px-8 font-semibold text-white transition hover:bg-[#003f30] active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00533f]">
-              Apply on official site
-            </a>
+            {acceptingApplications ? (
+              <a href={job.applyHref} className="inline-flex min-h-12 items-center justify-center rounded-md bg-[#00533f] px-8 font-semibold text-white transition hover:bg-[#003f30] active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#00533f]">
+                Apply on official site
+              </a>
+            ) : null}
             <Link href={personalState.isAuthenticated ? `/interviews/new?job=${encodeURIComponent(job.slug)}` : `/login?callbackUrl=${encodeURIComponent(`/interviews/new?job=${job.slug}`)}`} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#00533f] px-8 font-semibold text-[#00533f] transition hover:bg-[#eef6f1] active:translate-y-px">
               Practice for this role <Sparkles className="h-4 w-4" />
             </Link>
@@ -310,8 +324,8 @@ export default async function JobDetailPage({
         {!job.eligibleForActiveStructuredData ? (
           <div className="mt-6">
             <AlertBanner
-              title="Not marked as an active vacancy"
-              body="This page does not include active JobPosting structured data unless the job is published, not expired, and has a reviewed official application destination."
+              title="Not accepting applications"
+              body="This role remains available for interview practice."
             />
           </div>
         ) : null}
@@ -326,6 +340,11 @@ export default async function JobDetailPage({
               </nav>
               <section id="description" className="scroll-mt-6 pt-7">
                 <h2 className="text-2xl font-bold tracking-[-0.03em]">About the role</h2>
+                {!acceptingApplications ? (
+                  <p className="mt-4 rounded-md border border-[#d7c9b8] bg-[#f7efe5] px-4 py-3 text-sm font-semibold text-[#67594a]">
+                    This job is not accepting applications. You can still practise an interview for this role.
+                  </p>
+                ) : null}
                 <p className="mt-4 max-w-[72ch] whitespace-pre-line text-[1.05rem] leading-8 text-[#4d5c57]">{job.description}</p>
               </section>
 
@@ -374,7 +393,7 @@ export default async function JobDetailPage({
             <section className="rounded-xl border border-[#e0e6e2] bg-white p-6 shadow-[0_14px_44px_rgba(19,55,43,0.035)]">
               <h2 className="text-xl font-bold tracking-[-0.025em]">About the company</h2>
               <div className="mt-5 flex items-center gap-4"><JobCompanyLogo job={job} /><div><p className="flex items-center gap-1.5 font-semibold">{job.companyName}<CheckCircle2 className="h-4 w-4 fill-[#00533f] text-white" /></p><p className="mt-1 text-sm text-[#68766f]">{job.roleFamilyName}</p></div></div>
-              <p className="mt-5 text-sm leading-6 text-[#52605b]">Review the official company destination and vacancy source before applying.</p>
+              <p className="mt-5 text-sm leading-6 text-[#52605b]">{acceptingApplications ? "Review the official company destination and vacancy source before applying." : "Review the company and vacancy source while preparing for your interview."}</p>
               {job.companyWebsiteUrl ? <a href={job.companyWebsiteUrl} className="mt-5 inline-flex items-center gap-2 font-semibold text-[#00533f] hover:text-[#003f30]">View company website <ExternalLink className="h-4 w-4" /></a> : null}
             </section>
 

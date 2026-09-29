@@ -372,12 +372,35 @@ async function main() {
     data: { status: "closed" },
   });
 
-  const activeResult = await searchPublicJobs({ prisma, now: currentTime });
-  const activeSlugs = new Set(activeResult.jobs.map((job) => job.slug));
-  assert.ok(activeSlugs.has(activeSoftware.slug));
-  assert.ok(activeSlugs.has(activeProduct.slug));
-  assert.ok(!activeSlugs.has(expiredJob.slug));
-  assert.ok(!activeSlugs.has(closedJob.slug));
+  const browseResult = await searchPublicJobs({ prisma, now: currentTime });
+  const browsableJobs = new Map(browseResult.jobs.map((job) => [job.slug, job]));
+  assert.ok(browsableJobs.has(activeSoftware.slug));
+  assert.ok(browsableJobs.has(activeProduct.slug));
+  assert.equal(browsableJobs.get(expiredJob.slug)?.availability, "expired");
+  assert.equal(browsableJobs.get(closedJob.slug)?.availability, "closed");
+
+  await prisma.jobPosting.update({
+    where: { id: expiredJob.jobPostingId },
+    data: { status: "published" },
+  });
+  const pastDeadline = await searchPublicJobs({
+    prisma,
+    now: currentTime,
+    searchParams: { q: "Task 10 Expired Backend Engineer" },
+  });
+  assert.equal(pastDeadline.jobs[0]?.availability, "expired");
+  assert.equal(
+    await getReviewedApplicationDestination({
+      prisma,
+      now: currentTime,
+      slug: expiredJob.slug,
+    }),
+    null,
+  );
+  await prisma.jobPosting.update({
+    where: { id: expiredJob.jobPostingId },
+    data: { status: "expired" },
+  });
 
   const sanitized = sanitizePublicJobSearchParams({
     page: "-20",
@@ -451,6 +474,14 @@ async function main() {
     );
   }
 
+  const closingSoon = await searchPublicJobs({
+    prisma,
+    now: currentTime,
+    searchParams: { closing: "7d" },
+  });
+  assert.ok(!closingSoon.jobs.some((job) => job.slug === expiredJob.slug));
+  assert.ok(!closingSoon.jobs.some((job) => job.slug === closedJob.slug));
+
   const paged = await searchPublicJobs({
     prisma,
     now: currentTime,
@@ -518,9 +549,17 @@ async function main() {
   assert.ok(closedDetail);
   assert.equal(closedDetail.availability, "closed");
   assert.equal(buildJobPostingJsonLd(closedDetail), null);
+  assert.equal(
+    await getReviewedApplicationDestination({
+      prisma,
+      now: currentTime,
+      slug: closedJob.slug,
+    }),
+    null,
+  );
 
   console.log(
-    "Public jobs marketplace scenario passed: active-only browsing, safe filters and pagination, reviewed official apply redirects, privacy-minimized outbound logging, detail states, report links, and active-only JobPosting structured data.",
+    "Public jobs marketplace scenario passed: closed and expired browsing, safe filters and pagination, reviewed official apply redirects, privacy-minimized outbound logging, detail states, report links, and active-only JobPosting structured data.",
   );
 }
 

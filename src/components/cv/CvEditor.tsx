@@ -12,6 +12,15 @@ import {
   ArrowUp,
   ArrowDown,
   Upload,
+  UserRound,
+  BriefcaseBusiness,
+  GraduationCap,
+  ChartNoAxesColumn,
+  Award,
+  Folder,
+  Sparkles,
+  Eye,
+  Minus,
 } from "lucide-react";
 import {
   cvBlocks,
@@ -67,21 +76,23 @@ function Field({
   );
 }
 function Section({
+  id,
   number,
   title,
+  description,
   children,
-  open = false,
 }: {
+  id: string;
   number: string;
   title: string;
+  description?: string;
   children: ReactNode;
-  open?: boolean;
 }) {
   return (
-    <details className="cv-form-section" open={open || undefined}>
+    <details id={id} className="cv-form-section" open>
       <summary>
         <span className="cv-section-number">{number}</span>
-        <h2>{title}</h2>
+        <span className="cv-section-heading"><h2>{title}</h2>{description && <small>{description}</small>}</span>
         <ChevronDown size={17} />
       </summary>
       <div className="cv-section-content">{children}</div>
@@ -144,6 +155,8 @@ export function CvEditor({
   const { draft, update } = editor;
   const [tab, setTab] = useState<"edit" | "ai">("edit");
   const [mobileView, setMobileView] = useState<"editor" | "preview">("editor");
+  const [activeSection, setActiveSection] = useState("cv-personal");
+  const [previewZoom, setPreviewZoom] = useState(100);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
@@ -154,6 +167,26 @@ export function CvEditor({
   const set = <K extends keyof CvDraft>(key: K, value: CvDraft[K]) =>
     update({ ...editor.getDraft(), [key]: value });
   const blocks = cvBlocks(draft);
+  const sections = [
+    { id: "cv-personal", label: "Personal details", icon: UserRound },
+    { id: "cv-summary", label: "Professional summary", icon: FileText },
+    { id: "cv-experience", label: "Work experience", icon: BriefcaseBusiness },
+    { id: "cv-education", label: "Education", icon: GraduationCap },
+    { id: "cv-skills", label: "Skills", icon: ChartNoAxesColumn },
+    { id: "cv-certifications", label: "Certifications", icon: Award },
+    { id: "cv-projects", label: "Projects & more", icon: Folder },
+  ];
+
+  function navigateToSection(id: string) {
+    setTab("edit");
+    setMobileView("editor");
+    setActiveSection(id);
+    window.setTimeout(() => {
+      const target = document.getElementById(id);
+      if (target instanceof HTMLDetailsElement) target.open = true;
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }
 
   function move(
     group: "experience" | "education" | "projects",
@@ -333,6 +366,17 @@ export function CvEditor({
             }
           </span>
           <button
+            className="cv-button cv-preview-jump"
+            type="button"
+            onClick={() => {
+              setMobileView("preview");
+              document.getElementById("cv-live-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            <Eye size={15} />
+            Show preview
+          </button>
+          <button
             className="cv-button"
             disabled={!editor.ready || !!downloading}
             onClick={() => void download("docx")}
@@ -426,6 +470,31 @@ export function CvEditor({
         </button>
       </div>
       <div className={`cv-editor-layout cv-show-${mobileView}`}>
+        <aside className="cv-sections-nav" aria-label="CV sections">
+          <h2>Sections</h2>
+          <nav>
+            {sections.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                className={activeSection === id && tab === "edit" ? "cv-section-link active" : "cv-section-link"}
+                aria-current={activeSection === id && tab === "edit" ? "location" : undefined}
+                onClick={() => navigateToSection(id)}
+              >
+                <Icon size={17} strokeWidth={1.9} />
+                <span>{label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              className={tab === "ai" ? "cv-section-link cv-ai-link active" : "cv-section-link cv-ai-link"}
+              onClick={() => { setTab("ai"); setMobileView("editor"); }}
+            >
+              <Sparkles size={17} strokeWidth={1.9} />
+              <span>Improve with AI</span>
+            </button>
+          </nav>
+        </aside>
         <div className="cv-edit-pane">
           <div
             className="cv-editor-tabs"
@@ -454,8 +523,11 @@ export function CvEditor({
             </button>
           </div>
           {!editor.ready ? (
-            <div className="cv-loading" role="status">
-              Opening your document…
+            <div className="cv-editor-skeleton" role="status" aria-label="Opening your document">
+              <div className="cv-skeleton-line cv-skeleton-heading" />
+              <div className="cv-skeleton-line cv-skeleton-subtitle" />
+              {Array.from({ length: 5 }, (_, index) => <div className="cv-skeleton-line cv-skeleton-input" key={index} />)}
+              <span className="cv-sr-only">Opening your document…</span>
             </div>
           ) : (
             <>
@@ -466,11 +538,13 @@ export function CvEditor({
                 hidden={tab !== "edit"}
               >
                 <div className="cv-editor-intro">
-                  <span className="cv-kicker">Make it yours</span>
-                  <p>
-                    Your experience, in your own words. Edit any section; your
-                    draft saves automatically.
-                  </p>
+                  <span className="cv-kicker">Your document</span>
+                  <p>Edit the fields below. Your changes save automatically.</p>
+                  {(draft.personal.fullName === "Elvis Kipchumba" || draft.personal.email === "elvis.kipchumba@example.com") && (
+                    <div className="cv-sample-note" role="note">
+                      <strong>Example CV</strong> — These details are fictional. Replace them with your own before using AI, tailoring, or downloading.
+                    </div>
+                  )}
                   <div className="cv-field-grid">
                     <Field
                       label="Document name"
@@ -537,7 +611,7 @@ export function CvEditor({
                     </button>
                   </div>
                 )}
-                <Section number="01" title="Personal details" open>
+                <Section id="cv-personal" number="01" title="Personal details" description="Add your basic information.">
                   <Field
                     label="Full name"
                     value={draft.personal.fullName}
@@ -575,7 +649,7 @@ export function CvEditor({
                     ))}
                   </div>
                 </Section>
-                <Section number="02" title="Professional summary" open>
+                <Section id="cv-summary" number="02" title="Professional summary" description="Write a brief summary about your background, key skills and what you bring.">
                   <Field
                     label="Summary"
                     multiline
@@ -591,7 +665,7 @@ export function CvEditor({
                     Refine this with AI →
                   </button>
                 </Section>
-                <Section number="03" title="Experience">
+                <Section id="cv-experience" number="03" title="Work experience" description="Add your work history, starting with the most recent.">
                   {draft.experience.map((entry, index) => (
                     <div className="cv-repeat-entry" key={entry.id}>
                       <EntryActions
@@ -671,7 +745,7 @@ export function CvEditor({
                     Add experience
                   </button>
                 </Section>
-                <Section number="04" title="Education">
+                <Section id="cv-education" number="04" title="Education">
                   {draft.education.map((entry, index) => (
                     <div className="cv-repeat-entry" key={entry.id}>
                       <EntryActions
@@ -750,7 +824,7 @@ export function CvEditor({
                     Add education
                   </button>
                 </Section>
-                <Section number="05" title="Skills">
+                <Section id="cv-skills" number="05" title="Skills">
                   <Field
                     label="Skills"
                     multiline
@@ -760,7 +834,7 @@ export function CvEditor({
                     placeholder="Add the tools, skills, and strengths you can demonstrate."
                   />
                 </Section>
-                <Section number="06" title="Projects & more">
+                <Section id="cv-projects" number="06" title="Projects & more">
                   {draft.projects.map((entry, index) => (
                     <div className="cv-repeat-entry" key={entry.id}>
                       <EntryActions
@@ -817,7 +891,7 @@ export function CvEditor({
                     <Plus size={15} />
                     Add project
                   </button>
-                  {(
+                  <div id="cv-certifications" className="cv-extra-fields">{(
                     [
                       ["certifications", "Certifications"],
                       ["achievements", "Achievements"],
@@ -836,7 +910,7 @@ export function CvEditor({
                       value={draft[key]}
                       onChange={(value) => set(key, value)}
                     />
-                  ))}
+                  ))}</div>
                 </Section>
               </div>
               <div
@@ -855,16 +929,27 @@ export function CvEditor({
             </>
           )}
         </div>
-        <aside className="cv-preview-pane" aria-label="Live CV preview">
+        <aside id="cv-live-preview" className="cv-preview-pane" aria-label="Live CV preview">
           <div className="cv-preview-label">
             <span>
               <span className="cv-live-dot" />
               Live preview
             </span>
-            <span>Clean & professional</span>
+            <span className="cv-preview-zoom">
+              <button type="button" aria-label="Zoom out" disabled={previewZoom <= 75} onClick={() => setPreviewZoom((value) => Math.max(75, value - 10))}><Minus size={15} /></button>
+              <span>{previewZoom}%</span>
+              <button type="button" aria-label="Zoom in" disabled={previewZoom >= 125} onClick={() => setPreviewZoom((value) => Math.min(125, value + 10))}><Plus size={15} /></button>
+            </span>
           </div>
-          <div className="cv-paper">
-            {blocks.length ? (
+          <div className="cv-paper" style={{ zoom: previewZoom / 100 }}>
+            {!editor.ready ? (
+              <div className="cv-preview-document-skeleton" aria-hidden="true">
+                <div className="cv-skeleton-line cv-skeleton-heading" />
+                {Array.from({ length: 11 }, (_, index) => (
+                  <div className="cv-skeleton-line cv-skeleton-text" key={index} />
+                ))}
+              </div>
+            ) : blocks.length ? (
               blocks.map((block, index) =>
                 block.kind === "name" ? (
                   <h2 key={index} className="cv-print-name">

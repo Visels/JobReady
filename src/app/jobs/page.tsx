@@ -58,7 +58,7 @@ export async function generateMetadata({
       ? "Filtered Jobs in Kenya and Africa"
       : "Verified Jobs in Kenya and Africa",
     description:
-      "Browse active verified jobs with official application destinations, source details, closing dates, and public access to apply.",
+      "Browse verified jobs, including closed roles available for interview practice. Active roles link to reviewed official application destinations.",
     slug: "/jobs",
     noIndex: filtered,
     keywords: [

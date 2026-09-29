@@ -895,11 +895,16 @@ export function AppShell({
     typeof document === "undefined" ? null : document.body;
   const accountPanelRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [cvSidebarState, setCvSidebarState] = useState({ pathname: "", expanded: false });
   const [loadedPreference, setLoadedPreference] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const interviewRoom = isInterviewRoom(pathname);
+  const cvWorkspace = pathname === "/cv-resume";
+  const sidebarCollapsed = cvWorkspace
+    ? !(cvSidebarState.pathname === pathname && cvSidebarState.expanded)
+    : collapsed;
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -948,8 +953,15 @@ export function AppShell({
   return (
     <div className={classes(className, "relative")}>
       <DesktopSidebar
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((current) => !current)}
+        collapsed={sidebarCollapsed}
+        onToggle={() =>
+          cvWorkspace
+            ? setCvSidebarState((current) => ({
+                pathname,
+                expanded: current.pathname === pathname ? !current.expanded : true,
+              }))
+            : setCollapsed((current) => !current)
+        }
         pathname={pathname}
         user={user}
         plan={plan}
@@ -960,7 +972,7 @@ export function AppShell({
       <div
         className={classes(
           "min-h-[100dvh] bg-background pb-24 transition-[padding] duration-300 ease-soft motion-reduce:transition-none lg:pb-0",
-          collapsed ? "lg:pl-[72px]" : "lg:pl-[276px]",
+          sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-[276px]",
         )}
       >
         <WorkspaceTopBar

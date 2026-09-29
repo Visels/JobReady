@@ -136,6 +136,73 @@ export function emptyCvDraft(): CvDraft {
   };
 }
 
+/** An editable example for a new CV. It is never persisted until the user edits it. */
+export function exampleCvDraft(): CvDraft {
+  return {
+    schemaVersion: 1,
+    title: "My CV",
+    kind: "cv",
+    personal: {
+      fullName: "Elvis Kipchumba",
+      headline: "Partnerships and Business Development Specialist",
+      email: "elvis.kipchumba@example.com",
+      phone: "+254 712 345 678",
+      location: "Nairobi, Kenya",
+      website: "",
+      linkedin: "linkedin.com/in/elvis-kipchumba",
+    },
+    summary:
+      "Partnerships and business development professional with 6+ years of experience building strategic relationships, driving growth, and managing stakeholder engagements across Africa. Proven track record in programme design, partnership management, and cross-functional collaboration.",
+    experience: [
+      {
+        id: "1a5aeed0-f76e-4a19-9e8b-1ed24b949f77",
+        role: "Partnerships Manager",
+        company: "GreenLink Africa",
+        location: "Nairobi, Kenya",
+        startDate: "Jan 2022",
+        endDate: "Present",
+        description:
+          "- Lead the development and management of strategic partnerships across East Africa, resulting in 40% growth in partner network.\n- Design and implement partnership strategies aligned with organisational goals.\n- Manage stakeholder relationships with government, NGOs and private sector partners.",
+      },
+      {
+        id: "61136273-7576-4900-8da4-5f752705ee51",
+        role: "Partnerships Associate",
+        company: "Impact Hub",
+        location: "Nairobi, Kenya",
+        startDate: "Mar 2019",
+        endDate: "Dec 2021",
+        description:
+          "- Supported partnership development and stakeholder engagement.\n- Coordinated joint programmes with regional partners.\n- Prepared partnership reports and tracked key performance metrics.",
+      },
+    ],
+    education: [
+      {
+        id: "08923e54-2a60-4f0e-9418-daaefb33ec6c",
+        degree: "Bachelor of Business Administration",
+        institution: "University of Nairobi",
+        location: "Nairobi, Kenya",
+        startDate: "2014",
+        endDate: "2018",
+        details: "Business strategy and management",
+      },
+    ],
+    skills:
+      "Partnership Management, Stakeholder Engagement, Business Development, Programme Management, Strategic Planning, Proposal Writing, Communication",
+    projects: [
+      {
+        id: "a3697983-b0d7-4d8f-91ae-3dce012058d9",
+        name: "East Africa Partner Network",
+        details:
+          "Coordinated a regional partner programme connecting organisations across Kenya, Uganda, and Tanzania.",
+      },
+    ],
+    certifications: "Project Management Fundamentals — 2021",
+    achievements: "Expanded a regional partner network by 40% in two years.",
+    languages: "English, Kiswahili",
+    additional: "",
+  };
+}
+
 export function cvTextFields(draft: CvDraft) {
   return [
     { id: "summary", label: "Summary", text: draft.summary },

@@ -239,6 +239,7 @@ function formatRelativeAge(value: Date | null) {
 }
 
 function isFreshJob(job: PublicJobSummary) {
+  if (job.availability !== "active" && job.availability !== "closing_soon") return false;
   const value = job.publishedAt ?? job.lastVerifiedAt;
   if (!value) return job.availability === "active";
 
@@ -622,6 +623,8 @@ export function PublicJobsPageCard({
 }) {
   const relativeAge = formatRelativeAge(job.publishedAt ?? job.lastVerifiedAt);
   const location = job.location ?? job.marketName;
+  const acceptingApplications =
+    job.availability === "active" || job.availability === "closing_soon";
 
   return (
     <article className="group rounded-md border border-[#e0e5e8] bg-white px-4 py-5 shadow-[0_16px_45px_rgba(15,23,42,0.035)] transition duration-200 hover:-translate-y-px hover:border-[#cfd8dd] hover:shadow-[0_20px_52px_rgba(15,23,42,0.07)] sm:px-5">
@@ -687,11 +690,20 @@ export function PublicJobsPageCard({
           >
             {job.roleFamilyName}
           </span>
+          {!acceptingApplications ? (
+            <p className="mt-3 text-sm font-semibold text-[#67594a]">
+              Not accepting applications · Interview practice available
+            </p>
+          ) : null}
         </div>
 
         <div className="flex shrink-0 items-center justify-between gap-3 sm:min-w-[12rem] sm:justify-end">
           <div className="flex items-center gap-3 text-[0.95rem] font-medium text-[#344054]">
-            {isFreshJob(job) ? (
+            {!acceptingApplications ? (
+              <span className="rounded-md bg-[#f7efe5] px-3 py-1 text-[0.88rem] font-bold text-[#67594a]">
+                {publicJobStatusLabel(job.availability)}
+              </span>
+            ) : isFreshJob(job) ? (
               <span className="rounded-md bg-[#d8f3df] px-3 py-1 text-[0.88rem] font-bold text-[#11823f]">
                 New
               </span>
@@ -1112,14 +1124,13 @@ export function JobsEmptyState({
   return (
     <section className={compact ? "rounded-xl border border-dashed border-muted-line bg-surface-soft p-5 text-center" : "rounded-[2rem] border border-dashed border-[#cbbba6] bg-[#fffaf3] p-8 text-center"}>
       <p className={compact ? "text-[9px] font-semibold text-muted-subtle" : "text-sm font-bold uppercase tracking-[0.18em] text-[#956615]"}>
-        No active verified jobs found
+        No matching verified jobs found
       </p>
       <h2 className={compact ? "mt-1.5 text-[15px] font-semibold tracking-[-0.02em] text-foreground" : "mt-4 text-3xl font-black tracking-[-0.05em] text-[#071512]"}>
         Try a wider search.
       </h2>
       <p className={compact ? "mx-auto mt-1.5 max-w-2xl text-[10px] leading-4 text-muted" : "mx-auto mt-4 max-w-2xl text-base leading-7 text-[#52605b]"}>
-        Active search only includes published jobs with a reviewed official
-        application destination and a future closing date.
+        Try another role, company, or location. Closed jobs remain available for interview practice.
       </p>
       {hasFilters ? (
         <Link
@@ -1192,8 +1203,8 @@ export function NonAffiliationNotice({ job }: { job: PublicJobSummary }) {
       </p>
       <p className="mt-2 max-w-[76ch]">
         Jiandae is not affiliated with {job.companyName} unless explicitly
-        stated. We review public information to help candidates prepare, but
-        applications are completed only on the official destination shown here.
+        stated. We review public information to help candidates prepare.
+        Applications for open roles are completed on the official destination.
       </p>
     </aside>
   );
@@ -1239,7 +1250,9 @@ export function JobDetailActionPanelContent({
         Take the next step
       </h2>
       <p className="mt-3 text-sm leading-6 text-[#5d6b66]">
-        Apply on the verified destination, or save this role and prepare in your private workspace.
+        {canApply
+          ? "Apply on the verified destination, or save this role and prepare in your private workspace."
+          : "This role is not accepting applications. You can still save it and practise an interview in your private workspace."}
       </p>
       <div className="mt-5 grid gap-3">
         {canApply ? (
@@ -1253,8 +1266,7 @@ export function JobDetailActionPanelContent({
           </a>
         ) : (
           <p className="rounded-2xl border border-[#d9cbb8] bg-[#f8efe2] p-4 text-sm font-bold text-[#67594a]">
-            Official application access is unavailable because this vacancy is
-            {job.availability === "closed" ? " closed" : " no longer active"}.
+            Not accepting applications. You can still practise an interview for this role.
           </p>
         )}
         {authenticated ? (
@@ -1337,14 +1349,16 @@ export function JobDetailActionPanelContent({
         </a>
       </div>
       <dl className="mt-6 grid gap-3 border-t border-[#e5eae7] pt-5 text-sm">
-        <div className="rounded-md bg-[#f3f6f4] p-4">
-          <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
-            Application destination
-          </dt>
-          <dd className="mt-1 font-black text-[#173a32]">
-            {job.applicationDestinationHost}
-          </dd>
-        </div>
+        {canApply ? (
+          <div className="rounded-md bg-[#f3f6f4] p-4">
+            <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
+              Application destination
+            </dt>
+            <dd className="mt-1 font-black text-[#173a32]">
+              {job.applicationDestinationHost}
+            </dd>
+          </div>
+        ) : null}
         <div className="rounded-md bg-[#f3f6f4] p-4">
           <dt className="font-bold uppercase tracking-[0.12em] text-[#7c6d5e]">
             Last verified

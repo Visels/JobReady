@@ -1688,10 +1688,7 @@ export class VerifiedJobPublicationService {
         where: { id: posting.id },
         data: {
           status: input.status,
-          retiredAt:
-            input.status === "retired" || input.status === "expired"
-              ? this.now()
-              : posting.retiredAt,
+          retiredAt: input.status === "retired" ? this.now() : posting.retiredAt,
           lastVerifiedAt: this.now(),
         },
       });

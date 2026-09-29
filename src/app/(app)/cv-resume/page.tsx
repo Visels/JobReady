@@ -5,7 +5,6 @@ import {
   WorkspaceBadge,
   WorkspaceCard,
   WorkspaceEmptyState,
-  WorkspacePageFrame,
   WorkspaceSectionTitle,
   WorkspaceTextLink,
   formatWorkspaceDate,
@@ -161,11 +160,16 @@ export default async function CvResumePage({
         : data.tailoredVersions;
 
   return (
-    <WorkspacePageFrame
-      eyebrow="Documents"
-      title="A CV that sounds like you."
-      body="Build your CV, refine it with AI, and make every word your own. Save your progress and download whenever you're ready."
-    >
+    <main className="cv-page min-h-[calc(100dvh-64px)] px-3 pb-10 pt-5 text-foreground md:px-5 lg:px-6">
+      <header className="cv-page-header mb-5 border-b border-muted-line pb-5">
+        <p className="text-[11px] font-medium text-muted">CV &amp; Resume</p>
+        <h1 className="mt-2 text-[clamp(1.65rem,2.4vw,2.25rem)] font-semibold leading-tight tracking-[-0.04em] text-foreground">
+          Tailor your CV
+        </h1>
+        <p className="mt-1 max-w-[80ch] text-[13px] leading-5 text-muted">
+          Update your CV and align it with the target role. Use AI suggestions to highlight the most relevant experience and skills.
+        </p>
+      </header>
       <CvEditor
         key={params.document ?? "new-cv"}
         documents={data.documents
@@ -283,6 +287,6 @@ export default async function CvResumePage({
           </section>
         </div>
       </WorkspaceCard>
-    </WorkspacePageFrame>
+    </main>
   );
 }

@@ -296,7 +296,11 @@ export function WorkspaceJobCard({
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            {isNewJob(job) ? (
+            {job.availability !== "active" && job.availability !== "closing_soon" ? (
+              <span className="rounded-md bg-[#f7efe5] px-2 py-1 text-[9px] font-semibold text-[#67594a]">
+                {job.availability === "closed" ? "Closed" : "Expired"}
+              </span>
+            ) : isNewJob(job) ? (
               <span className="rounded-md bg-[#fff0e7] px-2 py-1 text-[9px] font-semibold text-[#d94b0b]">
                 New
               </span>
@@ -343,6 +347,9 @@ export function WorkspaceJobCard({
           <p className="mt-2 line-clamp-2 max-w-[90ch] text-[10px] leading-[1.5] text-muted">
             {job.descriptionExcerpt}
           </p>
+          {job.availability !== "active" && job.availability !== "closing_soon" ? (
+            <p className="mt-2 text-[10px] font-semibold text-[#67594a]">Not accepting applications · Interview practice available</p>
+          ) : null}
 
           {job.skills.length > 0 ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -360,13 +367,22 @@ export function WorkspaceJobCard({
 
         <div className="flex items-center gap-2 md:pl-3">
           <SaveJobButton job={job} />
-          <a
-            href={job.applyHref}
-            className="inline-flex h-10 min-w-[168px] items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[10px] font-semibold text-white transition duration-200 ease-soft hover:-translate-y-0.5 hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press"
-          >
-            Apply on official site
-            <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
-          </a>
+          {job.availability === "active" || job.availability === "closing_soon" ? (
+            <a
+              href={job.applyHref}
+              className="inline-flex h-10 min-w-[168px] items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[10px] font-semibold text-white transition duration-200 ease-soft hover:-translate-y-0.5 hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press"
+            >
+              Apply on official site
+              <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+            </a>
+          ) : (
+            <Link
+              href={`/interviews/new?job=${encodeURIComponent(job.slug)}`}
+              className="inline-flex h-10 min-w-[168px] items-center justify-center rounded-xl border border-primary px-4 text-[10px] font-semibold text-primary transition hover:bg-primary-soft"
+            >
+              Practise interview
+            </Link>
+          )}
         </div>
       </div>
     </article>

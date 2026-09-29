@@ -300,7 +300,7 @@ function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * 86_400_000);
 }
 
-function activeJobWhere(
+function browsableJobWhere(
   filters: PublicJobsSearchFilters,
   now: Date,
 ): Prisma.JobPostingWhereInput {
@@ -344,11 +344,11 @@ function activeJobWhere(
     (window) => window.value === filters.closing,
   );
   const where: Prisma.JobPostingWhereInput = {
-    status: "published",
+    status: closingWindow ? "published" : { in: PUBLIC_VISIBLE_STATUSES },
     currentVersionId: { not: null },
     closesAt: closingWindow
       ? { gt: now, lte: addDays(now, closingWindow.days) }
-      : { gt: now },
+      : { not: null },
     company: {
       publicationStatus: "published",
       ...(filters.company ? { slug: filters.company } : {}),
@@ -700,7 +700,7 @@ export async function searchPublicJobs(input: {
   const db = input.prisma ?? defaultPrisma;
   const now = input.now ?? new Date();
   const filters = sanitizePublicJobSearchParams(input.searchParams);
-  const where = activeJobWhere(filters, now);
+  const where = browsableJobWhere(filters, now);
   const skip = (filters.page - 1) * filters.pageSize;
 
   const [total, jobs] = await db.$transaction([
@@ -725,8 +725,8 @@ export async function searchPublicJobs(input: {
         },
       },
       orderBy: [
-        { lastVerifiedAt: "desc" },
-        { closesAt: "asc" },
+        { status: "asc" },
+        { closesAt: "desc" },
         { publishedAt: "desc" },
       ],
       skip,

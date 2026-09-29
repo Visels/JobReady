@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   emptyCvDraft,
+  exampleCvDraft,
   cvEvidence,
   CV_DOCUMENT_SAVED_EVENT,
   type CvSavedDocumentDetail,
@@ -42,7 +43,9 @@ export function useCvDraft(
   initialDocuments: CvDocumentOption[],
   initialDocumentId?: string,
 ) {
-  const [draft, setDraft] = useState<CvDraft>(emptyCvDraft);
+  const [draft, setDraft] = useState<CvDraft>(() =>
+    initialDocumentId ? emptyCvDraft() : exampleCvDraft(),
+  );
   const [documentId, setDocumentId] = useState("");
   const [documents, setDocuments] = useState(initialDocuments);
   const [status, setStatus] = useState<SaveStatus>(
