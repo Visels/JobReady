@@ -540,7 +540,7 @@ export function CvEditor({
                 <div className="cv-editor-intro">
                   <span className="cv-kicker">Your document</span>
                   <p>Edit the fields below. Your changes save automatically.</p>
-                  {(draft.personal.fullName === "Elvis Kipchumba" || draft.personal.email === "elvis.kipchumba@example.com") && (
+                  {(draft.personal.fullName === "John Doe" || draft.personal.email === "john.doe@example.com") && (
                     <div className="cv-sample-note" role="note">
                       <strong>Example CV</strong> — These details are fictional. Replace them with your own before using AI, tailoring, or downloading.
                     </div>

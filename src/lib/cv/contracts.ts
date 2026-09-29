@@ -143,13 +143,13 @@ export function exampleCvDraft(): CvDraft {
     title: "My CV",
     kind: "cv",
     personal: {
-      fullName: "Elvis Kipchumba",
+      fullName: "John Doe",
       headline: "Partnerships and Business Development Specialist",
-      email: "elvis.kipchumba@example.com",
-      phone: "+254 712 345 678",
+      email: "john.doe@example.com",
+      phone: "+254 700 000 000",
       location: "Nairobi, Kenya",
       website: "",
-      linkedin: "linkedin.com/in/elvis-kipchumba",
+      linkedin: "linkedin.com/in/john-doe-example",
     },
     summary:
       "Partnerships and business development professional with 6+ years of experience building strategic relationships, driving growth, and managing stakeholder engagements across Africa. Proven track record in programme design, partnership management, and cross-functional collaboration.",
@@ -157,7 +157,7 @@ export function exampleCvDraft(): CvDraft {
       {
         id: "1a5aeed0-f76e-4a19-9e8b-1ed24b949f77",
         role: "Partnerships Manager",
-        company: "GreenLink Africa",
+        company: "Example Growth Partners",
         location: "Nairobi, Kenya",
         startDate: "Jan 2022",
         endDate: "Present",
@@ -167,7 +167,7 @@ export function exampleCvDraft(): CvDraft {
       {
         id: "61136273-7576-4900-8da4-5f752705ee51",
         role: "Partnerships Associate",
-        company: "Impact Hub",
+        company: "Sample Impact Initiative",
         location: "Nairobi, Kenya",
         startDate: "Mar 2019",
         endDate: "Dec 2021",
@@ -179,7 +179,7 @@ export function exampleCvDraft(): CvDraft {
       {
         id: "08923e54-2a60-4f0e-9418-daaefb33ec6c",
         degree: "Bachelor of Business Administration",
-        institution: "University of Nairobi",
+        institution: "Example University",
         location: "Nairobi, Kenya",
         startDate: "2014",
         endDate: "2018",
