@@ -742,15 +742,17 @@ function WorkspaceTopBar({
 
   return (
     <header className="sticky top-0 z-20 border-b border-muted-line bg-background/94 px-4 py-2 backdrop-blur md:px-6 lg:px-8">
-      <div className="flex min-h-12 items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[9px] font-medium text-muted-subtle">
-            {context.kicker}
-          </p>
-          <h1 className="mt-0.5 truncate text-[16px] font-semibold tracking-[-0.025em] text-foreground md:text-[17px]">
-            {context.title}
-          </h1>
-        </div>
+      <div className={classes("flex min-h-12 items-center gap-4", pathname === "/cv-resume" ? "justify-end" : "justify-between")}>
+        {pathname !== "/cv-resume" ? (
+          <div className="min-w-0">
+            <p className="text-[9px] font-medium text-muted-subtle">
+              {context.kicker}
+            </p>
+            <h1 className="mt-0.5 truncate text-[16px] font-semibold tracking-[-0.025em] text-foreground md:text-[17px]">
+              {context.title}
+            </h1>
+          </div>
+        ) : null}
 
         <div className="flex items-center gap-2">
           <Link

@@ -162,8 +162,7 @@ export default async function CvResumePage({
   return (
     <main className="cv-page min-h-[calc(100dvh-64px)] px-3 pb-10 pt-5 text-foreground md:px-5 lg:px-6">
       <header className="cv-page-header mb-5 border-b border-muted-line pb-5">
-        <p className="text-[11px] font-medium text-muted">CV &amp; Resume</p>
-        <h1 className="mt-2 text-[clamp(1.65rem,2.4vw,2.25rem)] font-semibold leading-tight tracking-[-0.04em] text-foreground">
+        <h1 className="text-[clamp(1.65rem,2.4vw,2.25rem)] font-semibold leading-tight tracking-[-0.04em] text-foreground">
           Tailor your CV
         </h1>
         <p className="mt-1 max-w-[80ch] text-[13px] leading-5 text-muted">
