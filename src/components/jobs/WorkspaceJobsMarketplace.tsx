@@ -7,8 +7,6 @@ import {
   ChevronDown,
   MapPin,
   Search,
-  SlidersHorizontal,
-  X,
 } from "lucide-react";
 import { JobCompanyLogo } from "@/components/jobs/PublicJobsMarketplace";
 import type {
@@ -17,7 +15,6 @@ import type {
   PublicJobsSearchFilters,
 } from "@/lib/jobs";
 import {
-  buildPublicJobsHref,
   publicJobEnumLabel,
 } from "@/lib/jobs";
 
@@ -37,13 +34,6 @@ function isNewJob(job: PublicJobSummary) {
   return published
     ? Date.now() - published.getTime() <= 3 * 86_400_000
     : false;
-}
-
-function optionLabel(
-  options: Array<{ value: string; label: string }>,
-  value: string | undefined,
-) {
-  return options.find((option) => option.value === value)?.label ?? value;
 }
 
 function SelectControl({
@@ -150,26 +140,11 @@ export function WorkspaceJobsFilters({
   filters: PublicJobsSearchFilters;
   options: PublicJobFilterOptions;
 }) {
-  const activeFilters = [filters.q, filters.location, filters.role, filters.employment]
-    .filter(Boolean).length;
-  const chips = [
-    filters.q
-      ? { label: `“${filters.q}”`, href: buildPublicJobsHref(filters, { q: undefined, page: 1 }, jobsPath) }
-      : null,
-    filters.location
-      ? { label: filters.location, href: buildPublicJobsHref(filters, { location: undefined, page: 1 }, jobsPath) }
-      : null,
-    filters.role
-      ? { label: optionLabel(options.roles, filters.role) ?? "Role", href: buildPublicJobsHref(filters, { role: undefined, page: 1 }, jobsPath) }
-      : null,
-    filters.employment
-      ? { label: publicJobEnumLabel(filters.employment), href: buildPublicJobsHref(filters, { employment: undefined, page: 1 }, jobsPath) }
-      : null,
-  ].filter((chip): chip is { label: string; href: string } => Boolean(chip));
+  const hasSearch = Boolean(filters.q || filters.location);
 
   return (
     <section className="pt-5">
-      <form action={jobsPath} className="grid gap-2.5 lg:grid-cols-[minmax(280px,1fr)_190px_190px_148px]">
+      <form action={jobsPath} className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_190px_auto]">
         <label className="relative block">
           <span className="sr-only">Search jobs</span>
           <Search
@@ -192,69 +167,21 @@ export function WorkspaceJobsFilters({
           value={filters.location}
           options={options.locations}
         />
-        <SelectControl
-          icon={BriefcaseBusiness}
-          label="Role"
-          name="role"
-          value={filters.role}
-          options={options.roles}
-        />
-
-        <details className="group relative">
-          <summary className="flex h-11 cursor-pointer list-none items-center justify-center gap-2 rounded-xl border border-[#f4d7c8] bg-[#fff3eb] px-3 text-[11px] font-semibold text-[#c7450a] transition duration-200 ease-soft hover:border-[#e9b99f] hover:bg-[#ffede2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-            <SlidersHorizontal className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-            Filters
-            {activeFilters > 0 ? (
-              <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#e85112] px-1 text-[9px] font-bold text-white tabular-nums">
-                {activeFilters}
-              </span>
-            ) : null}
-          </summary>
-          <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-[250px] rounded-xl border border-muted-line bg-white p-3.5 shadow-[0_18px_48px_rgba(27,36,48,0.14)]">
-            <label className="grid gap-2 text-[10px] font-semibold text-foreground">
-              Job type
-              <select
-                name="employment"
-                defaultValue={filters.employment ?? ""}
-                className="h-10 rounded-lg border border-muted-line bg-white px-3 text-[10px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/12"
-              >
-                <option value="">All job types</option>
-                {options.employmentTypes.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="submit"
-              className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg bg-primary px-3 text-[10px] font-semibold text-white transition duration-200 ease-soft hover:bg-primary/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-press"
-            >
-              Apply filters
-            </button>
-          </div>
-        </details>
-
-        <button type="submit" className="sr-only">Search jobs</button>
+        <button
+          type="submit"
+          className="h-11 rounded-xl bg-primary px-5 text-[12px] font-semibold text-white transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          Search jobs
+        </button>
       </form>
 
-      {chips.length > 0 ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {chips.map((chip) => (
-            <Link
-              key={chip.href}
-              href={chip.href}
-              className="inline-flex min-h-7 items-center gap-1.5 rounded-lg border border-primary/10 bg-primary-soft px-2.5 text-[9px] font-semibold text-primary transition hover:border-primary/20 hover:bg-primary-tint focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              {chip.label}
-              <X className="h-3 w-3" strokeWidth={2.2} aria-hidden="true" />
-            </Link>
-          ))}
+      {hasSearch ? (
+        <div className="mt-3">
           <Link
             href={jobsPath}
-            className="inline-flex min-h-7 items-center px-1.5 text-[9px] font-semibold text-[#d44b0d] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="inline-flex min-h-7 items-center text-[11px] font-semibold text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            Clear all
+            Clear search
           </Link>
         </div>
       ) : null}
@@ -411,15 +338,13 @@ export function WorkspaceJobsSkeleton() {
           </div>
           <SkeletonBlock className="hidden h-[150px] rounded-2xl lg:block" />
         </header>
-        <div className="grid gap-2.5 pt-5 lg:grid-cols-[minmax(280px,1fr)_190px_190px_148px]">
-          <SkeletonBlock className="h-11 rounded-xl" />
+        <div className="grid gap-2.5 pt-5 sm:grid-cols-[minmax(0,1fr)_190px_auto]">
           <SkeletonBlock className="h-11 rounded-xl" />
           <SkeletonBlock className="h-11 rounded-xl" />
           <SkeletonBlock className="h-11 rounded-xl" />
         </div>
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-5">
           <SkeletonBlock className="h-5 w-28 rounded-md" />
-          <SkeletonBlock className="h-10 w-36 rounded-xl" />
         </div>
         <div className="mt-3 grid gap-2.5">
           {Array.from({ length: 5 }).map((_, index) => (

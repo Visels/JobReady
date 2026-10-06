@@ -270,45 +270,6 @@ function employmentLabel(value: PublicJobSummary["employmentType"]) {
   return option?.label ?? publicJobEnumLabel(value);
 }
 
-function JobsSelect({
-  label,
-  name,
-  value,
-  options,
-  placeholder,
-}: {
-  label?: string;
-  name: string;
-  value?: string;
-  options: Array<{ value: string; label: string }>;
-  placeholder: string;
-}) {
-  return (
-    <label className="grid gap-2 text-[0.95rem] font-bold text-[#071512]">
-      {label ? <span>{label}</span> : <span className="sr-only">{placeholder}</span>}
-      <span className="relative">
-        <select
-          name={name}
-          defaultValue={value ?? ""}
-          className="h-12 w-full appearance-none rounded-md border border-[#d8dde1] bg-white px-4 pr-10 text-[0.98rem] font-medium text-[#27313b] outline-none transition placeholder:text-[#8b929b] focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/10"
-        >
-          <option value="">{placeholder}</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5c6670]"
-          strokeWidth={2}
-        />
-      </span>
-    </label>
-  );
-}
-
 export function JobsPageHero({
   filters,
   options,
@@ -357,7 +318,7 @@ export function JobsPageHeroSearch({
       action="/jobs"
       data-analytics-event="job_search_submit"
       data-analytics-product="jobs"
-      className="grid gap-3 rounded-lg border border-white/20 bg-white p-4 text-[#071512] shadow-[0_18px_44px_rgba(0,18,14,0.28)] md:grid-cols-[1.35fr_1fr_1fr_0.7fr]"
+      className="grid gap-3 rounded-lg border border-white/20 bg-white p-4 text-[#071512] shadow-[0_18px_44px_rgba(0,18,14,0.28)] md:grid-cols-[minmax(0,1fr)_minmax(12rem,0.55fr)_auto]"
     >
       <label className="relative block">
         <span className="sr-only">Search job titles, keywords or companies</span>
@@ -400,143 +361,30 @@ export function JobsPageHeroSearch({
         />
       </label>
 
-      <JobsSelect
-        name="role"
-        value={filters.role}
-        options={options.roles}
-        placeholder="All job categories"
-      />
-
       <button
         type="submit"
         className="inline-flex h-12 items-center justify-center rounded-md bg-[#063b32] px-6 text-center text-[1rem] font-bold text-white shadow-[0_10px_22px_rgba(0,83,63,0.2)] transition hover:-translate-y-px hover:bg-[#012f27] focus:outline-none focus:ring-4 focus:ring-[#00533f]/25 active:scale-[0.98]"
       >
         Search jobs
       </button>
+      {filters.q || filters.location ? (
+        <Link
+          href="/jobs"
+          className="text-sm font-semibold text-[#00533f] underline underline-offset-4 md:col-span-3"
+        >
+          Clear search
+        </Link>
+      ) : null}
     </form>
-  );
-}
-
-export function JobsSidebarFilters({
-  filters,
-  options,
-  resetHref = "/jobs",
-  total,
-}: {
-  filters: PublicJobsSearchFilters;
-  options: PublicJobFilterOptions;
-  resetHref?: string;
-  total?: number;
-}) {
-  return (
-    <aside className="rounded-md border border-[#e0e5e8] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.04)] lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto">
-      <form action="/jobs" data-analytics-event="job_sidebar_filter_submit">
-        {filters.q ? <input type="hidden" name="q" value={filters.q} /> : null}
-
-        <h2 className="text-[1.35rem] font-bold tracking-[-0.02em] text-[#071512]">
-          Filters
-        </h2>
-
-        <div className="mt-6 grid gap-5">
-          <JobsSelect
-            label="Location"
-            name="location"
-            value={filters.location}
-            options={options.locations}
-            placeholder="All locations"
-          />
-
-          <fieldset>
-            <legend className="text-[0.95rem] font-bold text-[#071512]">
-              Job type
-            </legend>
-            <div className="mt-3 grid gap-3">
-              {sidebarEmploymentOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center gap-3 text-[0.98rem] font-medium text-[#27313b]"
-                >
-                  <input
-                    type="checkbox"
-                    name="employment"
-                    value={option.value}
-                    defaultChecked={filters.employment === option.value}
-                    className="h-5 w-5 rounded border-[#d8dde1] text-[#00533f] accent-[#00533f]"
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <JobsSelect
-            label="Experience level"
-            name="seniority"
-            value={filters.seniority}
-            options={options.seniorities}
-            placeholder="All experience levels"
-          />
-
-          <JobsSelect
-            label="Category"
-            name="role"
-            value={filters.role}
-            options={options.roles}
-            placeholder="All categories"
-          />
-
-          <JobsSelect
-            label="Salary range"
-            name="salary"
-            options={[]}
-            placeholder="Any salary"
-          />
-        </div>
-
-        <div className="mt-7 flex items-center justify-between gap-4">
-          <Link
-            href={resetHref}
-            className="text-[0.95rem] font-medium text-[#5e666f] underline underline-offset-2 transition hover:text-[#00533f]"
-          >
-            Clear all
-          </Link>
-          <button
-            type="submit"
-            className="inline-flex h-12 min-w-[13.6rem] items-center justify-center rounded-md bg-[#063b32] px-5 text-[1rem] font-bold text-white shadow-[0_10px_22px_rgba(0,83,63,0.18)] transition hover:-translate-y-px hover:bg-[#012f27] focus:outline-none focus:ring-4 focus:ring-[#00533f]/20 active:scale-[0.98]"
-          >
-            {typeof total === "number"
-              ? `Show ${total.toLocaleString()} jobs`
-              : "Show jobs"}
-          </button>
-        </div>
-      </form>
-    </aside>
   );
 }
 
 export function JobsResultsHeader({ total }: { total: number }) {
   return (
-    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-5">
       <h2 className="text-[1.12rem] font-bold text-[#071512]">
         {total.toLocaleString()} job{total === 1 ? "" : "s"} found
       </h2>
-      <label className="flex items-center gap-3 self-start text-[0.95rem] font-medium text-[#071512] sm:self-auto">
-        Sort by:
-        <span className="relative">
-          <select
-            defaultValue="newest"
-            aria-label="Sort jobs"
-            className="h-11 min-w-[9rem] appearance-none rounded-md border border-[#dfe4e8] bg-white px-4 pr-10 text-[0.98rem] text-[#27313b] outline-none transition focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/10"
-          >
-            <option value="newest">Newest</option>
-          </select>
-          <ChevronDown
-            aria-hidden="true"
-            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5c6670]"
-            strokeWidth={2}
-          />
-        </span>
-      </label>
     </div>
   );
 }
@@ -747,48 +595,6 @@ function AvailabilityBadge({
   );
 }
 
-function SelectField({
-  label,
-  name,
-  value,
-  options,
-  compact = false,
-}: {
-  label: string;
-  name: string;
-  value?: string;
-  options: Array<{ value: string; label: string }>;
-  compact?: boolean;
-}) {
-  return (
-    <label
-      className={
-        compact
-          ? "grid gap-1.5 text-[10px] font-semibold text-foreground"
-          : "grid gap-2 text-sm font-bold text-[#173a32]"
-      }
-    >
-      {label}
-      <select
-        name={name}
-        defaultValue={value ?? ""}
-        className={
-          compact
-            ? "h-9 rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-medium text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-            : "h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-sm font-semibold text-[#27312d] outline-none transition focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"
-        }
-      >
-        <option value="">Any</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 export function JobsMarketplaceHero() {
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-[#d9cbb8] bg-[#fff7ec] px-6 py-10 shadow-[0_24px_80px_rgba(21,35,29,0.08)] md:px-10 md:py-14">
@@ -872,112 +678,6 @@ export function JobsPublicHeader({
         </Link>
       </nav>
     </header>
-  );
-}
-
-export function JobsFilterForm({
-  filters,
-  options,
-  action = "/jobs",
-  resetHref = "/jobs",
-  compact = false,
-}: {
-  filters: PublicJobsSearchFilters;
-  options: PublicJobFilterOptions;
-  action?: string;
-  resetHref?: string;
-  compact?: boolean;
-}) {
-  return (
-    <form
-      action={action}
-      data-analytics-event="job_search_submit"
-      data-analytics-product="jobs"
-      className={
-        compact
-          ? "rounded-2xl border border-muted-line bg-surface p-4"
-          : "rounded-[2rem] border border-[#d9cbb8] bg-white p-5 shadow-[0_18px_52px_rgba(21,35,29,0.06)] md:p-6"
-      }
-    >
-      <div className={`grid lg:grid-cols-[1.4fr_1fr_1fr_1fr] ${compact ? "gap-3" : "gap-4"}`}>
-        <label className={compact ? "grid gap-1.5 text-[10px] font-semibold text-foreground" : "grid gap-2 text-sm font-bold text-[#173a32]"}>
-          Search
-          <input
-            name="q"
-            defaultValue={filters.q ?? ""}
-            placeholder="Title, company, skill, or keyword"
-            className={compact ? "h-9 rounded-lg border border-muted-line bg-surface px-3 text-[10px] font-medium text-foreground outline-none transition placeholder:text-muted-subtle focus:border-primary focus:ring-2 focus:ring-primary/15" : "h-12 rounded-2xl border border-[#d8cbb9] bg-white px-4 text-sm font-semibold text-[#27312d] outline-none transition placeholder:text-[#8a8075] focus:border-[#00533f] focus:ring-4 focus:ring-[#00533f]/15"}
-          />
-        </label>
-        <SelectField
-          label="Company"
-          name="company"
-          value={filters.company}
-          options={options.companies}
-          compact={compact}
-        />
-        <SelectField
-          label="Role"
-          name="role"
-          value={filters.role}
-          options={options.roles}
-          compact={compact}
-        />
-        <SelectField
-          label="Location"
-          name="location"
-          value={filters.location}
-          options={options.locations}
-          compact={compact}
-        />
-      </div>
-
-      <div className={`mt-3 grid md:grid-cols-4 ${compact ? "gap-3" : "gap-4"}`}>
-        <SelectField
-          label="Workplace"
-          name="workplace"
-          value={filters.workplace}
-          options={options.workplaces}
-          compact={compact}
-        />
-        <SelectField
-          label="Employment"
-          name="employment"
-          value={filters.employment}
-          options={options.employmentTypes}
-          compact={compact}
-        />
-        <SelectField
-          label="Seniority"
-          name="seniority"
-          value={filters.seniority}
-          options={options.seniorities}
-          compact={compact}
-        />
-        <SelectField
-          label="Closing date"
-          name="closing"
-          value={filters.closing}
-          options={options.closingWindows}
-          compact={compact}
-        />
-      </div>
-
-      <div className={`${compact ? "mt-3 gap-2" : "mt-5 gap-3"} flex flex-col sm:flex-row sm:items-center`}>
-        <button
-          type="submit"
-          className={compact ? "min-h-9 rounded-lg bg-primary px-3.5 text-[10px] font-semibold text-white transition hover:bg-primary/92 focus:outline-none focus:ring-2 focus:ring-primary/20" : "rounded-full bg-[#00533f] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_18px_40px_rgba(0,83,63,0.22)] transition hover:-translate-y-0.5 hover:bg-[#063c31] focus:outline-none focus:ring-4 focus:ring-[#00533f]/20"}
-        >
-          Search jobs
-        </button>
-        <Link
-          href={resetHref}
-          className={compact ? "min-h-9 rounded-lg border border-muted-line px-3.5 text-center text-[10px] font-semibold leading-9 text-foreground transition hover:border-primary hover:text-primary" : "rounded-full border border-[#d9cbb8] px-6 py-3 text-center text-sm font-black uppercase tracking-[0.14em] text-[#173a32] transition hover:border-[#00533f] hover:text-[#00533f]"}
-        >
-          Reset filters
-        </Link>
-      </div>
-    </form>
   );
 }
 
@@ -1130,7 +830,7 @@ export function JobsEmptyState({
         Try a wider search.
       </h2>
       <p className={compact ? "mx-auto mt-1.5 max-w-2xl text-[10px] leading-4 text-muted" : "mx-auto mt-4 max-w-2xl text-base leading-7 text-[#52605b]"}>
-        Try another role, company, or location. Closed jobs remain available for interview practice.
+        Try another keyword or location. Closed jobs remain available for interview practice.
       </p>
       {hasFilters ? (
         <Link
@@ -1558,9 +1258,7 @@ export function JobsLoadingShell({ detail = false }: { detail?: boolean }) {
       <JobsPageHero filters={filters} options={options} />
 
       <section className="px-5 py-5 md:px-9 md:py-6" aria-live="polite">
-        <div className="mx-auto grid max-w-[1536px] items-start gap-6 lg:grid-cols-[22rem_1fr]">
-          <JobsSidebarFilters filters={filters} options={options} />
-
+        <div className="mx-auto max-w-[1536px]">
           <JobsResultsLoadingSkeleton />
         </div>
       </section>
@@ -1573,7 +1271,6 @@ export function JobsResultsLoadingSkeleton() {
     <div className="min-w-0">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="h-6 w-28 rounded-full bg-[#dde4e1]" />
-        <div className="h-11 w-36 rounded-md border border-[#dfe4e8] bg-white" />
       </div>
 
       <div className="grid gap-1.5">

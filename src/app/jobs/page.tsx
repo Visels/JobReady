@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import {
   JobsPageHero,
   JobsResultsHeader,
-  JobsSidebarFilters,
   JobsEmptyState,
   JobsPagination,
   JobsResultsLoadingSkeleton,
@@ -14,6 +13,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildPublicJobsBreadcrumbJsonLd,
   getPublicJobFilterOptions,
+  simplePublicJobSearchParams,
   sanitizePublicJobSearchParams,
   searchPublicJobs,
 } from "@/lib/jobs";
@@ -78,7 +78,8 @@ export async function generateMetadata({
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const rawSearchParams = await searchParams;
-  const filters = sanitizePublicJobSearchParams(rawSearchParams);
+  const simpleSearchParams = simplePublicJobSearchParams(rawSearchParams);
+  const filters = sanitizePublicJobSearchParams(simpleSearchParams);
   const [filterOptions, currentUser] = await Promise.all([
     getPublicJobFilterOptions(),
     getCurrentUser(),
@@ -93,16 +94,11 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         <JobsPageHero filters={filters} options={filterOptions} />
 
         <section className="px-5 py-5 md:px-9 md:py-6" aria-live="polite">
-          <div className="mx-auto grid max-w-[1536px] items-start gap-6 lg:grid-cols-[22rem_1fr]">
-            <JobsSidebarFilters
-              filters={filters}
-              options={filterOptions}
-            />
-
+          <div className="mx-auto max-w-[1536px]">
             <Suspense fallback={<JobsResultsLoadingSkeleton />}>
               <JobsResults
                 authenticated={authenticated}
-                searchParams={rawSearchParams}
+                searchParams={simpleSearchParams}
               />
             </Suspense>
           </div>

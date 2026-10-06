@@ -271,6 +271,19 @@ export function sanitizePublicJobSearchParams(
   };
 }
 
+// The marketplace uses only the two search inputs shown to candidates. Keep
+// legacy filter parsing in the service for existing internal callers.
+export function simplePublicJobSearchParams(
+  params?: PublicJobsRawSearchParams,
+): Record<string, string | undefined> {
+  const filters = sanitizePublicJobSearchParams(params);
+  return {
+    q: filters.q,
+    location: filters.location,
+    page: String(filters.page),
+  };
+}
+
 export function buildPublicJobsHref(
   filters: PublicJobsSearchFilters,
   overrides: Partial<PublicJobsSearchFilters> = {},

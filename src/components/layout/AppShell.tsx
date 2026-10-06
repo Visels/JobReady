@@ -174,7 +174,7 @@ const pageContexts = [
       pathname.startsWith("/find-jobs") || pathname.startsWith("/jobs"),
     title: "Find Jobs",
     kicker: "Verified opportunities",
-    action: { href: "/find-jobs?closing=7d", label: "Closing soon" },
+    action: { href: "/saved-jobs", label: "Saved jobs" },
   },
   {
     match: (pathname: string) => pathname.startsWith("/saved-jobs"),

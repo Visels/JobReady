@@ -11,6 +11,7 @@ import {
 import {
   getPublicJobFilterOptions,
   searchPublicJobs,
+  simplePublicJobSearchParams,
 } from "@/lib/jobs";
 import { generateSEO } from "@/lib/seo";
 
@@ -32,7 +33,9 @@ export default async function FindJobsPage({
   searchParams,
 }: FindJobsPageProps) {
   const rawSearchParams = await searchParams;
-  const result = await searchPublicJobs({ searchParams: rawSearchParams });
+  const result = await searchPublicJobs({
+    searchParams: simplePublicJobSearchParams(rawSearchParams),
+  });
   const filterOptions = await getPublicJobFilterOptions();
 
   return (
@@ -49,19 +52,6 @@ export default async function FindJobsPage({
             <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-foreground tabular-nums">
               {result.total.toLocaleString()} job{result.total === 1 ? "" : "s"} found
             </h2>
-            <label className="flex items-center gap-2 text-[10px] font-medium text-muted">
-              Sort by
-              <span className="relative">
-                <select
-                  aria-label="Sort jobs"
-                  defaultValue="recent"
-                  className="h-10 min-w-[142px] appearance-none rounded-xl border border-muted-line bg-white pl-3 pr-8 text-[10px] font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/12"
-                >
-                  <option value="recent">Most recent</option>
-                </select>
-                <span aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">⌄</span>
-              </span>
-            </label>
           </div>
 
           {result.jobs.length > 0 ? (
