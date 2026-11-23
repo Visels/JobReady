@@ -1,5 +1,6 @@
 import { strict as assert } from "node:assert";
 import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { prisma } from "../src/lib/prisma";
 import { seedJobreadyReferenceFixtures } from "../prisma/jobready-reference-fixtures";
 import { seedKenyanLaunchCatalog } from "../prisma/jobready-launch-catalog";
@@ -29,6 +30,32 @@ async function main() {
     prisma.jobRole.findUniqueOrThrow({ where: { slug: "graduate-trainee-engineer" } }),
     prisma.seniorityLevel.findUniqueOrThrow({ where: { slug: "mid-level" } }),
   ]);
+  const originalMigration = await readFile("prisma/migrations/20260725090000_add_jobready_domain/migration.sql", "utf8");
+  const originalConstraint = originalMigration.match(/ALTER TABLE "InterviewSession" ADD CONSTRAINT "InterviewSession_job_context_check"[\s\S]*?NOT VALID;/)?.[0];
+  assert.ok(originalConstraint);
+  await prisma.$executeRawUnsafe('ALTER TABLE "InterviewSession" DROP CONSTRAINT IF EXISTS "InterviewSession_job_context_check"');
+  await prisma.$executeRawUnsafe(originalConstraint);
+  const blockedRequest = createJobInterviewSessionRequestSchema.parse({
+    idempotencyKey: randomUUID(), marketId: market.id, roleFamilyId: role.roleFamilyId,
+    jobRoleId: role.id, seniorityLevelId: seniority.id, focusMode: "recommended", interviewMode: "voice",
+    durationMinutes: 15, language: "en", target: { type: "none" },
+  });
+  await assert.rejects(() => sessions.createSession(user.id, blockedRequest), /constraint/i);
+  const migration = await readFile("prisma/migrations/20261123143000_allow_automatic_interview_structure/migration.sql", "utf8");
+  await prisma.$transaction(async (tx) => {
+    for (const statement of migration.split(";").filter((value) => value.trim())) {
+      await tx.$executeRawUnsafe(statement);
+    }
+  });
+  const recovered = await sessions.createSession(user.id, blockedRequest);
+  assert.ok(recovered.session.id);
+  assert.equal(await prisma.creditLedgerEntry.count({ where: {
+    userId: user.id, action: "reserve", interviewSessionId: recovered.session.id,
+  } }), 1);
+  // A missing plan must still have a saved automatic structure.
+  await assert.rejects(() => prisma.interviewSession.update({
+    where: { id: recovered.session.id }, data: { onboardingData: {} },
+  }), /constraint/i);
   for (const focusMode of ["recommended", "behavioral_focus", "role_specific_focus"] as const) {
     for (const interviewMode of ["voice", "text"] as const) {
       const result = await sessions.createSession(user.id, createJobInterviewSessionRequestSchema.parse({
