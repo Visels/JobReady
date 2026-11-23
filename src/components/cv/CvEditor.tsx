@@ -366,6 +366,14 @@ export function CvEditor({
             }
           </span>
           <button
+            type="button"
+            className="cv-button"
+            disabled={!editor.ready || editor.status === "saved" || editor.status === "saving" || editor.status === "conflict"}
+            onClick={() => void editor.saveNow()}
+          >
+            {editor.status === "saving" ? "Saving…" : "Save CV"}
+          </button>
+          <button
             className="cv-button cv-preview-jump"
             type="button"
             onClick={() => {
@@ -539,7 +547,7 @@ export function CvEditor({
               >
                 <div className="cv-editor-intro">
                   <span className="cv-kicker">Your document</span>
-                  <p>Edit the fields below. Your changes save automatically.</p>
+                  <p>Upload a CV or update the fields below. Changes save automatically, and you can also use Save CV.</p>
                   {(draft.personal.fullName === "John Doe" || draft.personal.email === "john.doe@example.com") && (
                     <div className="cv-sample-note" role="note">
                       <strong>Example CV</strong> — These details are fictional. Replace them with your own before using AI, tailoring, or downloading.
@@ -924,6 +932,7 @@ export function CvEditor({
                   draft={draft}
                   getDraft={editor.getDraft}
                   onChange={update}
+                  onEdit={() => setTab("edit")}
                 />
               </div>
             </>

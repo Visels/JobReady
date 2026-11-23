@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, BriefcaseBusiness, Check, Undo2, X } from "lucide-react";
+import { ArrowUp, Check, Undo2, X } from "lucide-react";
 import {
   applyCvRevision,
   cvTextFields,
@@ -14,10 +14,12 @@ export function CvAiEditor({
   draft,
   getDraft,
   onChange,
+  onEdit,
 }: {
   draft: CvDraft;
   getDraft: () => CvDraft;
   onChange: (draft: CvDraft) => void;
+  onEdit: () => void;
 }) {
   const [instruction, setInstruction] = useState("");
   const [jobDetails, setJobDetails] = useState("");
@@ -109,64 +111,9 @@ export function CvAiEditor({
   return (
     <section className="cv-ai" aria-label="AI writing assistant">
       <div className="cv-section-intro">
-        <span className="cv-kicker">Tailor in one prompt</span>
-        <h2>
-          Bring the job.
-          <br />Keep your facts.
-        </h2>
-        <p>
-          Paste the role details once. We&apos;ll suggest changes across the
-          relevant CV sections, and nothing changes until you approve it.
-        </p>
-      </div>
-      <form
-        className="cv-tailor-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void ask({
-            action: "tailor",
-            scope: "all",
-            instruction: [
-              "Tailor this CV to the job details below. Prioritize the candidate's existing relevant experience and useful matching language. Keep every claim truthful and do not add qualifications, skills, employers, dates, responsibilities, or results that are not supported by the CV.",
-              "JOB DETAILS:",
-              jobDetails.trim(),
-            ].join("\n\n"),
-          });
-        }}
-      >
-        <div className="cv-tailor-label">
-          <BriefcaseBusiness size={17} />
-          <div>
-            <strong>Tailor to a job</strong>
-            <span>Job title, responsibilities, and requirements</span>
-          </div>
-        </div>
-        <label className="cv-field">
-          <span>Job details</span>
-          <textarea
-            aria-label="Job details"
-            rows={7}
-            maxLength={10_000}
-            value={jobDetails}
-            onChange={(event) => setJobDetails(event.target.value)}
-            placeholder="Paste the job title and description here…"
-          />
-        </label>
-        <div className="cv-ai-submit">
-          <span>You&apos;ll review every suggested change first.</span>
-          <button
-            className="cv-button cv-button-primary"
-            disabled={pending || jobDetails.trim().length < 10}
-            type="submit"
-          >
-            {pendingAction === "tailor" ? "Tailoring…" : "Tailor my CV"}
-            <ArrowUp size={16} />
-          </button>
-        </div>
-      </form>
-
-      <div className="cv-ai-divider">
-        <span>Or refine selected sections</span>
+        <span className="cv-kicker">Optional writing help</span>
+        <h2>What would you like to improve?</h2>
+        <p>Describe the change below. You’ll review suggestions before anything changes. You can also edit your CV directly.</p>
       </div>
       <div className="cv-prompt-examples">
         {[
@@ -182,7 +129,13 @@ export function CvAiEditor({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void ask({ instruction, scope, action: "edit" });
+          void ask({
+            instruction: [instruction.trim() || "Tailor my existing experience to this role.",
+              ...(jobDetails.trim() ? ["Use the job details as context only; do not invent experience or qualifications.", "JOB DETAILS:", jobDetails.trim()] : []),
+            ].join("\n\n"),
+            scope,
+            action: jobDetails.trim() ? "tailor" : "edit",
+          });
         }}
       >
         <label className="cv-field">
@@ -199,6 +152,15 @@ export function CvAiEditor({
             ))}
           </select>
         </label>
+        <details className="cv-tailor-form">
+          <summary>Tailoring to a job? Add the job description (optional)</summary>
+          <label className="cv-field">
+            <span>Job details</span>
+            <textarea aria-label="Job details" rows={5} maxLength={10_000}
+              value={jobDetails} onChange={(event) => setJobDetails(event.target.value)}
+              placeholder="Paste the job title and description here…" />
+          </label>
+        </details>
         <label className="cv-field">
           <span>What would you like to change?</span>
           <textarea
@@ -214,10 +176,10 @@ export function CvAiEditor({
           <span>Suggestions use the content of your CV.</span>
           <button
             className="cv-button cv-button-primary"
-            disabled={pending || instruction.trim().length < 3}
+            disabled={pending || (instruction.trim().length < 3 && jobDetails.trim().length < 10)}
             type="submit"
           >
-            {pendingAction === "edit" ? "Working on it…" : "Suggest edits"}
+            {pending ? "Working on it…" : "Suggest edits"}
             <ArrowUp size={16} />
           </button>
         </div>
@@ -235,9 +197,10 @@ export function CvAiEditor({
         </div>
       )}
       {error && (
-        <p className="cv-error" role="alert">
-          {error}
-        </p>
+        <div className="cv-error" role="alert">
+          <p>{error}</p>
+          <button type="button" className="cv-button" onClick={onEdit}>Continue editing manually</button>
+        </div>
       )}
       {notice && (
         <p className="cv-notice" role="status">

@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { APIError, APIConnectionError } from "openai";
 import { CloudflareR2ObjectStorage } from "@/lib/storage/r2-storage";
 import { buildR2StorageConfig } from "@/lib/storage/r2-config";
 import { CvDraftError, CvDraftService } from "./draft-service";
@@ -33,6 +34,16 @@ export async function readCvRequest(request: Request) {
   }
 }
 export function cvErrorResponse(error: unknown) {
+  if (error instanceof APIError || error instanceof APIConnectionError) {
+    const temporarilyLimited = error instanceof APIError && error.status === 429 &&
+      !["insufficient_quota", "credit_balance_exhausted"].includes(error.code ?? "");
+    return Response.json({
+      error: temporarilyLimited
+        ? "AI suggestions are busy right now. Please wait a moment, or continue editing your CV manually. Saving and downloads still work."
+        : "AI suggestions are temporarily unavailable. You can still edit your CV manually, save it, and download it. Your CV hasn't changed.",
+      code: "ai_unavailable",
+    }, {status: 503});
+  }
   if (error instanceof CvDraftError)
     return Response.json({ error: error.message }, { status: error.status });
   if (error instanceof z.ZodError)

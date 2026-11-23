@@ -2,6 +2,8 @@
 
 The `/cv-resume` workspace supports a complete, manually editable CV with personal details, summary, repeatable experience/education/projects, skills, certifications, achievements, languages, and additional text. Users can ask for natural-language AI revisions, review before/after text, apply or dismiss suggestions, and undo the last AI change. Downloads work independently of job targeting and always use the submitted current draft.
 
+The default flow is upload or edit, save, then download. Existing users open their latest saved CV; new users start with a blank document. A Save CV button complements autosave. AI uses one request form with optional job details and a direct return to manual editing on failure. Saved-document history is collapsed, and the older job-specific version workflow is shown only for job/application links or its history views.
+
 ## Runtime configuration
 
 - Authentication and the database use the existing Supabase/Prisma configuration.
@@ -12,6 +14,8 @@ The `/cv-resume` workspace supports a complete, manually editable CV with person
 ## Persistence and revisions
 
 Drafts are validated structured JSON in private R2 objects. Each successful changed save creates an immutable `CandidateDocumentVersion` and updates the parent document pointer in a transaction. An expected-version check rejects stale writes; matching-content retries are idempotent. The client serializes saves, retries explicitly after failure, warns before closing with unsaved edits, and offers reload or save-as-copy on a conflict. The URL remembers a successfully saved/opened document for refreshes.
+
+Application checksums stay hexadecimal. The R2 adapter converts them to base64 at the SDK boundary and converts returned checksums back to hex, as required by the [S3 checksum header format](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html). `npm run test:r2-checksums` exercises actual SDK requests against a synthetic local server; a real R2 write/read check also verified the correction.
 
 Existing documents open with their original text in Additional information; this avoids discarding lines the old fact parser did not recognize. Users can move that text into structured sections. New saves publish minimal local metadata to update the existing job-tailoring selector immediately.
 

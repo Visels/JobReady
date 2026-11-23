@@ -119,6 +119,7 @@ async function main() {
     let lastAiDraft: CvDraft | null = null;
     let lastAiInstruction = "";
     let lastAiScope = "";
+    let failAi = false;
     const aiResponse = async (route: Route) => {
       const body = route.request().postDataJSON();
       lastAiDraft = body.draft;
@@ -140,7 +141,8 @@ async function main() {
       });
     };
     await page.route("**/api/cv/revise", async (route) => {
-      if (delayAi) delayedRevision = route;
+      if (failAi) await route.fulfill({status:503,json:{error:"AI suggestions are temporarily unavailable. You can still edit your CV manually, save it, and download it."}});
+      else if (delayAi) delayedRevision = route;
       else await aiResponse(route);
     });
     await page.route("**/api/cv/export", async (route) => {
@@ -162,6 +164,7 @@ async function main() {
       });
     });
     await page.goto(`http://127.0.0.1:${address.port}`);
+    await expect(page.getByLabel("Full name", {exact:true})).toHaveValue("");
     await page.getByLabel("Upload an existing CV").setInputFiles({
       name: "existing-cv.docx",
       mimeType:
@@ -194,12 +197,13 @@ async function main() {
     );
 
     await page.getByRole("tab", { name: "Ask AI" }).click();
+    await page.getByText("Tailoring to a job? Add the job description (optional)", {exact:true}).click();
     await page
       .getByLabel("Job details", { exact: true })
       .fill(
         "Customer Operations Manager responsible for service reporting and team coordination.",
       );
-    await page.getByRole("button", { name: "Tailor my CV" }).click();
+    await page.getByRole("button", { name: "Suggest edits", exact:true }).click();
     await expect(
       page.getByRole("button", { name: "Apply suggestion", exact: true }),
     ).toBeVisible();
@@ -311,6 +315,15 @@ async function main() {
       path: path.join(output, "ai-panel.png"),
       fullPage: true,
     });
+    failAi = true;
+    await page.getByRole("button", {name:"Polish the summary more",exact:true}).click();
+    await page.getByRole("button", {name:"Suggest edits",exact:true}).click();
+    await expect(page.getByRole("alert")).toContainText("AI suggestions are temporarily unavailable");
+    await page.getByRole("button", {name:"Continue editing manually"}).click();
+    await expect(page.getByLabel("Summary",{exact:true})).toBeVisible();
+    await page.getByLabel("Summary",{exact:true}).fill("Manual editing still works when AI is unavailable.");
+    await page.getByRole("button", {name:"Save CV",exact:true}).click();
+    await expect(page.getByText("All changes saved", {exact:true})).toBeVisible();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "Preview", exact: true }).click();
     await expect(page.getByLabel("Live CV preview")).toBeVisible();

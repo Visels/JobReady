@@ -94,6 +94,7 @@ async function main() {
   const originalFetch = globalThis.fetch;
   const requests: string[] = [];
   let failRealtime = false;
+  let failCvAi = false;
   const sharedKey = "synthetic-shared-openai-key";
   try {
     for (const name of Object.keys(process.env)) {
@@ -136,6 +137,7 @@ async function main() {
         return new Response(new Uint8Array([73, 68, 51]), { headers: { "Content-Type": "audio/mpeg" } });
       }
       assert.equal(endpoint, "/v1/chat/completions");
+      if (failCvAi) return Response.json({error:{message:"Private upstream quota details",type:"insufficient_quota",code:"credit_balance_exhausted"}}, {status:429});
       assert.equal(body.model, "gpt-4o-mini");
       const answer = body.response_format.type === "json_schema"
         ? { message: "Your summary is already concise.", changes: [] }
@@ -191,6 +193,13 @@ async function main() {
       assert.equal(body.includes(sharedKey), false);
     }
     assert.equal(app.state.connected, 1, "An upstream failure must not mark a voice session connected.");
+    failCvAi = true;
+    const unavailableCvAi = await app.revise(cvRequest());
+    assert.equal(unavailableCvAi.status, 503);
+    const unavailableBody = await unavailableCvAi.text();
+    assert.match(unavailableBody, /AI suggestions are temporarily unavailable/);
+    assert.match(unavailableBody, /save it, and download it/);
+    assert.equal(unavailableBody.includes("Private upstream quota details"), false);
     console.log("Shared OpenAI integration passed: CV, interview text, speech, both voice routes, credential isolation, and failure handling.");
   } finally {
     globalThis.fetch = originalFetch;

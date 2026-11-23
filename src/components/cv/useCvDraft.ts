@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   emptyCvDraft,
-  exampleCvDraft,
   cvEvidence,
   CV_DOCUMENT_SAVED_EVENT,
   type CvSavedDocumentDetail,
@@ -30,12 +29,15 @@ export async function cvRequest<T>(
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
-  const data = await response.json();
+  const data = await response.json().catch(() => null);
   if (!response.ok)
     throw Object.assign(
-      new Error(data.error || "The request failed. Please try again."),
+      new Error(response.status === 401
+        ? "Your session has expired. Sign in again to save your CV."
+        : data?.error || "We couldn't reach the CV service. Your edits are still here. Please try again."),
       { status: response.status },
     );
+  if (!data) throw new Error("We couldn't read the response. Your edits are still here. Please try again.");
   return data as T;
 }
 
@@ -43,9 +45,7 @@ export function useCvDraft(
   initialDocuments: CvDocumentOption[],
   initialDocumentId?: string,
 ) {
-  const [draft, setDraft] = useState<CvDraft>(() =>
-    initialDocumentId ? emptyCvDraft() : exampleCvDraft(),
-  );
+  const [draft, setDraft] = useState<CvDraft>(() => emptyCvDraft());
   const [documentId, setDocumentId] = useState("");
   const [documents, setDocuments] = useState(initialDocuments);
   const [status, setStatus] = useState<SaveStatus>(

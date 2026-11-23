@@ -71,10 +71,7 @@ function BaseDocumentCard({ document }: { document: WorkspaceDocument }) {
             {document.title}
           </h2>
           <p className="mt-1 text-[10px] leading-4 text-muted">
-            {document.kind} version{" "}
-            {document.currentVersionNumber ?? "unavailable"} /{" "}
-            {document.factCount} allowlisted fact
-            {document.factCount === 1 ? "" : "s"} / updated{" "}
+            Updated{" "}
             {formatWorkspaceDate(document.updatedAt)}
           </p>
         </div>
@@ -142,9 +139,11 @@ export default async function CvResumePage({
   const activeView = views.some((view) => view.value === params.view)
     ? (params.view ?? "all")
     : "all";
+  const showJobTailoring = Boolean(params.job || params.applicationId) ||
+    activeView === "tailored" || activeView === "needs-review";
   const [data, publicJobs] = await Promise.all([
     getDashboardData(user.id),
-    searchPublicJobs({ searchParams: { pageSize: "12" } }),
+    showJobTailoring ? searchPublicJobs({ searchParams: { pageSize: "12" } }) : Promise.resolve(null),
   ]);
   const documents =
     activeView === "tailored" || activeView === "needs-review"
@@ -163,21 +162,21 @@ export default async function CvResumePage({
     <main className="cv-page min-h-[calc(100dvh-64px)] px-3 pb-10 pt-5 text-foreground md:px-5 lg:px-6">
       <header className="cv-page-header mb-5 border-b border-muted-line pb-5">
         <h1 className="text-[clamp(1.65rem,2.4vw,2.25rem)] font-semibold leading-tight tracking-[-0.04em] text-foreground">
-          Tailor your CV
+          Update your CV
         </h1>
         <p className="mt-1 max-w-[80ch] text-[13px] leading-5 text-muted">
-          Update your CV and align it with the target role. Use AI suggestions to highlight the most relevant experience and skills.
+          Upload your CV or edit your details, then save and download. AI suggestions are optional.
         </p>
       </header>
       <CvEditor
-        key={params.document ?? "new-cv"}
+        key={params.document ?? data.documents[0]?.id ?? "new-cv"}
         documents={data.documents
           .filter((document) => document.currentVersionId)
           .map((document) => ({ id: document.id, title: document.title }))}
-        initialDocumentId={params.document}
+        initialDocumentId={params.document ?? data.documents[0]?.id}
       />
 
-      <details
+      {showJobTailoring && <details
         className="mt-5 rounded-xl border border-muted-line bg-surface"
         open={Boolean(params.job || params.applicationId) || undefined}
       >
@@ -199,7 +198,7 @@ export default async function CvResumePage({
               currentVersionNumber: document.currentVersionNumber,
               factCount: document.factCount,
             }))}
-          publicTargets={publicJobs.jobs.map((job) => ({
+          publicTargets={(publicJobs?.jobs ?? []).map((job) => ({
             versionId: job.versionId,
             slug: job.slug,
             title: job.title,
@@ -218,9 +217,11 @@ export default async function CvResumePage({
           initialPublicJobSlug={params.job}
           initialApplicationId={params.applicationId}
         />
-      </details>
+      </details>}
 
-      <WorkspaceCard className="mt-4">
+      {(data.documents.length > 0 || data.tailoredVersions.length > 0 || params.view) && <details className="mt-5 rounded-xl border border-muted-line bg-surface" open={Boolean(params.view) || undefined}>
+        <summary className="cursor-pointer px-5 py-4 text-[13px] font-semibold">Saved CVs and job-specific versions</summary>
+      <WorkspaceCard>
         <WorkspaceSectionTitle
           eyebrow="Filters"
           title="Document and tailoring history"
@@ -256,9 +257,9 @@ export default async function CvResumePage({
               ) : (
                 <WorkspaceEmptyState
                   title="No base documents in this view"
-                  body="When you add or parse a base CV/resume, it appears here with version and allowlisted fact counts."
-                  href="/find-jobs"
-                  label="Find a role first"
+                  body="Upload a CV or enter your details in the editor above. Your saved CVs appear here."
+                  href="/cv-resume"
+                  label="Update your CV"
                 />
               )}
             </div>
@@ -286,6 +287,7 @@ export default async function CvResumePage({
           </section>
         </div>
       </WorkspaceCard>
+      </details>}
     </main>
   );
 }

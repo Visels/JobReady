@@ -32,6 +32,18 @@ function encodeCopySource(pointer: ObjectStoragePointer) {
   return `${pointer.bucket}/${key}`;
 }
 
+// The application stores SHA-256 as hex; S3 checksum headers use base64.
+function encodeChecksum(value: string | undefined) {
+  if (!value) return undefined;
+  if (!/^[a-f0-9]{64}$/i.test(value))
+    throw new ObjectStorageError("invalid_input", "Expected a SHA-256 checksum in hexadecimal format.");
+  return Buffer.from(value, "hex").toString("base64");
+}
+
+function decodeChecksum(value: string | undefined) {
+  return value ? Buffer.from(value, "base64").toString("hex") : undefined;
+}
+
 function isNotFoundError(error: unknown) {
   const candidate = error as {
     name?: string;
@@ -131,7 +143,7 @@ export class CloudflareR2ObjectStorage implements ObjectStorage {
         Key: input.key,
         ContentType: input.contentType,
         ContentLength: input.contentLength,
-        ChecksumSHA256: input.checksumSha256,
+        ChecksumSHA256: encodeChecksum(input.checksumSha256),
         Metadata: input.metadata,
       });
       const url = await getSignedUrl(this.client, command, {
@@ -191,7 +203,7 @@ export class CloudflareR2ObjectStorage implements ObjectStorage {
           Body: input.body,
           ContentType: input.contentType,
           ContentLength: input.body.byteLength,
-          ChecksumSHA256: input.checksumSha256,
+          ChecksumSHA256: encodeChecksum(input.checksumSha256),
           Metadata: input.metadata,
         }),
       );
@@ -224,7 +236,7 @@ export class CloudflareR2ObjectStorage implements ObjectStorage {
       return metadataFromHead({
         ...input,
         etag: result.ETag,
-        checksumSha256: result.ChecksumSHA256,
+        checksumSha256: decodeChecksum(result.ChecksumSHA256),
         contentType: result.ContentType,
         contentLength: result.ContentLength,
         metadata: result.Metadata,
@@ -276,7 +288,7 @@ export class CloudflareR2ObjectStorage implements ObjectStorage {
         ...metadataFromHead({
           ...input,
           etag: result.ETag,
-          checksumSha256: result.ChecksumSHA256,
+          checksumSha256: decodeChecksum(result.ChecksumSHA256),
           contentType: result.ContentType,
           contentLength: result.ContentLength,
           metadata: result.Metadata,

@@ -9,6 +9,7 @@
     "test": "tsx scripts/test-product-config.ts",
     "test:ledger": "tsx scripts/test-credit-ledger.ts",
     "test:storage": "tsx scripts/test-object-storage.ts",
+    "test:r2-checksums": "node --conditions=react-server --import tsx scripts/test-r2-checksums.ts",
     "test:documents": "tsx scripts/test-document-ingestion.ts",
     "test:tailoring": "tsx scripts/test-cv-tailoring.ts",
     "test:cv-editor": "tsx scripts/test-cv-editor.ts",
