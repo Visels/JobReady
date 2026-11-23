@@ -1016,10 +1016,10 @@ export class JobInterviewReportService {
       );
     }
 
-    if (!session.interviewPlan || session.interviewTurns.length === 0) {
+    if (session.interviewTurns.length === 0) {
       throw new JobInterviewReportError(
         "invalid_session",
-        "Job interview session is missing a reviewed plan or persisted turns.",
+        "Job interview session has no saved answers to report on.",
       );
     }
 

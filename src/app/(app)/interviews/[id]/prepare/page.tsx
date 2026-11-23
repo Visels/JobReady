@@ -142,9 +142,8 @@ export default async function InterviewPreparationPage({
                 Question set
               </h2>
               <p className="mt-2 text-[14px] leading-6 text-[#52605b]">
-                {session.questionSet.turnCount} questions were persisted from
-                reviewed plan version {session.plan.version}. The questions are
-                intentionally not displayed on this preparation screen.
+                We’ve selected {session.questionSet.turnCount} questions for your
+                interview. You’ll hear them one at a time when you start.
               </p>
               <ul className="mt-4 grid gap-2">
                 {session.plan.moduleSummary.map((module) => (

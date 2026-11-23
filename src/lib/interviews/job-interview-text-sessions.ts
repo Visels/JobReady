@@ -1112,13 +1112,6 @@ export class JobInterviewTextSessionService {
       );
     }
 
-    if (!session.interviewPlan) {
-      throw new JobInterviewTextSessionError(
-        "invalid_input",
-        "Interview session is missing its reviewed plan.",
-      );
-    }
-
     if (session.interviewTurns.length === 0) {
       throw new JobInterviewTextSessionError(
         "invalid_input",
@@ -1806,7 +1799,22 @@ export class JobInterviewTextSessionService {
           Boolean(turn.structuredEvaluation),
         ).length,
       };
-    }) ?? [];
+    }) ?? [...new Map(session.interviewTurns.map((turn) => {
+      const frameworkKey = turn.evaluationFramework?.key ?? "general";
+      const competencyKey = readCompetencyKey(turn.selectionReason);
+      const key = `${frameworkKey}:${competencyKey}`;
+      const relatedTurns = session.interviewTurns.filter((item) =>
+        item.evaluationFramework?.key === turn.evaluationFramework?.key &&
+        readCompetencyKey(item.selectionReason) === competencyKey,
+      );
+      return [key, {
+        key,
+        label: turn.evaluationFramework?.name ?? "General",
+        totalTurns: relatedTurns.length,
+        answeredTurns: relatedTurns.filter((item) => Boolean(item.candidateAnswer)).length,
+        evaluatedTurns: relatedTurns.filter((item) => Boolean(item.structuredEvaluation)).length,
+      }];
+    })).values()];
     const competencyMap = new Map<
       string,
       JobInterviewTextSessionState["coverage"]["competencies"][number]

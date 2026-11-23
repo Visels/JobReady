@@ -121,6 +121,9 @@ async function main() {
     await page.getByLabel("Job title").fill("Product Manager");
     await page.getByLabel("Company", { exact: true }).fill("Mwangaza Studio");
     await page.getByLabel("Job description").fill("Lead customer research and prioritize the product roadmap with the team.");
+    await page.getByLabel("Experience level").selectOption("entry");
+    await expect(page.getByText(/reviewed interview plan|Use available defaults/)).toHaveCount(0);
+    await expect(start).toBeEnabled();
     await page.screenshot({ path: path.join(output, "manual.png"), fullPage: true });
     await start.click();
     await destination();
@@ -130,6 +133,7 @@ async function main() {
       companyName: "Mwangaza Studio",
       description: "Lead customer research and prioritize the product roadmap with the team.",
     });
+    assert.equal(requests.at(-1)?.seniorityLevelId, "entry");
 
     await fresh("?empty");
     await expect(page.getByText(/No matching jobs/)).toBeVisible();

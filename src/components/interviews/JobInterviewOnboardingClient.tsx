@@ -28,7 +28,6 @@ import {
 import {
   buildJobInterviewSessionRequestFromDraft,
   createDefaultInterviewOnboardingDraft,
-  hasReviewedPlanForDraft,
   prefillDraftFromPrivateTarget,
   prefillDraftFromPublicTarget,
   roleSpecificFocusDescriptor,
@@ -176,7 +175,6 @@ export function JobInterviewOnboardingClient({
         .toLowerCase()
         .includes(normalizedQuery),
   );
-  const reviewedPlanAvailable = hasReviewedPlanForDraft(draft, options);
   const roleLabel =
     (draft.targetSelection === "manual" ? draft.manualJobTitle.trim() || undefined : target?.title) ??
     options.jobRoles.find((role) => role.id === draft.jobRoleId)?.label ??
@@ -729,24 +727,6 @@ export function JobInterviewOnboardingClient({
             {formError}
           </p>
         ) : null}
-        {!reviewedPlanAvailable && draft.roleFamilyId && !formError ? (
-          <div
-            role="status"
-            className="mb-4 rounded-lg bg-warning/10 px-4 py-3 text-[13px] leading-5 text-foreground"
-          >
-            <p>
-              This setup does not have a reviewed interview plan yet. Choose a
-              different role, experience level, or question focus.
-            </p>
-            <button
-              type="button"
-              onClick={resetToDefaults}
-              className={`${textButtonClass} mt-2`}
-            >
-              Use available defaults
-            </button>
-          </div>
-        ) : null}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent-strong"><Coins size={19} aria-hidden="true" /></span>
@@ -757,7 +737,7 @@ export function JobInterviewOnboardingClient({
           </div>
           <button
             type="submit"
-            disabled={pending || !reviewedPlanAvailable || (draft.targetSelection === "site" && !target)}
+            disabled={pending || (draft.targetSelection === "site" && !target)}
             className="inline-flex min-h-[46px] min-w-[190px] items-center justify-center gap-3 rounded-lg bg-primary px-6 text-[13px] font-bold text-white transition duration-200 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:scale-press disabled:cursor-not-allowed disabled:opacity-40"
           >
             Start interview

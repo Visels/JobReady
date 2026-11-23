@@ -784,10 +784,10 @@ export class JobInterviewVoiceSessionService {
       );
     }
 
-    if (!session.interviewPlan || session.interviewTurns.length === 0) {
+    if (session.interviewTurns.length === 0) {
       throw new JobInterviewVoiceSessionError(
         "invalid_input",
-        "Interview session is missing its reviewed plan or persisted questions.",
+        "Interview session has no saved questions. Please set up a new interview.",
       );
     }
   }
@@ -946,7 +946,9 @@ export class JobInterviewVoiceSessionService {
             .filter(Boolean)
             .join(" / "),
         )
-        .join("; ") || "Reviewed interview plan";
+        .join("; ") || session.interviewTurns
+          .map((turn) => turn.evaluationFramework?.name)
+          .filter(Boolean).join("; ");
     const targetContext = this.targetContext(session);
     const cvContext = this.candidateDocumentContext(session);
     const roleLabel =

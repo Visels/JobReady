@@ -1176,6 +1176,7 @@ export class InterviewContentService {
         usedQuestionIds,
         usedQuestionFingerprints,
         selectionContext,
+        allowSeniorityFallback: !persistedPlan,
       });
 
       for (const question of selectedQuestions) {
@@ -1637,20 +1638,8 @@ export class InterviewContentService {
     context: ResolvedContext,
     focusMode: InterviewFocusMode,
   ) {
-    const template = this.findTemplate(input, context, focusMode);
-    if (!template) {
-      throw new InterviewContentError(
-        "not_found",
-        "No reviewed plan or compatible plan template was found.",
-        {
-          roleFamilySlug: input.roleFamilySlug,
-          jobRoleSlug: input.jobRoleSlug ?? null,
-          senioritySlug: input.senioritySlug,
-          focusMode,
-          preferredFrameworkKey: input.preferredFrameworkKey ?? null,
-        },
-      );
-    }
+    const template = this.findTemplate(input, context, focusMode) ??
+      await this.buildAutomaticTemplate(input, context, focusMode);
 
     const [frameworks, competencies] = await Promise.all([
       this.prisma.evaluationFramework.findMany({
@@ -1732,9 +1721,68 @@ export class InterviewContentService {
         promptVersion: DEFAULT_PROMPT_VERSION,
         questionSetVersion: `${template.key}-questions`,
         rubricVersion: `${template.key}-rubrics`,
-        rationale: `Composed from reviewed ${template.label} template.`,
+        rationale: `Composed from existing ${template.label} modules.`,
       },
       modules,
+    };
+  }
+
+  private async buildAutomaticTemplate(
+    input: ComposeInterviewPlanInput,
+    context: ResolvedContext,
+    focusMode: InterviewFocusMode,
+  ): Promise<InterviewPlanTemplateDto> {
+    // Reuse a role area's structure without requiring a plan for every level,
+    // title, stage and focus combination. Question selection still uses the
+    // candidate's actual context and requires reviewed questions and rubrics.
+    const candidates = await this.prisma.interviewPlan.findMany({
+      where: {
+        status: "published",
+        retiredAt: null,
+        companyId: null,
+        roleFamilyId: context.roleFamily.id,
+        OR: [{ marketId: null }, { marketId: context.market?.id ?? null }],
+      },
+      include: interviewPlanInclude,
+      orderBy: [{ version: "desc" }, { slug: "asc" }],
+    });
+    const score = (plan: ReviewedPlan) =>
+      (plan.focusMode === focusMode ? 100 : 0) +
+      (plan.jobRoleId === context.jobRole?.id ? 20 : 0) +
+      (plan.seniorityLevelId === context.seniorityLevel.id ? 10 : 0);
+    const donor = candidates.sort((left, right) => score(right) - score(left)).at(0);
+    const existingTemplate = PLAN_TEMPLATES.find(
+      (item) => item.roleFamilySlug === context.roleFamily.slug && item.focusMode === focusMode,
+    );
+    const genericModules = PLAN_TEMPLATES
+      .find((item) => item.key === "software-engineering-recommended-v1")!
+      .modules.filter((module) => module.frameworkKey !== "technical_concept");
+    const modules = donor?.modules.map((module) => ({
+      frameworkKey: module.evaluationFramework.key,
+      competencySlug: module.competency?.slug ?? "stakeholder-communication",
+      weight: module.weight,
+      displayOrder: module.displayOrder,
+      rubricKey: module.rubricKey ?? DEFAULT_RUBRIC_KEY_BY_FRAMEWORK[module.evaluationFramework.key],
+    })) ?? existingTemplate?.modules ?? genericModules;
+    const focusedModules = modules.filter((module) =>
+      focusMode === "behavioral_focus"
+        ? ["behavioral_star", "situational", "general"].includes(module.frameworkKey)
+        : focusMode === "role_specific_focus"
+          ? [input.preferredFrameworkKey ?? "role_knowledge", "role_knowledge", "general"].includes(module.frameworkKey)
+          : true,
+    );
+
+    return {
+      key: `automatic-${donor?.id ?? existingTemplate?.key ?? "general"}-${focusMode}-v1`,
+      label: context.roleFamily.name,
+      version: CONTENT_TEMPLATE_VERSION,
+      roleFamilySlug: context.roleFamily.slug,
+      jobRoleSlugs: [],
+      senioritySlugs: [context.seniorityLevel.slug],
+      stageSlugs: [],
+      focusMode,
+      preferredFrameworkKey: input.preferredFrameworkKey ?? null,
+      modules: focusedModules.length ? focusedModules : genericModules,
     };
   }
 
@@ -1853,6 +1901,7 @@ export class InterviewContentService {
     usedQuestionIds: Set<string>;
     usedQuestionFingerprints: QuestionFingerprint[];
     selectionContext: NormalizedQuestionSelectionContext;
+    allowSeniorityFallback?: boolean;
   }) {
     const candidates = await this.prisma.question.findMany({
       where: {
@@ -1871,6 +1920,7 @@ export class InterviewContentService {
           input.planModule,
           input.context,
           input.selectionContext,
+          input.allowSeniorityFallback,
         ),
       )
       .filter((entry): entry is RankedQuestion => Boolean(entry))
@@ -1907,6 +1957,7 @@ export class InterviewContentService {
     planModule: ModuleCandidate,
     context: ResolvedContext,
     selectionContext: NormalizedQuestionSelectionContext,
+    allowSeniorityFallback = false,
   ): RankedQuestion | null {
     const questionReview = hasPublishedReview(question.contentReviews, this.now());
     if (!questionReview || question.reviewedAt === null) return null;
@@ -1921,7 +1972,8 @@ export class InterviewContentService {
 
     if (
       question.seniorityLevelId &&
-      question.seniorityLevelId !== context.seniorityLevel.id
+      question.seniorityLevelId !== context.seniorityLevel.id &&
+      !allowSeniorityFallback
     ) {
       return null;
     }
@@ -1968,7 +2020,9 @@ export class InterviewContentService {
       return null;
     }
 
-    let score = 0;
+    // Exact-level and neutral questions always come before other levels.
+    let score = question.seniorityLevelId &&
+      question.seniorityLevelId !== context.seniorityLevel.id ? -10000 : 0;
     let level: InterviewContentSelectionLevel = "general";
     const reasons: string[] = [];
 

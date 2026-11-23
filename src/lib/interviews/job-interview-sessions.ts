@@ -1112,17 +1112,6 @@ export class JobInterviewSessionService {
         },
       });
 
-      if (plan.plan.source !== "reviewed_plan" || !plan.plan.id) {
-        throw new JobInterviewSessionError(
-          "plan_unavailable",
-          "A reviewed interview plan is required before a job interview session can start.",
-          {
-            templateKey: plan.plan.templateKey,
-            warnings: plan.warnings,
-          },
-        );
-      }
-
       return plan;
     } catch (error) {
       if (error instanceof JobInterviewSessionError) {
@@ -1130,14 +1119,10 @@ export class JobInterviewSessionService {
       }
 
       if (error instanceof InterviewContentError) {
-        if (
-          error.code === "not_found" &&
-          error.message ===
-            "No reviewed plan or compatible plan template was found."
-        ) {
+        if (error.code === "not_found") {
           throw new JobInterviewSessionError(
             "plan_unavailable",
-            "This interview setup does not have a reviewed plan yet. Choose another role, experience level, or question focus.",
+            "We couldn’t find enough questions for this role yet. Please try another role area.",
             error.details,
           );
         }
@@ -1261,8 +1246,7 @@ export class JobInterviewSessionService {
     if (
       !session.market ||
       !session.roleFamily ||
-      !session.seniorityLevel ||
-      !session.interviewPlan
+      !session.seniorityLevel
     ) {
       throw new JobInterviewSessionError(
         "invalid_input",
@@ -1318,9 +1302,9 @@ export class JobInterviewSessionService {
               : null,
         },
         plan: {
-          id: session.interviewPlan.id,
-          slug: session.interviewPlan.slug,
-          version: session.interviewPlan.version,
+          id: session.interviewPlan?.id ?? null,
+          slug: session.interviewPlan?.slug ?? String(planSnapshot.slug ?? "automatic"),
+          version: session.interviewPlan?.version ?? Number(planSnapshot.version ?? 1),
           source:
             typeof planSnapshot.source === "string"
               ? planSnapshot.source
@@ -1330,13 +1314,13 @@ export class JobInterviewSessionService {
               ? planSnapshot.templateKey
               : null,
           promptVersion:
-            session.promptVersion ?? session.interviewPlan.promptVersion,
+            session.promptVersion ?? session.interviewPlan?.promptVersion ?? String(planSnapshot.promptVersion ?? ""),
           rubricVersion:
-            session.rubricVersion ?? session.interviewPlan.rubricVersion,
+            session.rubricVersion ?? session.interviewPlan?.rubricVersion ?? String(planSnapshot.rubricVersion ?? ""),
           questionSetVersion:
             session.questionSetVersion ??
-            session.interviewPlan.questionSetVersion,
-          moduleSummary: session.interviewPlan.modules.map((planModule) => ({
+            session.interviewPlan?.questionSetVersion ?? String(planSnapshot.questionSetVersion ?? ""),
+          moduleSummary: session.interviewPlan?.modules.map((planModule) => ({
             key: planModule.evaluationFramework.key,
             title: planModule.evaluationFramework.name,
             competencyKey: planModule.competency?.slug ?? "general",
@@ -1346,14 +1330,16 @@ export class JobInterviewSessionService {
               planModule.evaluationFramework.key,
               planModule.competency?.slug ?? "general",
             ),
-          })),
+          })) ?? (Array.isArray(planSnapshot.moduleSummary)
+            ? planSnapshot.moduleSummary as JobInterviewSessionResponse["session"]["plan"]["moduleSummary"]
+            : []),
         },
         questionSet: {
           persisted: session.interviewTurns.length > 0,
           turnCount: session.interviewTurns.length,
           version:
             session.questionSetVersion ??
-            session.interviewPlan.questionSetVersion,
+            session.interviewPlan?.questionSetVersion ?? String(planSnapshot.questionSetVersion ?? ""),
         },
         support: {
           noPosting:

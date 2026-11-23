@@ -134,7 +134,7 @@ export const jobInterviewSessionResponseSchema = z.object({
       consentedAt: z.string().nullable(),
     }),
     plan: z.object({
-      id: z.string(),
+      id: z.string().nullable(),
       slug: z.string(),
       version: z.number(),
       source: z.string(),

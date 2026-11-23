@@ -64,6 +64,13 @@ const shortDescription = build({ ...manualDraft, manualJobDescription: "Too shor
 assert.equal(shortDescription.ok, false);
 if (!shortDescription.ok) assert.ok(shortDescription.fieldErrors.manualJobDescription);
 
+// These valid combinations have no pre-published plan in the fixture.
+for (const seniorityLevelId of options.seniorityLevels.map((level) => level.id)) {
+  for (const focusMode of ["recommended", "behavioral_focus", "role_specific_focus"] as const) {
+    assert.equal(build({ ...manualDraft, seniorityLevelId, focusMode }).ok, true);
+  }
+}
+
 const oldDuration = build({ ...manualDraft, durationMinutes: 45 });
 assert.equal(oldDuration.ok, false);
 if (!oldDuration.ok) assert.ok(oldDuration.fieldErrors.durationMinutes);
